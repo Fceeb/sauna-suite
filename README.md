@@ -3,16 +3,17 @@
 Sauna Suite is an open-source Home Assistant project for a professional,
 modular and HACS-compatible sauna dashboard experience.
 
-This repository currently contains the project foundation only. The first
-implementation is a minimal Lovelace custom card placeholder named
+This repository currently contains the project foundation and a monitoring-only
+multi-zone temperature display for the Lovelace custom card named
 `custom:sauna-suite-card`.
 
 ![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
 
 ## Status
 
-Early foundation. No sauna control logic, battery optimization, alarms or
-safety-critical behavior is implemented yet.
+Early development. This project does not include sauna heater switching, Home
+Assistant temperature regulation, battery optimization, alarms or any
+safety-critical control behavior.
 
 ## Planned Capabilities
 
@@ -97,6 +98,42 @@ Resource type:
 JavaScript module
 ```
 
+## Configuration Example
+
+All settings can be configured through the visual editor. YAML is optional for
+manual setups:
+
+```yaml
+type: custom:sauna-suite-card
+name: Sauna Suite
+main_switch_entity: switch.sauna_main
+temperature_top_entity: sensor.sauna_temperature_top
+temperature_middle_entity: sensor.sauna_temperature_middle
+temperature_bottom_entity: sensor.sauna_temperature_bottom
+outside_temperature_entity: sensor.outside_temperature
+target_temperature_entity: number.sauna_target_temperature
+control_temperature_mode: weighted_average
+weight_top: 3
+weight_middle: 2
+weight_bottom: 1
+show_outside_temperature: true
+show_temperature_zones: true
+```
+
+Supported `control_temperature_mode` values:
+
+- `top`
+- `middle`
+- `bottom`
+- `average`
+- `weighted_average`
+- `minimum`
+- `maximum`
+
+Weighted averages use only sensors with valid numeric states. Missing,
+`unavailable`, `unknown` and non-numeric sensor states are ignored instead of
+being treated as zero.
+
 ## Development
 
 ```bash
@@ -108,7 +145,7 @@ npm run build
 
 ## Card
 
-The placeholder card is registered as:
+The card is registered as:
 
 ```yaml
 type: custom:sauna-suite-card

@@ -13,12 +13,13 @@
 - Temperature zone labels
 - Basic preview states
 - German and English UI strings
+- Monitoring-only multi-zone temperature model
+- Configurable control-temperature display mode
 
 ## Phase 3: Temperature Insights
 
-- Top, middle and bottom sensor support
-- Optional outside-temperature sensor
-- Weighted temperature calculation
+- More detailed temperature presentation
+- Optional outside-temperature context
 - Heat-up progress display
 
 ## Phase 4: Sauna Sessions
