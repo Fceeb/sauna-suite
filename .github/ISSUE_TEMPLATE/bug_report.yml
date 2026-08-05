@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a reproducible problem in Sauna Suite.
+title: '[Bug]: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for helping improve Sauna Suite.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which Sauna Suite version or commit are you using?
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest reproducible example.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant browser console logs or screenshots.
