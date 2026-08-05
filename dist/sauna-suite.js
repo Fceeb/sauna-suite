@@ -3,18 +3,18 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const I = globalThis, ue = I.ShadowRoot && (I.ShadyCSS === void 0 || I.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, de = Symbol(), _e = /* @__PURE__ */ new WeakMap();
-let Ue = class {
+const W = globalThis, ae = W.ShadowRoot && (W.ShadyCSS === void 0 || W.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ue = Symbol(), ge = /* @__PURE__ */ new WeakMap();
+let Le = class {
   constructor(e, r, i) {
-    if (this._$cssResult$ = !0, i !== de) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, i !== ue) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = e, this.t = r;
   }
   get styleSheet() {
     let e = this.o;
     const r = this.t;
-    if (ue && e === void 0) {
+    if (ae && e === void 0) {
       const i = r !== void 0 && r.length === 1;
-      i && (e = _e.get(r)), e === void 0 && ((this.o = e = new CSSStyleSheet()).replaceSync(this.cssText), i && _e.set(r, e));
+      i && (e = ge.get(r)), e === void 0 && ((this.o = e = new CSSStyleSheet()).replaceSync(this.cssText), i && ge.set(r, e));
     }
     return e;
   }
@@ -22,33 +22,33 @@ let Ue = class {
     return this.cssText;
   }
 };
-const Xe = (t) => new Ue(typeof t == "string" ? t : t + "", void 0, de), ze = (t, ...e) => {
+const nt = (t) => new Le(typeof t == "string" ? t : t + "", void 0, ue), ke = (t, ...e) => {
   const r = t.length === 1 ? t[0] : e.reduce((i, n, s) => i + ((o) => {
     if (o._$cssResult$ === !0) return o.cssText;
     if (typeof o == "number") return o;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + o + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(n) + t[s + 1], t[0]);
-  return new Ue(r, t, de);
-}, et = (t, e) => {
-  if (ue) t.adoptedStyleSheets = e.map((r) => r instanceof CSSStyleSheet ? r : r.styleSheet);
+  return new Le(r, t, ue);
+}, st = (t, e) => {
+  if (ae) t.adoptedStyleSheets = e.map((r) => r instanceof CSSStyleSheet ? r : r.styleSheet);
   else for (const r of e) {
-    const i = document.createElement("style"), n = I.litNonce;
+    const i = document.createElement("style"), n = W.litNonce;
     n !== void 0 && i.setAttribute("nonce", n), i.textContent = r.cssText, t.appendChild(i);
   }
-}, be = ue ? (t) => t : (t) => t instanceof CSSStyleSheet ? ((e) => {
+}, fe = ae ? (t) => t : (t) => t instanceof CSSStyleSheet ? ((e) => {
   let r = "";
   for (const i of e.cssRules) r += i.cssText;
-  return Xe(r);
+  return nt(r);
 })(t) : t;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: tt, defineProperty: rt, getOwnPropertyDescriptor: it, getOwnPropertyNames: nt, getOwnPropertySymbols: st, getPrototypeOf: ot } = Object, b = globalThis, ve = b.trustedTypes, at = ve ? ve.emptyScript : "", Y = b.reactiveElementPolyfillSupport, H = (t, e) => t, W = { toAttribute(t, e) {
+const { is: ot, defineProperty: at, getOwnPropertyDescriptor: ut, getOwnPropertyNames: dt, getOwnPropertySymbols: lt, getPrototypeOf: ct } = Object, y = globalThis, _e = y.trustedTypes, ht = _e ? _e.emptyScript : "", Q = y.reactiveElementPolyfillSupport, z = (t, e) => t, K = { toAttribute(t, e) {
   switch (e) {
     case Boolean:
-      t = t ? at : null;
+      t = t ? ht : null;
       break;
     case Object:
     case Array:
@@ -73,9 +73,9 @@ const { is: tt, defineProperty: rt, getOwnPropertyDescriptor: it, getOwnProperty
       }
   }
   return r;
-} }, ce = (t, e) => !tt(t, e), ye = { attribute: !0, type: String, converter: W, reflect: !1, useDefault: !1, hasChanged: ce };
-Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), b.litPropertyMetadata ?? (b.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
-let A = class extends HTMLElement {
+} }, de = (t, e) => !ot(t, e), ye = { attribute: !0, type: String, converter: K, reflect: !1, useDefault: !1, hasChanged: de };
+Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), y.litPropertyMetadata ?? (y.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+let x = class extends HTMLElement {
   static addInitializer(e) {
     this._$Ei(), (this.l ?? (this.l = [])).push(e);
   }
@@ -85,32 +85,32 @@ let A = class extends HTMLElement {
   static createProperty(e, r = ye) {
     if (r.state && (r.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(e) && ((r = Object.create(r)).wrapped = !0), this.elementProperties.set(e, r), !r.noAccessor) {
       const i = Symbol(), n = this.getPropertyDescriptor(e, i, r);
-      n !== void 0 && rt(this.prototype, e, n);
+      n !== void 0 && at(this.prototype, e, n);
     }
   }
   static getPropertyDescriptor(e, r, i) {
-    const { get: n, set: s } = it(this.prototype, e) ?? { get() {
+    const { get: n, set: s } = ut(this.prototype, e) ?? { get() {
       return this[r];
     }, set(o) {
       this[r] = o;
     } };
     return { get: n, set(o) {
-      const l = n == null ? void 0 : n.call(this);
-      s == null || s.call(this, o), this.requestUpdate(e, l, i);
+      const u = n == null ? void 0 : n.call(this);
+      s == null || s.call(this, o), this.requestUpdate(e, u, i);
     }, configurable: !0, enumerable: !0 };
   }
   static getPropertyOptions(e) {
     return this.elementProperties.get(e) ?? ye;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(H("elementProperties"))) return;
-    const e = ot(this);
+    if (this.hasOwnProperty(z("elementProperties"))) return;
+    const e = ct(this);
     e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(H("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(H("properties"))) {
-      const r = this.properties, i = [...nt(r), ...st(r)];
+    if (this.hasOwnProperty(z("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(z("properties"))) {
+      const r = this.properties, i = [...dt(r), ...lt(r)];
       for (const n of i) this.createProperty(n, r[n]);
     }
     const e = this[Symbol.metadata];
@@ -129,8 +129,8 @@ let A = class extends HTMLElement {
     const r = [];
     if (Array.isArray(e)) {
       const i = new Set(e.flat(1 / 0).reverse());
-      for (const n of i) r.unshift(be(n));
-    } else e !== void 0 && r.push(be(e));
+      for (const n of i) r.unshift(fe(n));
+    } else e !== void 0 && r.push(fe(e));
     return r;
   }
   static _$Eu(e, r) {
@@ -159,7 +159,7 @@ let A = class extends HTMLElement {
   }
   createRenderRoot() {
     const e = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return et(e, this.constructor.elementStyles), e;
+    return st(e, this.constructor.elementStyles), e;
   }
   connectedCallback() {
     var e;
@@ -184,7 +184,7 @@ let A = class extends HTMLElement {
     var s;
     const i = this.constructor.elementProperties.get(e), n = this.constructor._$Eu(e, i);
     if (n !== void 0 && i.reflect === !0) {
-      const o = (((s = i.converter) == null ? void 0 : s.toAttribute) !== void 0 ? i.converter : W).toAttribute(r, i.type);
+      const o = (((s = i.converter) == null ? void 0 : s.toAttribute) !== void 0 ? i.converter : K).toAttribute(r, i.type);
       this._$Em = e, o == null ? this.removeAttribute(n) : this.setAttribute(n, o), this._$Em = null;
     }
   }
@@ -192,17 +192,17 @@ let A = class extends HTMLElement {
     var s, o;
     const i = this.constructor, n = i._$Eh.get(e);
     if (n !== void 0 && this._$Em !== n) {
-      const l = i.getPropertyOptions(n), a = typeof l.converter == "function" ? { fromAttribute: l.converter } : ((s = l.converter) == null ? void 0 : s.fromAttribute) !== void 0 ? l.converter : W;
+      const u = i.getPropertyOptions(n), a = typeof u.converter == "function" ? { fromAttribute: u.converter } : ((s = u.converter) == null ? void 0 : s.fromAttribute) !== void 0 ? u.converter : K;
       this._$Em = n;
-      const d = a.fromAttribute(r, l.type);
-      this[n] = d ?? ((o = this._$Ej) == null ? void 0 : o.get(n)) ?? d, this._$Em = null;
+      const l = a.fromAttribute(r, u.type);
+      this[n] = l ?? ((o = this._$Ej) == null ? void 0 : o.get(n)) ?? l, this._$Em = null;
     }
   }
   requestUpdate(e, r, i, n = !1, s) {
     var o;
     if (e !== void 0) {
-      const l = this.constructor;
-      if (n === !1 && (s = this[e]), i ?? (i = l.getPropertyOptions(e)), !((i.hasChanged ?? ce)(s, r) || i.useDefault && i.reflect && s === ((o = this._$Ej) == null ? void 0 : o.get(e)) && !this.hasAttribute(l._$Eu(e, i)))) return;
+      const u = this.constructor;
+      if (n === !1 && (s = this[e]), i ?? (i = u.getPropertyOptions(e)), !((i.hasChanged ?? de)(s, r) || i.useDefault && i.reflect && s === ((o = this._$Ej) == null ? void 0 : o.get(e)) && !this.hasAttribute(u._$Eu(e, i)))) return;
       this.C(e, r, i);
     }
     this.isUpdatePending === !1 && (this._$ES = this._$EP());
@@ -233,8 +233,8 @@ let A = class extends HTMLElement {
       }
       const n = this.constructor.elementProperties;
       if (n.size > 0) for (const [s, o] of n) {
-        const { wrapped: l } = o, a = this[s];
-        l !== !0 || this._$AL.has(s) || a === void 0 || this.C(s, void 0, o, a);
+        const { wrapped: u } = o, a = this[s];
+        u !== !0 || this._$AL.has(s) || a === void 0 || this.C(s, void 0, o, a);
       }
     }
     let e = !1;
@@ -278,59 +278,59 @@ let A = class extends HTMLElement {
   firstUpdated(e) {
   }
 };
-A.elementStyles = [], A.shadowRootOptions = { mode: "open" }, A[H("elementProperties")] = /* @__PURE__ */ new Map(), A[H("finalized")] = /* @__PURE__ */ new Map(), Y == null || Y({ ReactiveElement: A }), (b.reactiveElementVersions ?? (b.reactiveElementVersions = [])).push("2.1.2");
+x.elementStyles = [], x.shadowRootOptions = { mode: "open" }, x[z("elementProperties")] = /* @__PURE__ */ new Map(), x[z("finalized")] = /* @__PURE__ */ new Map(), Q == null || Q({ ReactiveElement: x }), (y.reactiveElementVersions ?? (y.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const U = globalThis, Te = (t) => t, K = U.trustedTypes, we = K ? K.createPolicy("lit-html", { createHTML: (t) => t }) : void 0, Fe = "$lit$", _ = `lit$${Math.random().toFixed(9).slice(2)}$`, Le = "?" + _, lt = `<${Le}>`, E = document, z = () => E.createComment(""), F = (t) => t === null || typeof t != "object" && typeof t != "function", he = Array.isArray, ut = (t) => he(t) || typeof (t == null ? void 0 : t[Symbol.iterator]) == "function", Q = `[ 	
-\f\r]`, O = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, $e = /-->/g, Ee = />/g, y = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), Se = /'/g, Ae = /"/g, ke = /^(?:script|style|textarea|title)$/i, Be = (t) => (e, ...r) => ({ _$litType$: t, strings: e, values: r }), p = Be(1), xe = Be(2), D = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), De = /* @__PURE__ */ new WeakMap(), T = E.createTreeWalker(E, 129);
-function Ze(t, e) {
-  if (!he(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
-  return we !== void 0 ? we.createHTML(e) : e;
+const F = globalThis, be = (t) => t, q = F.trustedTypes, ve = q ? q.createPolicy("lit-html", { createHTML: (t) => t }) : void 0, Be = "$lit$", _ = `lit$${Math.random().toFixed(9).slice(2)}$`, Ve = "?" + _, pt = `<${Ve}>`, E = document, L = () => E.createComment(""), k = (t) => t === null || typeof t != "object" && typeof t != "function", le = Array.isArray, mt = (t) => le(t) || typeof (t == null ? void 0 : t[Symbol.iterator]) == "function", X = `[ 	
+\f\r]`, R = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, $e = /-->/g, we = />/g, v = RegExp(`>|${X}(?:([^\\s"'>=/]+)(${X}*=${X}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), Te = /'/g, Ee = /"/g, je = /^(?:script|style|textarea|title)$/i, Ze = (t) => (e, ...r) => ({ _$litType$: t, strings: e, values: r }), p = Ze(1), Se = Ze(2), M = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Ae = /* @__PURE__ */ new WeakMap(), $ = E.createTreeWalker(E, 129);
+function Ie(t, e) {
+  if (!le(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return ve !== void 0 ? ve.createHTML(e) : e;
 }
-const dt = (t, e) => {
+const gt = (t, e) => {
   const r = t.length - 1, i = [];
-  let n, s = e === 2 ? "<svg>" : e === 3 ? "<math>" : "", o = O;
-  for (let l = 0; l < r; l++) {
-    const a = t[l];
-    let d, c, u = -1, g = 0;
-    for (; g < a.length && (o.lastIndex = g, c = o.exec(a), c !== null); ) g = o.lastIndex, o === O ? c[1] === "!--" ? o = $e : c[1] !== void 0 ? o = Ee : c[2] !== void 0 ? (ke.test(c[2]) && (n = RegExp("</" + c[2], "g")), o = y) : c[3] !== void 0 && (o = y) : o === y ? c[0] === ">" ? (o = n ?? O, u = -1) : c[1] === void 0 ? u = -2 : (u = o.lastIndex - c[2].length, d = c[1], o = c[3] === void 0 ? y : c[3] === '"' ? Ae : Se) : o === Ae || o === Se ? o = y : o === $e || o === Ee ? o = O : (o = y, n = void 0);
-    const f = o === y && t[l + 1].startsWith("/>") ? " " : "";
-    s += o === O ? a + lt : u >= 0 ? (i.push(d), a.slice(0, u) + Fe + a.slice(u) + _ + f) : a + _ + (u === -2 ? l : f);
+  let n, s = e === 2 ? "<svg>" : e === 3 ? "<math>" : "", o = R;
+  for (let u = 0; u < r; u++) {
+    const a = t[u];
+    let l, c, d = -1, g = 0;
+    for (; g < a.length && (o.lastIndex = g, c = o.exec(a), c !== null); ) g = o.lastIndex, o === R ? c[1] === "!--" ? o = $e : c[1] !== void 0 ? o = we : c[2] !== void 0 ? (je.test(c[2]) && (n = RegExp("</" + c[2], "g")), o = v) : c[3] !== void 0 && (o = v) : o === v ? c[0] === ">" ? (o = n ?? R, d = -1) : c[1] === void 0 ? d = -2 : (d = o.lastIndex - c[2].length, l = c[1], o = c[3] === void 0 ? v : c[3] === '"' ? Ee : Te) : o === Ee || o === Te ? o = v : o === $e || o === we ? o = R : (o = v, n = void 0);
+    const f = o === v && t[u + 1].startsWith("/>") ? " " : "";
+    s += o === R ? a + pt : d >= 0 ? (i.push(l), a.slice(0, d) + Be + a.slice(d) + _ + f) : a + _ + (d === -2 ? u : f);
   }
-  return [Ze(t, s + (t[r] || "<?>") + (e === 2 ? "</svg>" : e === 3 ? "</math>" : "")), i];
+  return [Ie(t, s + (t[r] || "<?>") + (e === 2 ? "</svg>" : e === 3 ? "</math>" : "")), i];
 };
-class L {
+class B {
   constructor({ strings: e, _$litType$: r }, i) {
     let n;
     this.parts = [];
     let s = 0, o = 0;
-    const l = e.length - 1, a = this.parts, [d, c] = dt(e, r);
-    if (this.el = L.createElement(d, i), T.currentNode = this.el.content, r === 2 || r === 3) {
-      const u = this.el.content.firstChild;
-      u.replaceWith(...u.childNodes);
+    const u = e.length - 1, a = this.parts, [l, c] = gt(e, r);
+    if (this.el = B.createElement(l, i), $.currentNode = this.el.content, r === 2 || r === 3) {
+      const d = this.el.content.firstChild;
+      d.replaceWith(...d.childNodes);
     }
-    for (; (n = T.nextNode()) !== null && a.length < l; ) {
+    for (; (n = $.nextNode()) !== null && a.length < u; ) {
       if (n.nodeType === 1) {
-        if (n.hasAttributes()) for (const u of n.getAttributeNames()) if (u.endsWith(Fe)) {
-          const g = c[o++], f = n.getAttribute(u).split(_), V = /([.?@])?(.*)/.exec(g);
-          a.push({ type: 1, index: s, name: V[2], strings: f, ctor: V[1] === "." ? ht : V[1] === "?" ? pt : V[1] === "@" ? mt : q }), n.removeAttribute(u);
-        } else u.startsWith(_) && (a.push({ type: 6, index: s }), n.removeAttribute(u));
-        if (ke.test(n.tagName)) {
-          const u = n.textContent.split(_), g = u.length - 1;
+        if (n.hasAttributes()) for (const d of n.getAttributeNames()) if (d.endsWith(Be)) {
+          const g = c[o++], f = n.getAttribute(d).split(_), I = /([.?@])?(.*)/.exec(g);
+          a.push({ type: 1, index: s, name: I[2], strings: f, ctor: I[1] === "." ? _t : I[1] === "?" ? yt : I[1] === "@" ? bt : J }), n.removeAttribute(d);
+        } else d.startsWith(_) && (a.push({ type: 6, index: s }), n.removeAttribute(d));
+        if (je.test(n.tagName)) {
+          const d = n.textContent.split(_), g = d.length - 1;
           if (g > 0) {
-            n.textContent = K ? K.emptyScript : "";
-            for (let f = 0; f < g; f++) n.append(u[f], z()), T.nextNode(), a.push({ type: 2, index: ++s });
-            n.append(u[g], z());
+            n.textContent = q ? q.emptyScript : "";
+            for (let f = 0; f < g; f++) n.append(d[f], L()), $.nextNode(), a.push({ type: 2, index: ++s });
+            n.append(d[g], L());
           }
         }
-      } else if (n.nodeType === 8) if (n.data === Le) a.push({ type: 2, index: s });
+      } else if (n.nodeType === 8) if (n.data === Ve) a.push({ type: 2, index: s });
       else {
-        let u = -1;
-        for (; (u = n.data.indexOf(_, u + 1)) !== -1; ) a.push({ type: 7, index: s }), u += _.length - 1;
+        let d = -1;
+        for (; (d = n.data.indexOf(_, d + 1)) !== -1; ) a.push({ type: 7, index: s }), d += _.length - 1;
       }
       s++;
     }
@@ -340,14 +340,14 @@ class L {
     return i.innerHTML = e, i;
   }
 }
-function M(t, e, r = t, i) {
-  var o, l;
-  if (e === D) return e;
+function C(t, e, r = t, i) {
+  var o, u;
+  if (e === M) return e;
   let n = i !== void 0 ? (o = r._$Co) == null ? void 0 : o[i] : r._$Cl;
-  const s = F(e) ? void 0 : e._$litDirective$;
-  return (n == null ? void 0 : n.constructor) !== s && ((l = n == null ? void 0 : n._$AO) == null || l.call(n, !1), s === void 0 ? n = void 0 : (n = new s(t), n._$AT(t, r, i)), i !== void 0 ? (r._$Co ?? (r._$Co = []))[i] = n : r._$Cl = n), n !== void 0 && (e = M(t, n._$AS(t, e.values), n, i)), e;
+  const s = k(e) ? void 0 : e._$litDirective$;
+  return (n == null ? void 0 : n.constructor) !== s && ((u = n == null ? void 0 : n._$AO) == null || u.call(n, !1), s === void 0 ? n = void 0 : (n = new s(t), n._$AT(t, r, i)), i !== void 0 ? (r._$Co ?? (r._$Co = []))[i] = n : r._$Cl = n), n !== void 0 && (e = C(t, n._$AS(t, e.values), n, i)), e;
 }
-class ct {
+class ft {
   constructor(e, r) {
     this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = r;
   }
@@ -359,16 +359,16 @@ class ct {
   }
   u(e) {
     const { el: { content: r }, parts: i } = this._$AD, n = ((e == null ? void 0 : e.creationScope) ?? E).importNode(r, !0);
-    T.currentNode = n;
-    let s = T.nextNode(), o = 0, l = 0, a = i[0];
+    $.currentNode = n;
+    let s = $.nextNode(), o = 0, u = 0, a = i[0];
     for (; a !== void 0; ) {
       if (o === a.index) {
-        let d;
-        a.type === 2 ? d = new Z(s, s.nextSibling, this, e) : a.type === 1 ? d = new a.ctor(s, a.name, a.strings, this, e) : a.type === 6 && (d = new gt(s, this, e)), this._$AV.push(d), a = i[++l];
+        let l;
+        a.type === 2 ? l = new Z(s, s.nextSibling, this, e) : a.type === 1 ? l = new a.ctor(s, a.name, a.strings, this, e) : a.type === 6 && (l = new vt(s, this, e)), this._$AV.push(l), a = i[++u];
       }
-      o !== (a == null ? void 0 : a.index) && (s = T.nextNode(), o++);
+      o !== (a == null ? void 0 : a.index) && (s = $.nextNode(), o++);
     }
-    return T.currentNode = E, n;
+    return $.currentNode = E, n;
   }
   p(e) {
     let r = 0;
@@ -395,7 +395,7 @@ class Z {
     return this._$AB;
   }
   _$AI(e, r = this) {
-    e = M(this, e, r), F(e) ? e === h || e == null || e === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : e !== this._$AH && e !== D && this._(e) : e._$litType$ !== void 0 ? this.$(e) : e.nodeType !== void 0 ? this.T(e) : ut(e) ? this.k(e) : this._(e);
+    e = C(this, e, r), k(e) ? e === h || e == null || e === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : e !== this._$AH && e !== M && this._(e) : e._$litType$ !== void 0 ? this.$(e) : e.nodeType !== void 0 ? this.T(e) : mt(e) ? this.k(e) : this._(e);
   }
   O(e) {
     return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -404,33 +404,33 @@ class Z {
     this._$AH !== e && (this._$AR(), this._$AH = this.O(e));
   }
   _(e) {
-    this._$AH !== h && F(this._$AH) ? this._$AA.nextSibling.data = e : this.T(E.createTextNode(e)), this._$AH = e;
+    this._$AH !== h && k(this._$AH) ? this._$AA.nextSibling.data = e : this.T(E.createTextNode(e)), this._$AH = e;
   }
   $(e) {
     var s;
-    const { values: r, _$litType$: i } = e, n = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = L.createElement(Ze(i.h, i.h[0]), this.options)), i);
+    const { values: r, _$litType$: i } = e, n = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = B.createElement(Ie(i.h, i.h[0]), this.options)), i);
     if (((s = this._$AH) == null ? void 0 : s._$AD) === n) this._$AH.p(r);
     else {
-      const o = new ct(n, this), l = o.u(this.options);
-      o.p(r), this.T(l), this._$AH = o;
+      const o = new ft(n, this), u = o.u(this.options);
+      o.p(r), this.T(u), this._$AH = o;
     }
   }
   _$AC(e) {
-    let r = De.get(e.strings);
-    return r === void 0 && De.set(e.strings, r = new L(e)), r;
+    let r = Ae.get(e.strings);
+    return r === void 0 && Ae.set(e.strings, r = new B(e)), r;
   }
   k(e) {
-    he(this._$AH) || (this._$AH = [], this._$AR());
+    le(this._$AH) || (this._$AH = [], this._$AR());
     const r = this._$AH;
     let i, n = 0;
-    for (const s of e) n === r.length ? r.push(i = new Z(this.O(z()), this.O(z()), this, this.options)) : i = r[n], i._$AI(s), n++;
+    for (const s of e) n === r.length ? r.push(i = new Z(this.O(L()), this.O(L()), this, this.options)) : i = r[n], i._$AI(s), n++;
     n < r.length && (this._$AR(i && i._$AB.nextSibling, n), r.length = n);
   }
   _$AR(e = this._$AA.nextSibling, r) {
     var i;
     for ((i = this._$AP) == null ? void 0 : i.call(this, !1, !0, r); e !== this._$AB; ) {
-      const n = Te(e).nextSibling;
-      Te(e).remove(), e = n;
+      const n = be(e).nextSibling;
+      be(e).remove(), e = n;
     }
   }
   setConnected(e) {
@@ -438,7 +438,7 @@ class Z {
     this._$AM === void 0 && (this._$Cv = e, (r = this._$AP) == null || r.call(this, e));
   }
 }
-class q {
+class J {
   get tagName() {
     return this.element.tagName;
   }
@@ -451,11 +451,11 @@ class q {
   _$AI(e, r = this, i, n) {
     const s = this.strings;
     let o = !1;
-    if (s === void 0) e = M(this, e, r, 0), o = !F(e) || e !== this._$AH && e !== D, o && (this._$AH = e);
+    if (s === void 0) e = C(this, e, r, 0), o = !k(e) || e !== this._$AH && e !== M, o && (this._$AH = e);
     else {
-      const l = e;
-      let a, d;
-      for (e = s[0], a = 0; a < s.length - 1; a++) d = M(this, l[i + a], r, a), d === D && (d = this._$AH[a]), o || (o = !F(d) || d !== this._$AH[a]), d === h ? e = h : e !== h && (e += (d ?? "") + s[a + 1]), this._$AH[a] = d;
+      const u = e;
+      let a, l;
+      for (e = s[0], a = 0; a < s.length - 1; a++) l = C(this, u[i + a], r, a), l === M && (l = this._$AH[a]), o || (o = !k(l) || l !== this._$AH[a]), l === h ? e = h : e !== h && (e += (l ?? "") + s[a + 1]), this._$AH[a] = l;
     }
     o && !n && this.j(e);
   }
@@ -463,7 +463,7 @@ class q {
     e === h ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
   }
 }
-class ht extends q {
+class _t extends J {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -471,7 +471,7 @@ class ht extends q {
     this.element[this.name] = e === h ? void 0 : e;
   }
 }
-class pt extends q {
+class yt extends J {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -479,12 +479,12 @@ class pt extends q {
     this.element.toggleAttribute(this.name, !!e && e !== h);
   }
 }
-class mt extends q {
+class bt extends J {
   constructor(e, r, i, n, s) {
     super(e, r, i, n, s), this.type = 5;
   }
   _$AI(e, r = this) {
-    if ((e = M(this, e, r, 0) ?? h) === D) return;
+    if ((e = C(this, e, r, 0) ?? h) === M) return;
     const i = this._$AH, n = e === h && i !== h || e.capture !== i.capture || e.once !== i.once || e.passive !== i.passive, s = e !== h && (i === h || n);
     n && this.element.removeEventListener(this.name, this, i), s && this.element.addEventListener(this.name, this, e), this._$AH = e;
   }
@@ -493,7 +493,7 @@ class mt extends q {
     typeof this._$AH == "function" ? this._$AH.call(((r = this.options) == null ? void 0 : r.host) ?? this.element, e) : this._$AH.handleEvent(e);
   }
 }
-class gt {
+class vt {
   constructor(e, r, i) {
     this.element = e, this.type = 6, this._$AN = void 0, this._$AM = r, this.options = i;
   }
@@ -501,17 +501,17 @@ class gt {
     return this._$AM._$AU;
   }
   _$AI(e) {
-    M(this, e);
+    C(this, e);
   }
 }
-const X = U.litHtmlPolyfillSupport;
-X == null || X(L, Z), (U.litHtmlVersions ?? (U.litHtmlVersions = [])).push("3.3.3");
-const ft = (t, e, r) => {
+const ee = F.litHtmlPolyfillSupport;
+ee == null || ee(B, Z), (F.litHtmlVersions ?? (F.litHtmlVersions = [])).push("3.3.3");
+const $t = (t, e, r) => {
   const i = (r == null ? void 0 : r.renderBefore) ?? e;
   let n = i._$litPart$;
   if (n === void 0) {
     const s = (r == null ? void 0 : r.renderBefore) ?? null;
-    i._$litPart$ = n = new Z(e.insertBefore(z(), s), s, void 0, r ?? {});
+    i._$litPart$ = n = new Z(e.insertBefore(L(), s), s, void 0, r ?? {});
   }
   return n._$AI(t), n;
 };
@@ -521,7 +521,7 @@ const ft = (t, e, r) => {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const w = globalThis;
-class $ extends A {
+class T extends x {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -532,7 +532,7 @@ class $ extends A {
   }
   update(e) {
     const r = this.render();
-    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = ft(r, this.renderRoot, this.renderOptions);
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = $t(r, this.renderRoot, this.renderOptions);
   }
   connectedCallback() {
     var e;
@@ -543,20 +543,20 @@ class $ extends A {
     super.disconnectedCallback(), (e = this._$Do) == null || e.setConnected(!1);
   }
   render() {
-    return D;
+    return M;
   }
 }
-var He;
-$._$litElement$ = !0, $.finalized = !0, (He = w.litElementHydrateSupport) == null || He.call(w, { LitElement: $ });
-const ee = w.litElementPolyfillSupport;
-ee == null || ee({ LitElement: $ });
+var Fe;
+T._$litElement$ = !0, T.finalized = !0, (Fe = w.litElementHydrateSupport) == null || Fe.call(w, { LitElement: T });
+const te = w.litElementPolyfillSupport;
+te == null || te({ LitElement: T });
 (w.litElementVersions ?? (w.litElementVersions = [])).push("4.2.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const pe = (t) => (e, r) => {
+const ce = (t) => (e, r) => {
   r !== void 0 ? r.addInitializer(() => {
     customElements.define(t, e);
   }) : customElements.define(t, e);
@@ -566,29 +566,29 @@ const pe = (t) => (e, r) => {
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _t = { attribute: !0, type: String, converter: W, reflect: !1, hasChanged: ce }, bt = (t = _t, e, r) => {
+const wt = { attribute: !0, type: String, converter: K, reflect: !1, hasChanged: de }, Tt = (t = wt, e, r) => {
   const { kind: i, metadata: n } = r;
   let s = globalThis.litPropertyMetadata.get(n);
   if (s === void 0 && globalThis.litPropertyMetadata.set(n, s = /* @__PURE__ */ new Map()), i === "setter" && ((t = Object.create(t)).wrapped = !0), s.set(r.name, t), i === "accessor") {
     const { name: o } = r;
-    return { set(l) {
+    return { set(u) {
       const a = e.get.call(this);
-      e.set.call(this, l), this.requestUpdate(o, a, t, !0, l);
-    }, init(l) {
-      return l !== void 0 && this.C(o, void 0, t, l), l;
+      e.set.call(this, u), this.requestUpdate(o, a, t, !0, u);
+    }, init(u) {
+      return u !== void 0 && this.C(o, void 0, t, u), u;
     } };
   }
   if (i === "setter") {
     const { name: o } = r;
-    return function(l) {
+    return function(u) {
       const a = this[o];
-      e.call(this, l), this.requestUpdate(o, a, t, !0, l);
+      e.call(this, u), this.requestUpdate(o, a, t, !0, u);
     };
   }
   throw Error("Unsupported decorator location: " + i);
 };
-function P(t) {
-  return (e, r) => typeof r == "object" ? bt(t, e, r) : ((i, n, s) => {
+function O(t) {
+  return (e, r) => typeof r == "object" ? Tt(t, e, r) : ((i, n, s) => {
     const o = n.hasOwnProperty(s);
     return n.constructor.createProperty(s, i), o ? Object.getOwnPropertyDescriptor(n, s) : void 0;
   })(t, e, r);
@@ -599,13 +599,12 @@ function P(t) {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 function S(t) {
-  return P({ ...t, state: !0, attribute: !1 });
+  return O({ ...t, state: !0, attribute: !1 });
 }
-const te = {
+const xe = {
   nearTargetThreshold: 5,
-  targetReachedTolerance: 2,
-  aboveTargetThreshold: 2
-}, vt = {
+  targetReachedTolerance: 2
+}, Et = {
   unavailable: {
     line: "var(--disabled-text-color)",
     fill: "rgba(128, 128, 128, 0.12)"
@@ -631,60 +630,52 @@ const te = {
     fill: "rgba(228, 93, 63, 0.18)"
   }
 };
-function Ve(t, e) {
+function Ge(t, e) {
   if (!(t === void 0 || e === void 0))
     return t - e;
 }
-function yt(t) {
-  const e = re(
-    t.nearTargetThreshold,
-    te.nearTargetThreshold
-  ), r = re(
-    t.targetReachedTolerance,
-    te.targetReachedTolerance
-  );
+function St(t) {
   return {
-    nearTargetThreshold: e,
-    targetReachedTolerance: r,
-    aboveTargetThreshold: Math.max(
-      r,
-      re(
-        t.aboveTargetThreshold,
-        te.aboveTargetThreshold
-      )
+    nearTargetThreshold: De(
+      t.nearTargetThreshold,
+      xe.nearTargetThreshold
+    ),
+    targetReachedTolerance: De(
+      t.targetReachedTolerance,
+      xe.targetReachedTolerance
     )
   };
 }
-function Tt(t, e, r) {
-  const i = Ve(t, e);
+function At(t, e, r) {
+  const i = Ge(t, e);
   if (i === void 0)
     return "unavailable";
-  const n = yt(r);
-  return i < -20 ? "far_below" : i <= -n.nearTargetThreshold ? "heating" : i < 0 ? "near_target" : i <= n.aboveTargetThreshold ? "target_reached" : "above_target";
+  const n = St(r);
+  return i < -20 ? "far_below" : i <= -n.nearTargetThreshold ? "heating" : i < -n.targetReachedTolerance ? "near_target" : i <= n.targetReachedTolerance ? "target_reached" : "above_target";
 }
-function wt(t, e) {
+function xt(t, e) {
   return t === void 0 || e === void 0 || e <= 0 ? 0 : Math.min(Math.max(t / e, 0), 1);
 }
-function $t(t, e, r) {
+function Dt(t, e, r) {
   return {
-    difference: Ve(t, e),
-    progress: wt(t, e),
-    status: Tt(t, e, r)
+    difference: Ge(t, e),
+    progress: xt(t, e),
+    status: At(t, e, r)
   };
 }
-function je(t) {
-  return vt[t];
+function We(t) {
+  return Et[t];
 }
-function re(t, e) {
+function De(t, e) {
   return t === void 0 || !Number.isFinite(t) ? e : Math.max(0, t);
 }
-var Et = Object.defineProperty, St = Object.getOwnPropertyDescriptor, J = (t, e, r, i) => {
-  for (var n = i > 1 ? void 0 : i ? St(e, r) : e, s = t.length - 1, o; s >= 0; s--)
+var Mt = Object.defineProperty, Ct = Object.getOwnPropertyDescriptor, Y = (t, e, r, i) => {
+  for (var n = i > 1 ? void 0 : i ? Ct(e, r) : e, s = t.length - 1, o; s >= 0; s--)
     (o = t[s]) && (n = (i ? o(e, r, n) : o(n)) || n);
-  return i && n && Et(e, r, n), n;
+  return i && n && Mt(e, r, n), n;
 };
-const At = "sauna-suite-temperature-trend";
-let k = class extends $ {
+const Pt = "sauna-suite-temperature-trend";
+let V = class extends T {
   constructor() {
     super(...arguments), this.samples = [], this.status = "unavailable", this.emptyLabel = "No trend data available";
   }
@@ -694,7 +685,7 @@ let k = class extends $ {
   render() {
     if (this.samples.length < 2)
       return p`<div class="trend-empty">${this.emptyLabel}</div>`;
-    const t = je(this.status), e = this.createLinePath(), r = this.createAreaPath(e);
+    const t = We(this.status), e = this.createLinePath(), r = this.createAreaPath(e);
     return p`
       <svg class="trend" viewBox="0 0 240 80" role="img" aria-label=${this.emptyLabel}>
         <defs>
@@ -703,35 +694,35 @@ let k = class extends $ {
             <stop offset="100%" stop-color=${t.line} stop-opacity="0.02"></stop>
           </linearGradient>
         </defs>
-        ${xe`<path d=${r} fill="url(#sauna-suite-trend-fill)"></path>`}
-        ${xe`<path d=${e} fill="none" stroke=${t.line} stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>`}
+        ${Se`<path d=${r} fill="url(#sauna-suite-trend-fill)"></path>`}
+        ${Se`<path d=${e} fill="none" stroke=${t.line} stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>`}
       </svg>
     `;
   }
   createLinePath() {
-    const i = this.samples.map((a) => a.value), n = Math.min(...i), o = Math.max(...i) - n || 1, l = 224 / (this.samples.length - 1);
-    return this.samples.map((a, d) => {
-      const c = 8 + d * l, u = 72 - (a.value - n) / o * 64;
-      return `${d === 0 ? "M" : "L"} ${c.toFixed(1)} ${u.toFixed(1)}`;
+    const i = this.samples.map((a) => a.value), n = Math.min(...i), o = Math.max(...i) - n || 1, u = 224 / (this.samples.length - 1);
+    return this.samples.map((a, l) => {
+      const c = 8 + l * u, d = 72 - (a.value - n) / o * 64;
+      return `${l === 0 ? "M" : "L"} ${c.toFixed(1)} ${d.toFixed(1)}`;
     }).join(" ");
   }
   createAreaPath(t) {
     return `${t} L 232 76 L 8 76 Z`;
   }
 };
-J([
-  P({ attribute: !1 })
-], k.prototype, "samples", 2);
-J([
-  P()
-], k.prototype, "status", 2);
-J([
-  P({ attribute: "empty-label" })
-], k.prototype, "emptyLabel", 2);
-k = J([
-  pe(At)
-], k);
-const me = "custom:sauna-suite-card", xt = "sauna-suite-card", Ge = "sauna-suite-editor", Ie = [
+Y([
+  O({ attribute: !1 })
+], V.prototype, "samples", 2);
+Y([
+  O()
+], V.prototype, "status", 2);
+Y([
+  O({ attribute: "empty-label" })
+], V.prototype, "emptyLabel", 2);
+V = Y([
+  ce(Pt)
+], V);
+const he = "custom:sauna-suite-card", Ot = "sauna-suite-card", Ke = "sauna-suite-editor", qe = [
   "top",
   "middle",
   "bottom",
@@ -740,114 +731,115 @@ const me = "custom:sauna-suite-card", xt = "sauna-suite-card", Ge = "sauna-suite
   "minimum",
   "maximum"
 ];
-function le(t, e, r) {
-  if (ie(t, "value"), ie(e, "minimum"), ie(r, "maximum"), e > r)
+function oe(t, e, r) {
+  if (re(t, "value"), re(e, "minimum"), re(r, "maximum"), e > r)
     throw new RangeError("minimum must be less than or equal to maximum");
   return Math.min(Math.max(t, e), r);
 }
-function ie(t, e) {
+function re(t, e) {
   if (!Number.isFinite(t))
     throw new RangeError(`${e} must be a finite number`);
 }
-const ne = 1, Dt = 5, Mt = 2, Ct = 2, Pt = 120, Ot = 5;
-function We() {
+const Je = "Sauna Suite", ie = 1, Rt = 5, Nt = 2, Ut = 120, Ht = 5;
+function Ye() {
   return {
-    type: me,
-    name: "Sauna Suite",
+    type: he,
+    name: Je,
     control_temperature_mode: "average",
-    weight_top: ne,
-    weight_middle: ne,
-    weight_bottom: ne,
+    weight_top: ie,
+    weight_middle: ie,
+    weight_bottom: ie,
     show_outside_temperature: !1,
     show_temperature_zones: !0,
-    near_target_threshold: Dt,
-    target_reached_tolerance: Mt,
-    above_target_threshold: Ct,
+    near_target_threshold: Rt,
+    target_reached_tolerance: Nt,
     show_temperature_trend: !0,
-    trend_history_minutes: Pt,
-    trend_refresh_minutes: Ot,
+    trend_history_minutes: Ut,
+    trend_refresh_minutes: Ht,
     confirm_switch_on: !0
   };
 }
-function x(t) {
-  const e = We(), r = oe(
-    t.target_reached_tolerance,
-    e.target_reached_tolerance
-  );
-  return {
-    ...e,
-    ...t,
-    type: me,
-    control_temperature_mode: Rt(t.control_temperature_mode),
-    weight_top: se(t.weight_top, e.weight_top),
-    weight_middle: se(t.weight_middle, e.weight_middle),
-    weight_bottom: se(t.weight_bottom, e.weight_bottom),
-    show_outside_temperature: j(
+function D(t) {
+  const e = Ye(), r = {
+    type: he,
+    name: Qe(t.name, Je),
+    control_temperature_mode: zt(t.control_temperature_mode),
+    weight_top: ne(t.weight_top, e.weight_top),
+    weight_middle: ne(t.weight_middle, e.weight_middle),
+    weight_bottom: ne(t.weight_bottom, e.weight_bottom),
+    show_outside_temperature: G(
       t.show_outside_temperature,
       e.show_outside_temperature
     ),
-    show_temperature_zones: j(
+    show_temperature_zones: G(
       t.show_temperature_zones,
       e.show_temperature_zones
     ),
-    near_target_threshold: oe(
+    near_target_threshold: Me(
       t.near_target_threshold,
       e.near_target_threshold
     ),
-    target_reached_tolerance: r,
-    above_target_threshold: Math.max(
-      r,
-      oe(t.above_target_threshold, e.above_target_threshold)
+    target_reached_tolerance: Me(
+      t.target_reached_tolerance,
+      e.target_reached_tolerance
     ),
-    show_temperature_trend: j(
+    show_temperature_trend: G(
       t.show_temperature_trend,
       e.show_temperature_trend
     ),
-    trend_history_minutes: Me(
+    trend_history_minutes: Ce(
       t.trend_history_minutes,
       e.trend_history_minutes,
       15,
       1440
     ),
-    trend_refresh_minutes: Me(
+    trend_refresh_minutes: Ce(
       t.trend_refresh_minutes,
       e.trend_refresh_minutes,
       1,
       60
     ),
-    confirm_switch_on: j(t.confirm_switch_on, e.confirm_switch_on)
+    confirm_switch_on: G(t.confirm_switch_on, e.confirm_switch_on)
   };
+  return A(r, "main_switch_entity", t.main_switch_entity), A(r, "temperature_top_entity", t.temperature_top_entity), A(r, "temperature_middle_entity", t.temperature_middle_entity), A(r, "temperature_bottom_entity", t.temperature_bottom_entity), A(r, "outside_temperature_entity", t.outside_temperature_entity), A(r, "target_temperature_entity", t.target_temperature_entity), r;
 }
-function Rt(t) {
-  return typeof t == "string" && Ie.includes(t) ? t : We().control_temperature_mode;
+function zt(t) {
+  return typeof t == "string" && qe.includes(t) ? t : Ye().control_temperature_mode;
 }
-function se(t, e) {
+function ne(t, e) {
   return typeof t != "number" || !Number.isFinite(t) ? e : Math.max(0, t);
 }
-function j(t, e) {
+function G(t, e) {
   return typeof t == "boolean" ? t : e;
 }
-function oe(t, e) {
+function Me(t, e) {
   return typeof t != "number" || !Number.isFinite(t) ? e : Math.max(0, t);
 }
-function Me(t, e, r, i) {
-  return typeof t != "number" || !Number.isFinite(t) ? e : le(t, r, i);
+function Qe(t, e) {
+  return typeof t == "string" ? t : e;
 }
-function Ke(t) {
-  return C(t) === "switch" || C(t) === "input_boolean";
+function A(t, e, r) {
+  const i = Qe(r);
+  i !== void 0 && (t[e] = i);
 }
-function qe(t) {
-  return C(t) === "number" || C(t) === "input_number";
+function Ce(t, e, r, i) {
+  return typeof t != "number" || !Number.isFinite(t) ? e : oe(t, r, i);
 }
-function R(t) {
+function Xe(t) {
+  return P(t) === "switch" || P(t) === "input_boolean";
+}
+function et(t) {
+  return P(t) === "number" || P(t) === "input_number";
+}
+function N(t) {
   return !t || t.state === "unavailable" || t.state === "unknown";
 }
-async function Nt(t, e, r) {
+async function Ft(t, e, r) {
   if (!(t != null && t.callService))
     return { ok: !1, error: "Home Assistant service API is unavailable." };
-  if (!Ke(e))
+  if (!Xe(e))
     return { ok: !1, error: "Unsupported switch entity domain." };
-  const i = C(e), n = r ? "turn_on" : "turn_off";
+  const i = P(e), n = r ? "turn_on" : "turn_off";
   try {
     return await t.callService(i, n, { entity_id: e }), { ok: !0 };
   } catch (s) {
@@ -857,12 +849,12 @@ async function Nt(t, e, r) {
     };
   }
 }
-async function Ht(t, e, r, i) {
+async function Lt(t, e, r, i) {
   if (!(t != null && t.callService))
     return { ok: !1, error: "Home Assistant service API is unavailable." };
-  if (!qe(e))
+  if (!et(e))
     return { ok: !1, error: "Unsupported target temperature entity domain." };
-  const n = C(e), s = Ut(r, i);
+  const n = P(e), s = kt(r, i);
   try {
     return await t.callService(n, "set_value", {
       entity_id: e,
@@ -875,10 +867,10 @@ async function Ht(t, e, r, i) {
     };
   }
 }
-function Ce(t) {
+function Pe(t) {
   if (!t)
     return;
-  const e = ae(t, "min"), r = ae(t, "max"), i = ae(t, "step");
+  const e = se(t, "min"), r = se(t, "max"), i = se(t, "step");
   if (!(e === void 0 || r === void 0 || i === void 0 || i <= 0))
     return {
       minimum: e,
@@ -886,53 +878,53 @@ function Ce(t) {
       step: i
     };
 }
-function Ut(t, e) {
-  const r = le(t, e.minimum, e.maximum), i = Math.round((r - e.minimum) / e.step), n = e.minimum + i * e.step, s = zt(e.step);
-  return Number(le(n, e.minimum, e.maximum).toFixed(s));
+function kt(t, e) {
+  const r = oe(t, e.minimum, e.maximum), i = Math.round((r - e.minimum) / e.step), n = e.minimum + i * e.step, s = Bt(e.step);
+  return Number(oe(n, e.minimum, e.maximum).toFixed(s));
 }
-function C(t) {
+function P(t) {
   return (t == null ? void 0 : t.split(".")[0]) ?? "";
 }
-function ae(t, e) {
+function se(t, e) {
   const r = t.attributes[e], i = typeof r == "number" ? r : Number(r);
   return Number.isFinite(i) ? i : void 0;
 }
-function zt(t) {
+function Bt(t) {
   const [, e = ""] = t.toString().split(".");
   return e.length;
 }
-const Ft = /* @__PURE__ */ new Set(["unavailable", "unknown", ""]);
-function Je(t) {
+const Vt = /* @__PURE__ */ new Set(["unavailable", "unknown", ""]);
+function tt(t) {
   if (t === void 0)
     return;
   if (typeof t == "number")
     return Number.isFinite(t) ? t : void 0;
   const e = t.trim().toLowerCase();
-  if (Ft.has(e))
+  if (Vt.has(e))
     return;
   const r = Number(t);
   return Number.isFinite(r) ? r : void 0;
 }
-function Lt(t) {
+function jt(t) {
   const e = t.filter(Number.isFinite);
   return e.length === 0 ? void 0 : e.reduce((i, n) => i + n, 0) / e.length;
 }
-function kt(t, e) {
-  const r = Ye(t).map((s) => ({
+function Zt(t, e) {
+  const r = rt(t).map((s) => ({
     value: t[s],
-    weight: It(e[s])
+    weight: Jt(e[s])
   })).filter((s) => s.value !== void 0), i = r.reduce((s, o) => s + o.weight, 0);
   return r.length === 0 || i <= 0 ? void 0 : r.reduce((s, o) => s + o.value * o.weight, 0) / i;
 }
-function Bt(t) {
-  const e = ge(t);
+function It(t) {
+  const e = pe(t);
   return e.length > 0 ? Math.min(...e) : void 0;
 }
-function Zt(t) {
-  const e = ge(t);
+function Gt(t) {
+  const e = pe(t);
   return e.length > 0 ? Math.max(...e) : void 0;
 }
-function Vt(t, e, r) {
+function Wt(t, e, r) {
   switch (e) {
     case "top":
       return t.top;
@@ -941,35 +933,35 @@ function Vt(t, e, r) {
     case "bottom":
       return t.bottom;
     case "average":
-      return Lt(ge(t));
+      return jt(pe(t));
     case "weighted_average":
-      return kt(t, r);
+      return Zt(t, r);
     case "minimum":
-      return Bt(t);
+      return It(t);
     case "maximum":
-      return Zt(t);
+      return Gt(t);
   }
 }
-function jt(t) {
+function Kt(t) {
   if (!(t.top === void 0 || t.bottom === void 0))
     return t.top - t.bottom;
 }
-function Gt(t, e, r) {
+function qt(t, e, r) {
   return {
-    controlTemperature: Vt(t, e, r),
-    stratification: jt(t)
+    controlTemperature: Wt(t, e, r),
+    stratification: Kt(t)
   };
 }
-function ge(t) {
-  return Ye(t).map((e) => t[e]).filter((e) => e !== void 0);
+function pe(t) {
+  return rt(t).map((e) => t[e]).filter((e) => e !== void 0);
 }
-function Ye(t) {
+function rt(t) {
   return ["top", "middle", "bottom"].filter((r) => t[r] !== void 0);
 }
-function It(t) {
+function Jt(t) {
   return Number.isFinite(t) ? Math.max(0, t) : 0;
 }
-async function Wt(t, e, r, i = 120) {
+async function Yt(t, e, r, i = 120) {
   if (!(t != null && t.callApi) || !e)
     return [];
   const n = /* @__PURE__ */ new Date(), s = new Date(n.getTime() - r * 6e4), o = new URLSearchParams({
@@ -979,18 +971,18 @@ async function Wt(t, e, r, i = 120) {
     no_attributes: "1"
   });
   try {
-    const l = await t.callApi(
+    const u = await t.callApi(
       "GET",
       `history/period/${s.toISOString()}?${o.toString()}`
     );
-    return qt(Kt(l), i);
+    return Xt(Qt(u), i);
   } catch {
     return [];
   }
 }
-function Kt(t) {
+function Qt(t) {
   return t.flat().map((e) => {
-    const r = Je(e.state), i = e.last_changed ?? e.last_updated, n = i ? Date.parse(i) : Number.NaN;
+    const r = tt(e.state), i = e.last_changed ?? e.last_updated, n = i ? Date.parse(i) : Number.NaN;
     if (!(r === void 0 || !Number.isFinite(n)))
       return {
         timestamp: n,
@@ -998,17 +990,17 @@ function Kt(t) {
       };
   }).filter((e) => e !== void 0);
 }
-function qt(t, e) {
+function Xt(t, e) {
   if (t.length <= e)
     return [...t];
   const r = Math.ceil(t.length / e);
   return t.filter((i, n) => n % r === 0).slice(0, e);
 }
-function Pe(t, e) {
+function er(t, e) {
   const r = {
-    top: N(t, e.temperature_top_entity),
-    middle: N(t, e.temperature_middle_entity),
-    bottom: N(t, e.temperature_bottom_entity)
+    top: U(t, e.temperature_top_entity),
+    middle: U(t, e.temperature_middle_entity),
+    bottom: U(t, e.temperature_bottom_entity)
   }, i = {
     top: e.weight_top,
     middle: e.weight_middle,
@@ -1016,21 +1008,37 @@ function Pe(t, e) {
   };
   return {
     zones: r,
-    outsideTemperature: N(t, e.outside_temperature_entity),
-    targetTemperature: N(t, e.target_temperature_entity),
-    summary: Gt(r, e.control_temperature_mode, i)
+    outsideTemperature: U(t, e.outside_temperature_entity),
+    targetTemperature: U(t, e.target_temperature_entity),
+    summary: qt(r, e.control_temperature_mode, i)
   };
 }
-function N(t, e) {
+function U(t, e) {
   var r;
   if (!(!t || !e))
-    return Je((r = t.states[e]) == null ? void 0 : r.state);
+    return tt((r = t.states[e]) == null ? void 0 : r.state);
 }
-function G(t, e) {
+function H(t, e) {
   if (!(!t || !e))
     return t.states[e];
 }
-const Jt = ze`
+const tr = /* @__PURE__ */ new Set(["top", "middle", "bottom"]);
+function Oe(t) {
+  return tr.has(t);
+}
+function Re(t) {
+  switch (t.control_temperature_mode) {
+    case "top":
+      return t.temperature_top_entity;
+    case "middle":
+      return t.temperature_middle_entity;
+    case "bottom":
+      return t.temperature_bottom_entity;
+    default:
+      return;
+  }
+}
+const rr = ke`
   :host {
     display: block;
   }
@@ -1219,42 +1227,43 @@ const Jt = ze`
       width: 100%;
     }
   }
-`, Yt = { bottomTemperature: "Unten", confirmSwitchOn: "Sauna-Entitaet manuell einschalten?", controlTemperature: "Regeltemperatur", decreaseTarget: "Zieltemperatur verringern", earlyDevelopment: "Fruehe Entwicklung", increaseTarget: "Zieltemperatur erhoehen", middleTemperature: "Mitte", name: "Sauna Suite", notAvailable: "Nicht verfuegbar", outsideTemperature: "Aussen", pending: "Aktualisiere...", placeholder: "Nur manuelle Bedienung und Monitoring. Es ist keine automatische Heizungsregelung implementiert.", powerOff: "Aus", powerOn: "Ein", powerUnavailable: "Nicht verfuegbar", sliderUnavailable: "Slider nicht verfuegbar, weil min, max oder step fehlen.", stratification: "Temperaturschichtung", targetDifference: "Differenz zum Ziel", targetTemperature: "Ziel", temperatureTrend: "Temperaturverlauf", temperatureZones: "Temperaturzonen", togglePower: "Sauna-Power-Entitaet umschalten", topTemperature: "Oben", trendLoading: "Verlaufsdaten werden geladen", trendUnavailable: "Keine Verlaufsdaten verfuegbar" }, Qt = { aboveTargetThreshold: "Schwelle ueber Ziel", aboveTargetThresholdDescription: "Grad ueber Zieltemperatur, ab denen der Status als ueber Ziel gilt.", cardName: "Kartenname", cardNameDescription: "Titel im Kartenkopf.", confirmSwitchOn: "Einschalten bestaetigen", confirmSwitchOnDescription: "Vor dem manuellen Einschalten der konfigurierten Entitaet einen Dialog anzeigen.", controlTemperatureMode: "Modus fuer Regeltemperatur", controlTemperatureModeDescription: "Legt fest, welche Temperatur als zentrale Regeltemperatur angezeigt wird.", mainSwitchEntity: "Hauptschalter-Entitaet", mainSwitchEntityDescription: "Entitaet fuer den manuellen Power-Button. Unterstuetzt: switch und input_boolean.", nearTargetThreshold: "Nahe-Ziel-Schwelle", nearTargetThresholdDescription: "Grad unter Zieltemperatur, die als nahe am Ziel gelten.", outsideTemperatureEntity: "Aussentemperatur-Entitaet", outsideTemperatureEntityDescription: "Optionaler Aussentemperatur-Sensor.", sections: { display: "Anzeige", entities: "Entitaeten", general: "Allgemein", safety: "Sicherheit und Bestaetigung", temperatureCalculation: "Temperaturberechnung", trend: "Verlauf" }, showOutsideTemperature: "Aussentemperatur anzeigen", showOutsideTemperatureDescription: "Aussentemperatur anzeigen, wenn eine Entitaet konfiguriert ist.", showTemperatureTrend: "Temperaturverlauf anzeigen", showTemperatureTrendDescription: "Aktuelle Recorder-Historie fuer die ausgewaehlte Regeltemperatur laden.", showTemperatureZones: "Temperaturzonen anzeigen", showTemperatureZonesDescription: "Werte der Sensoren oben, Mitte und unten anzeigen.", targetReachedTolerance: "Ziel-erreicht-Toleranz", targetReachedToleranceDescription: "Grad ueber Zieltemperatur, die noch als Ziel erreicht gelten.", targetTemperatureEntity: "Zieltemperatur-Entitaet", targetTemperatureEntityDescription: "Entitaet fuer manuelle Zielwerte. Unterstuetzt: number und input_number.", temperatureBottomEntity: "Temperatur unten", temperatureBottomEntityDescription: "Temperatursensor unten in der Sauna.", temperatureMiddleEntity: "Temperatur Mitte", temperatureMiddleEntityDescription: "Temperatursensor in der Mitte der Sauna.", temperatureTopEntity: "Temperatur oben", temperatureTopEntityDescription: "Temperatursensor oben in der Sauna.", trendHistoryMinutes: "Verlauf in Minuten", trendHistoryMinutesDescription: "Zeitfenster aus dem Recorder. Erlaubt: 15 bis 1440 Minuten.", trendRefreshMinutes: "Aktualisierung in Minuten", trendRefreshMinutesDescription: "Intervall fuer die Verlaufsaktualisierung. Erlaubt: 1 bis 60 Minuten.", weightBottom: "Gewichtung unten", weightBottomDescription: "Gewichtung fuer den unteren Sensor beim gewichteten Durchschnitt.", weightMiddle: "Gewichtung Mitte", weightMiddleDescription: "Gewichtung fuer den mittleren Sensor beim gewichteten Durchschnitt.", weightTop: "Gewichtung oben", weightTopDescription: "Gewichtung fuer den oberen Sensor beim gewichteten Durchschnitt." }, Xt = { average: "Durchschnitt", bottom: "Unten", maximum: "Maximum", middle: "Mitte", minimum: "Minimum", top: "Oben", weighted_average: "Gewichteter Durchschnitt" }, er = { above_target: "Ueber Ziel", far_below: "Weit unter Ziel", heating: "Heizt", near_target: "Nahe am Ziel", target_reached: "Ziel erreicht", unavailable: "Temperatur nicht verfuegbar" }, tr = {
-  card: Yt,
-  editor: Qt,
-  modes: Xt,
-  status: er
-}, rr = { bottomTemperature: "Bottom", confirmSwitchOn: "Switch the sauna entity on manually?", controlTemperature: "Control temperature", decreaseTarget: "Decrease target temperature", earlyDevelopment: "Early Development", increaseTarget: "Increase target temperature", middleTemperature: "Middle", name: "Sauna Suite", notAvailable: "Not available", outsideTemperature: "Outside", pending: "Updating...", placeholder: "Manual controls and monitoring only. No automatic heater regulation is implemented.", powerOff: "Off", powerOn: "On", powerUnavailable: "Unavailable", sliderUnavailable: "Slider unavailable because min, max or step is missing.", stratification: "Stratification", targetDifference: "Difference to target", targetTemperature: "Target", temperatureTrend: "Temperature trend", temperatureZones: "Temperature zones", togglePower: "Toggle sauna power entity", topTemperature: "Top", trendLoading: "Loading trend data", trendUnavailable: "No trend data available" }, ir = { aboveTargetThreshold: "Above-target threshold", aboveTargetThresholdDescription: "Degrees above target that should be treated as above target.", cardName: "Card name", cardNameDescription: "Title shown in the card header.", confirmSwitchOn: "Confirm before switching on", confirmSwitchOnDescription: "Require a confirmation dialog before the manual power button turns on the configured entity.", controlTemperatureMode: "Control temperature mode", controlTemperatureModeDescription: "Select which temperature is displayed as the main control temperature.", mainSwitchEntity: "Main switch entity", mainSwitchEntityDescription: "Manual power button entity. Supported domains: switch and input_boolean.", nearTargetThreshold: "Near-target threshold", nearTargetThresholdDescription: "Degrees below target that should be treated as near target.", outsideTemperatureEntity: "Outside temperature entity", outsideTemperatureEntityDescription: "Optional outside temperature sensor.", sections: { display: "Display", entities: "Entities", general: "General", safety: "Safety and confirmation", temperatureCalculation: "Temperature calculation", trend: "Trend" }, showOutsideTemperature: "Show outside temperature", showOutsideTemperatureDescription: "Display the outside temperature when an entity is configured.", showTemperatureTrend: "Show temperature trend", showTemperatureTrendDescription: "Load recent Recorder history for the selected control temperature.", showTemperatureZones: "Show temperature zones", showTemperatureZonesDescription: "Display top, middle and bottom sensor values.", targetReachedTolerance: "Target-reached tolerance", targetReachedToleranceDescription: "Degrees above target still considered target reached.", targetTemperatureEntity: "Target temperature entity", targetTemperatureEntityDescription: "Manual target setting entity. Supported domains: number and input_number.", temperatureBottomEntity: "Bottom temperature entity", temperatureBottomEntityDescription: "Bottom sauna temperature sensor.", temperatureMiddleEntity: "Middle temperature entity", temperatureMiddleEntityDescription: "Middle sauna temperature sensor.", temperatureTopEntity: "Top temperature entity", temperatureTopEntityDescription: "Top sauna temperature sensor.", trendHistoryMinutes: "Trend history minutes", trendHistoryMinutesDescription: "History window loaded from Recorder. Allowed range: 15 to 1440 minutes.", trendRefreshMinutes: "Trend refresh minutes", trendRefreshMinutesDescription: "How often the trend is refreshed. Allowed range: 1 to 60 minutes.", weightBottom: "Bottom weight", weightBottomDescription: "Weight for bottom sensor when weighted average is selected.", weightMiddle: "Middle weight", weightMiddleDescription: "Weight for middle sensor when weighted average is selected.", weightTop: "Top weight", weightTopDescription: "Weight for top sensor when weighted average is selected." }, nr = { average: "Average", bottom: "Bottom", maximum: "Maximum", middle: "Middle", minimum: "Minimum", top: "Top", weighted_average: "Weighted average" }, sr = { above_target: "Above target", far_below: "Far below target", heating: "Heating", near_target: "Near target", target_reached: "Target reached", unavailable: "Temperature unavailable" }, or = {
-  card: rr,
-  editor: ir,
-  modes: nr,
-  status: sr
-}, Oe = {
-  de: tr,
-  en: or
+`, ir = { bottomTemperature: "Unten", confirmSwitchOn: "Sauna-Entitaet manuell einschalten?", controlTemperature: "Regeltemperatur", decreaseTarget: "Zieltemperatur verringern", earlyDevelopment: "Fruehe Entwicklung", increaseTarget: "Zieltemperatur erhoehen", middleTemperature: "Mitte", name: "Sauna Suite", notAvailable: "Nicht verfuegbar", outsideTemperature: "Aussen", pending: "Aktualisiere...", placeholder: "Nur manuelle Bedienung und Monitoring. Es ist keine automatische Heizungsregelung implementiert.", powerOff: "Aus", powerOn: "Ein", powerUnavailable: "Nicht verfuegbar", sliderUnavailable: "Slider nicht verfuegbar, weil min, max oder step fehlen.", stratification: "Temperaturschichtung", targetDifference: "Differenz zum Ziel", targetTemperature: "Ziel", temperatureTrend: "Temperaturverlauf", temperatureZones: "Temperaturzonen", togglePower: "Sauna-Power-Entitaet umschalten", topTemperature: "Oben", trendDirectModesOnly: "Der Trend ist derzeit nur für direkte Sensormodi verfügbar.", trendLoading: "Verlaufsdaten werden geladen", trendUnavailable: "Keine Verlaufsdaten verfuegbar" }, nr = { cardName: "Kartenname", cardNameDescription: "Titel im Kartenkopf.", confirmSwitchOn: "Einschalten bestaetigen", confirmSwitchOnDescription: "Vor dem manuellen Einschalten der konfigurierten Entitaet einen Dialog anzeigen.", controlTemperatureMode: "Modus fuer Regeltemperatur", controlTemperatureModeDescription: "Legt fest, welche Temperatur als zentrale Regeltemperatur angezeigt wird.", mainSwitchEntity: "Hauptschalter-Entitaet", mainSwitchEntityDescription: "Entitaet fuer den manuellen Power-Button. Unterstuetzt: switch und input_boolean.", nearTargetThreshold: "Nahe-Ziel-Schwelle", nearTargetThresholdDescription: "Grad unter Zieltemperatur, die als nahe am Ziel gelten.", outsideTemperatureEntity: "Aussentemperatur-Entitaet", outsideTemperatureEntityDescription: "Optionaler Aussentemperatur-Sensor.", sections: { display: "Anzeige", entities: "Entitaeten", general: "Allgemein", safety: "Sicherheit und Bestaetigung", temperatureCalculation: "Temperaturberechnung", trend: "Verlauf" }, showOutsideTemperature: "Aussentemperatur anzeigen", showOutsideTemperatureDescription: "Aussentemperatur anzeigen, wenn eine Entitaet konfiguriert ist.", showTemperatureTrend: "Temperaturverlauf anzeigen", showTemperatureTrendDescription: "Aktuelle Recorder-Historie fuer direkte Sensormodi oben, Mitte oder unten laden.", showTemperatureZones: "Temperaturzonen anzeigen", showTemperatureZonesDescription: "Werte der Sensoren oben, Mitte und unten anzeigen.", targetReachedTolerance: "Ziel-erreicht-Toleranz", targetReachedToleranceDescription: "Grad um die Zieltemperatur, die als Ziel erreicht gelten.", targetTemperatureEntity: "Zieltemperatur-Entitaet", targetTemperatureEntityDescription: "Entitaet fuer manuelle Zielwerte. Unterstuetzt: number und input_number.", temperatureBottomEntity: "Temperatur unten", temperatureBottomEntityDescription: "Temperatursensor unten in der Sauna.", temperatureMiddleEntity: "Temperatur Mitte", temperatureMiddleEntityDescription: "Temperatursensor in der Mitte der Sauna.", temperatureTopEntity: "Temperatur oben", temperatureTopEntityDescription: "Temperatursensor oben in der Sauna.", trendHistoryMinutes: "Verlauf in Minuten", trendHistoryMinutesDescription: "Zeitfenster aus dem Recorder. Erlaubt: 15 bis 1440 Minuten.", trendRefreshMinutes: "Aktualisierung in Minuten", trendRefreshMinutesDescription: "Intervall fuer die Verlaufsaktualisierung. Erlaubt: 1 bis 60 Minuten.", weightBottom: "Gewichtung unten", weightBottomDescription: "Gewichtung fuer den unteren Sensor beim gewichteten Durchschnitt.", weightMiddle: "Gewichtung Mitte", weightMiddleDescription: "Gewichtung fuer den mittleren Sensor beim gewichteten Durchschnitt.", weightTop: "Gewichtung oben", weightTopDescription: "Gewichtung fuer den oberen Sensor beim gewichteten Durchschnitt." }, sr = { average: "Durchschnitt", bottom: "Unten", maximum: "Maximum", middle: "Mitte", minimum: "Minimum", top: "Oben", weighted_average: "Gewichteter Durchschnitt" }, or = { above_target: "Ueber Ziel", far_below: "Weit unter Ziel", heating: "Heizt", near_target: "Nahe am Ziel", target_reached: "Ziel erreicht", unavailable: "Temperatur nicht verfuegbar" }, ar = {
+  card: ir,
+  editor: nr,
+  modes: sr,
+  status: or
+}, ur = { bottomTemperature: "Bottom", confirmSwitchOn: "Switch the sauna entity on manually?", controlTemperature: "Control temperature", decreaseTarget: "Decrease target temperature", earlyDevelopment: "Early Development", increaseTarget: "Increase target temperature", middleTemperature: "Middle", name: "Sauna Suite", notAvailable: "Not available", outsideTemperature: "Outside", pending: "Updating...", placeholder: "Manual controls and monitoring only. No automatic heater regulation is implemented.", powerOff: "Off", powerOn: "On", powerUnavailable: "Unavailable", sliderUnavailable: "Slider unavailable because min, max or step is missing.", stratification: "Stratification", targetDifference: "Difference to target", targetTemperature: "Target", temperatureTrend: "Temperature trend", temperatureZones: "Temperature zones", togglePower: "Toggle sauna power entity", topTemperature: "Top", trendDirectModesOnly: "Trend is currently available only for direct sensor modes.", trendLoading: "Loading trend data", trendUnavailable: "No trend data available" }, dr = { cardName: "Card name", cardNameDescription: "Title shown in the card header.", confirmSwitchOn: "Confirm before switching on", confirmSwitchOnDescription: "Require a confirmation dialog before the manual power button turns on the configured entity.", controlTemperatureMode: "Control temperature mode", controlTemperatureModeDescription: "Select which temperature is displayed as the main control temperature.", mainSwitchEntity: "Main switch entity", mainSwitchEntityDescription: "Manual power button entity. Supported domains: switch and input_boolean.", nearTargetThreshold: "Near-target threshold", nearTargetThresholdDescription: "Degrees below target that should be treated as near target.", outsideTemperatureEntity: "Outside temperature entity", outsideTemperatureEntityDescription: "Optional outside temperature sensor.", sections: { display: "Display", entities: "Entities", general: "General", safety: "Safety and confirmation", temperatureCalculation: "Temperature calculation", trend: "Trend" }, showOutsideTemperature: "Show outside temperature", showOutsideTemperatureDescription: "Display the outside temperature when an entity is configured.", showTemperatureTrend: "Show temperature trend", showTemperatureTrendDescription: "Load recent Recorder history for top, middle or bottom direct sensor modes.", showTemperatureZones: "Show temperature zones", showTemperatureZonesDescription: "Display top, middle and bottom sensor values.", targetReachedTolerance: "Target-reached tolerance", targetReachedToleranceDescription: "Degrees around target that are considered target reached.", targetTemperatureEntity: "Target temperature entity", targetTemperatureEntityDescription: "Manual target setting entity. Supported domains: number and input_number.", temperatureBottomEntity: "Bottom temperature entity", temperatureBottomEntityDescription: "Bottom sauna temperature sensor.", temperatureMiddleEntity: "Middle temperature entity", temperatureMiddleEntityDescription: "Middle sauna temperature sensor.", temperatureTopEntity: "Top temperature entity", temperatureTopEntityDescription: "Top sauna temperature sensor.", trendHistoryMinutes: "Trend history minutes", trendHistoryMinutesDescription: "History window loaded from Recorder. Allowed range: 15 to 1440 minutes.", trendRefreshMinutes: "Trend refresh minutes", trendRefreshMinutesDescription: "How often the trend is refreshed. Allowed range: 1 to 60 minutes.", weightBottom: "Bottom weight", weightBottomDescription: "Weight for bottom sensor when weighted average is selected.", weightMiddle: "Middle weight", weightMiddleDescription: "Weight for middle sensor when weighted average is selected.", weightTop: "Top weight", weightTopDescription: "Weight for top sensor when weighted average is selected." }, lr = { average: "Average", bottom: "Bottom", maximum: "Maximum", middle: "Middle", minimum: "Minimum", top: "Top", weighted_average: "Weighted average" }, cr = { above_target: "Above target", far_below: "Far below target", heating: "Heating", near_target: "Near target", target_reached: "Target reached", unavailable: "Temperature unavailable" }, hr = {
+  card: ur,
+  editor: dr,
+  modes: lr,
+  status: cr
+}, Ne = {
+  de: ar,
+  en: hr
 };
-function Qe(t, e) {
+function it(t, e) {
   const r = t != null && t.toLowerCase().startsWith("de") ? "de" : "en";
-  return Re(Oe[r], e) ?? Re(Oe.en, e) ?? e;
+  return Ue(Ne[r], e) ?? Ue(Ne.en, e) ?? e;
 }
-function Re(t, e) {
+function Ue(t, e) {
   const r = e.split(".").reduce((i, n) => {
     if (!(typeof i != "object" || i === void 0))
       return i[n];
   }, t);
   return typeof r == "string" ? r : void 0;
 }
-var ar = Object.defineProperty, lr = Object.getOwnPropertyDescriptor, v = (t, e, r, i) => {
-  for (var n = i > 1 ? void 0 : i ? lr(e, r) : e, s = t.length - 1, o; s >= 0; s--)
+var pr = Object.defineProperty, mr = Object.getOwnPropertyDescriptor, b = (t, e, r, i) => {
+  for (var n = i > 1 ? void 0 : i ? mr(e, r) : e, s = t.length - 1, o; s >= 0; s--)
     (o = t[s]) && (n = (i ? o(e, r, n) : o(n)) || n);
-  return i && n && ar(e, r, n), n;
+  return i && n && pr(e, r, n), n;
 };
-let m = class extends $ {
+const He = "°C";
+let m = class extends T {
   constructor() {
-    super(...arguments), this.config = x({}), this.switchPending = !1, this.targetPending = !1, this.historySamples = [], this.historyLoading = !1;
+    super(...arguments), this.config = D({}), this.switchPending = !1, this.targetPending = !1, this.historySamples = [], this.historyLoading = !1;
   }
   setConfig(t) {
-    this.config = x(t), this.resetHistorySchedule();
+    this.config = D(t), this.resetHistorySchedule();
   }
   disconnectedCallback() {
     super.disconnectedCallback(), this.clearHistoryTimer(), this.clearTargetDebounceTimer();
@@ -1263,24 +1272,23 @@ let m = class extends $ {
     return 6;
   }
   static getConfigElement() {
-    return document.createElement(Ge);
+    return document.createElement(Ke);
   }
   static getStubConfig() {
-    return x({});
+    return D({});
   }
   updated() {
     this.scheduleHistoryRefresh();
   }
   render() {
-    const t = Pe(this.hass, this.config), e = $t(
+    const t = er(this.hass, this.config), e = Dt(
       t.summary.controlTemperature,
       t.targetTemperature,
       {
         nearTargetThreshold: this.config.near_target_threshold,
-        targetReachedTolerance: this.config.target_reached_tolerance,
-        aboveTargetThreshold: this.config.above_target_threshold
+        targetReachedTolerance: this.config.target_reached_tolerance
       }
-    ), r = je(e.status), i = G(this.hass, this.config.main_switch_entity), n = G(this.hass, this.config.target_temperature_entity);
+    ), r = We(e.status), i = H(this.hass, this.config.main_switch_entity), n = H(this.hass, this.config.target_temperature_entity), s = Oe(this.config.control_temperature_mode);
     return p`
       <ha-card>
         <div class="content">
@@ -1296,7 +1304,10 @@ let m = class extends $ {
             <section class="hero-temperature" aria-label=${this.t("card.controlTemperature")}>
               <div class="label">${this.t("card.controlTemperature")}</div>
               <div class=${this.valueClass(t.summary.controlTemperature)}>
-                ${this.formatTemperature(t.summary.controlTemperature)}
+                ${this.formatTemperature(
+      t.summary.controlTemperature,
+      this.getControlTemperatureUnit()
+    )}
               </div>
               <div class="progress-track" aria-hidden="true">
                 <div
@@ -1317,22 +1328,42 @@ let m = class extends $ {
 
           <section class="grid" aria-label=${this.t("card.temperatureZones")}>
             ${this.config.show_temperature_zones ? p`
-                    ${this.renderMetric("card.topTemperature", t.zones.top)}
-                    ${this.renderMetric("card.middleTemperature", t.zones.middle)}
-                    ${this.renderMetric("card.bottomTemperature", t.zones.bottom)}
+                    ${this.renderMetric(
+      "card.topTemperature",
+      t.zones.top,
+      this.config.temperature_top_entity
+    )}
+                    ${this.renderMetric(
+      "card.middleTemperature",
+      t.zones.middle,
+      this.config.temperature_middle_entity
+    )}
+                    ${this.renderMetric(
+      "card.bottomTemperature",
+      t.zones.bottom,
+      this.config.temperature_bottom_entity
+    )}
                   ` : void 0}
-            ${this.config.show_outside_temperature && this.config.outside_temperature_entity ? this.renderMetric("card.outsideTemperature", t.outsideTemperature) : void 0}
+            ${this.config.show_outside_temperature && this.config.outside_temperature_entity ? this.renderMetric(
+      "card.outsideTemperature",
+      t.outsideTemperature,
+      this.config.outside_temperature_entity
+    ) : void 0}
             ${t.summary.stratification !== void 0 ? this.renderMetric("card.stratification", t.summary.stratification) : void 0}
           </section>
 
           ${this.config.show_temperature_trend ? p`
                   <section class="trend-panel" aria-label=${this.t("card.temperatureTrend")}>
                     <div class="label">${this.t("card.temperatureTrend")}</div>
-                    <sauna-suite-temperature-trend
-                      .samples=${this.historySamples}
-                      .status=${e.status}
-                      empty-label=${this.historyLoading ? this.t("card.trendLoading") : this.t("card.trendUnavailable")}
-                    ></sauna-suite-temperature-trend>
+                    ${s ? p`
+                            <sauna-suite-temperature-trend
+                              .samples=${this.historySamples}
+                              .status=${e.status}
+                              empty-label=${this.historyLoading ? this.t("card.trendLoading") : this.t("card.trendUnavailable")}
+                            ></sauna-suite-temperature-trend>
+                          ` : p`<div class="trend-empty">
+                            ${this.t("card.trendDirectModesOnly")}
+                          </div>`}
                   </section>
                 ` : void 0}
         </div>
@@ -1340,7 +1371,7 @@ let m = class extends $ {
     `;
   }
   renderPowerButton(t) {
-    const e = this.switchPending || !Ke(this.config.main_switch_entity) || R(t), r = (t == null ? void 0 : t.state) === "on";
+    const e = this.switchPending || !Xe(this.config.main_switch_entity) || N(t), r = (t == null ? void 0 : t.state) === "on";
     return p`
       <button
         class=${`power-button ${r ? "on" : "off"}`}
@@ -1354,11 +1385,13 @@ let m = class extends $ {
     `;
   }
   renderTargetControl(t) {
-    const e = Ce(t), r = this.getEntityNumber(t), i = this.targetPending || !qe(this.config.target_temperature_entity) || R(t) || r === void 0;
+    const e = Pe(t), r = this.getEntityNumber(t), i = this.targetPending || !et(this.config.target_temperature_entity) || N(t) || r === void 0;
     return p`
       <section class="target-control" aria-label=${this.t("card.targetTemperature")}>
         <div class="label">${this.t("card.targetTemperature")}</div>
-        <div class=${this.valueClass(r)}>${this.formatTemperature(r)}</div>
+        <div class=${this.valueClass(r)}>
+          ${this.formatTemperature(r, this.getTemperatureUnit(this.config.target_temperature_entity))}
+        </div>
         <div class="target-actions">
           <button
             class="step-button"
@@ -1395,27 +1428,29 @@ let m = class extends $ {
       </section>
     `;
   }
-  renderMetric(t, e) {
+  renderMetric(t, e, r) {
     return p`
       <div class="metric">
         <div class="label">${this.t(t)}</div>
-        <div class=${this.valueClass(e)}>${this.formatTemperature(e)}</div>
+        <div class=${this.valueClass(e)}>
+          ${this.formatTemperature(e, this.getTemperatureUnit(r))}
+        </div>
       </div>
     `;
   }
   async handlePowerClick() {
-    const t = G(this.hass, this.config.main_switch_entity);
-    if (this.switchPending || R(t))
+    const t = H(this.hass, this.config.main_switch_entity);
+    if (this.switchPending || N(t))
       return;
     const e = (t == null ? void 0 : t.state) !== "on";
     if (e && this.config.confirm_switch_on && !window.confirm(this.t("card.confirmSwitchOn")))
       return;
     this.switchPending = !0, this.serviceError = void 0;
-    const r = await Nt(this.hass, this.config.main_switch_entity, e);
+    const r = await Ft(this.hass, this.config.main_switch_entity, e);
     this.switchPending = !1, this.serviceError = r.ok ? void 0 : r.error;
   }
   adjustTargetTemperature(t) {
-    const e = G(this.hass, this.config.target_temperature_entity), r = Ce(e), i = this.getEntityNumber(e);
+    const e = H(this.hass, this.config.target_temperature_entity), r = Pe(e), i = this.getEntityNumber(e);
     !r || i === void 0 || this.targetPending || this.updateTargetTemperature(i + r.step * t, r);
   }
   handleTargetSliderInput(t, e) {
@@ -1428,7 +1463,7 @@ let m = class extends $ {
     if (this.targetPending)
       return;
     this.targetPending = !0, this.serviceError = void 0;
-    const r = await Ht(
+    const r = await Lt(
       this.hass,
       this.config.target_temperature_entity,
       t,
@@ -1437,21 +1472,21 @@ let m = class extends $ {
     this.targetPending = !1, this.serviceError = r.ok ? void 0 : r.error;
   }
   scheduleHistoryRefresh() {
-    if (!this.config.show_temperature_trend || !this.hass) {
-      this.clearHistoryTimer();
+    if (!this.config.show_temperature_trend || !this.hass || !Oe(this.config.control_temperature_mode)) {
+      this.historySamples = [], this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
       return;
     }
-    const t = Pe(this.hass, this.config), e = this.getTrendEntityId(), r = `${e ?? ""}:${this.config.trend_history_minutes}:${this.config.trend_refresh_minutes}`;
-    if (!e || t.summary.controlTemperature === void 0) {
-      this.historySamples = [], this.clearHistoryTimer();
+    const t = Re(this.config), e = `${t ?? ""}:${this.config.trend_history_minutes}:${this.config.trend_refresh_minutes}`;
+    if (!t) {
+      this.historySamples = [], this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
       return;
     }
-    this.lastHistoryFetchKey !== r && (this.lastHistoryFetchKey = r, this.loadHistory(e)), this.historyRefreshTimer === void 0 && (this.historyRefreshTimer = window.setInterval(() => {
-      this.loadHistory(e);
+    this.lastHistoryFetchKey !== e && (this.lastHistoryFetchKey = e, this.loadHistory(t)), this.historyRefreshTimer === void 0 && (this.historyRefreshTimer = window.setInterval(() => {
+      this.loadHistory(t);
     }, this.config.trend_refresh_minutes * 6e4));
   }
   async loadHistory(t) {
-    this.historyLoading = !0, this.historySamples = await Wt(
+    this.historyLoading = !0, this.historySamples = await Yt(
       this.hass,
       t,
       this.config.trend_history_minutes
@@ -1466,67 +1501,63 @@ let m = class extends $ {
   clearTargetDebounceTimer() {
     this.targetDebounceTimer !== void 0 && (window.clearTimeout(this.targetDebounceTimer), this.targetDebounceTimer = void 0);
   }
-  getTrendEntityId() {
-    switch (this.config.control_temperature_mode) {
-      case "top":
-        return this.config.temperature_top_entity;
-      case "middle":
-        return this.config.temperature_middle_entity;
-      case "bottom":
-        return this.config.temperature_bottom_entity;
-      default:
-        return this.config.temperature_middle_entity ?? this.config.temperature_top_entity ?? this.config.temperature_bottom_entity;
-    }
+  getControlTemperatureUnit() {
+    return this.getTemperatureUnit(Re(this.config));
   }
   getSwitchStateLabel(t) {
-    return R(t) ? this.t("card.powerUnavailable") : (t == null ? void 0 : t.state) === "on" ? this.t("card.powerOn") : this.t("card.powerOff");
+    return N(t) ? this.t("card.powerUnavailable") : (t == null ? void 0 : t.state) === "on" ? this.t("card.powerOn") : this.t("card.powerOff");
   }
   getEntityNumber(t) {
-    if (!t || R(t))
+    if (!t || N(t))
       return;
     const e = Number(t.state);
     return Number.isFinite(e) ? e : void 0;
   }
+  getTemperatureUnit(t) {
+    var r;
+    const e = (r = H(this.hass, t)) == null ? void 0 : r.attributes.unit_of_measurement;
+    return typeof e == "string" && e.trim().length > 0 ? e : He;
+  }
   valueClass(t) {
     return t === void 0 ? "metric-value unavailable" : "metric-value";
   }
-  formatTemperature(t) {
-    return t === void 0 ? this.t("card.notAvailable") : `${t.toFixed(1)} degC`;
+  formatTemperature(t, e) {
+    return t === void 0 ? this.t("card.notAvailable") : `${t.toFixed(1)} ${e}`;
   }
   formatTemperatureDelta(t) {
-    return `${t > 0 ? "+" : ""}${t.toFixed(1)} degC`;
+    return `${t > 0 ? "+" : ""}${t.toFixed(1)} ${He}`;
   }
   t(t) {
     var e, r;
-    return Qe(((e = this.hass) == null ? void 0 : e.selectedLanguage) ?? ((r = this.hass) == null ? void 0 : r.language), t);
+    return it(((e = this.hass) == null ? void 0 : e.selectedLanguage) ?? ((r = this.hass) == null ? void 0 : r.language), t);
   }
 };
-m.styles = Jt;
-v([
-  P({ attribute: !1 })
+m.styles = rr;
+b([
+  O({ attribute: !1 })
 ], m.prototype, "hass", 2);
-v([
+b([
   S()
 ], m.prototype, "config", 2);
-v([
+b([
   S()
 ], m.prototype, "switchPending", 2);
-v([
+b([
   S()
 ], m.prototype, "targetPending", 2);
-v([
+b([
   S()
 ], m.prototype, "serviceError", 2);
-v([
+b([
   S()
 ], m.prototype, "historySamples", 2);
-v([
+b([
   S()
 ], m.prototype, "historyLoading", 2);
-m = v([
-  pe(xt)
+m = b([
+  ce(Ot)
 ], m);
-const ur = ze`
+const gr = ke`
   :host {
     display: block;
   }
@@ -1549,17 +1580,17 @@ const ur = ze`
     margin: 0;
   }
 `;
-var dr = Object.defineProperty, cr = Object.getOwnPropertyDescriptor, fe = (t, e, r, i) => {
-  for (var n = i > 1 ? void 0 : i ? cr(e, r) : e, s = t.length - 1, o; s >= 0; s--)
+var fr = Object.defineProperty, _r = Object.getOwnPropertyDescriptor, me = (t, e, r, i) => {
+  for (var n = i > 1 ? void 0 : i ? _r(e, r) : e, s = t.length - 1, o; s >= 0; s--)
     (o = t[s]) && (n = (i ? o(e, r, n) : o(n)) || n);
-  return i && n && dr(e, r, n), n;
+  return i && n && fr(e, r, n), n;
 };
-let B = class extends $ {
+let j = class extends T {
   constructor() {
-    super(...arguments), this.config = x({}), this.computeLabel = (t) => t.label, this.computeHelper = (t) => t.description;
+    super(...arguments), this.config = D({}), this.computeLabel = (t) => t.label, this.computeHelper = (t) => t.description;
   }
   setConfig(t) {
-    this.config = x(t);
+    this.config = D(t);
   }
   render() {
     return p`
@@ -1591,7 +1622,7 @@ let B = class extends $ {
         selector: {
           select: {
             mode: "dropdown",
-            options: Ie.map((e) => ({
+            options: qe.map((e) => ({
               value: e,
               label: this.t(`modes.${e}`)
             }))
@@ -1610,14 +1641,6 @@ let B = class extends $ {
         "target_reached_tolerance",
         "editor.targetReachedTolerance",
         "editor.targetReachedToleranceDescription",
-        0,
-        20,
-        0.5
-      ),
-      this.numberField(
-        "above_target_threshold",
-        "editor.aboveTargetThreshold",
-        "editor.aboveTargetThresholdDescription",
         0,
         20,
         0.5
@@ -1752,7 +1775,7 @@ let B = class extends $ {
     this.updateConfig(t.detail.value);
   }
   updateConfig(t) {
-    this.config = x({
+    this.config = D({
       ...this.config,
       ...t
     }), this.dispatchEvent(
@@ -1819,32 +1842,32 @@ let B = class extends $ {
   }
   t(t) {
     var e, r;
-    return Qe(((e = this.hass) == null ? void 0 : e.selectedLanguage) ?? ((r = this.hass) == null ? void 0 : r.language), t);
+    return it(((e = this.hass) == null ? void 0 : e.selectedLanguage) ?? ((r = this.hass) == null ? void 0 : r.language), t);
   }
 };
-B.styles = ur;
-fe([
-  P({ attribute: !1 })
-], B.prototype, "hass", 2);
-fe([
+j.styles = gr;
+me([
+  O({ attribute: !1 })
+], j.prototype, "hass", 2);
+me([
   S()
-], B.prototype, "config", 2);
-B = fe([
-  pe(Ge)
-], B);
-const Ne = {
-  type: me,
+], j.prototype, "config", 2);
+j = me([
+  ce(Ke)
+], j);
+const ze = {
+  type: he,
   name: "Sauna Suite Card",
   description: "A placeholder card for the Sauna Suite Home Assistant project.",
   preview: !0
 };
-function hr(t = window) {
-  t.customCards = t.customCards ?? [], t.customCards.some((r) => r.type === Ne.type) || t.customCards.push(Ne);
+function yr(t = window) {
+  t.customCards = t.customCards ?? [], t.customCards.some((r) => r.type === ze.type) || t.customCards.push(ze);
 }
-hr();
+yr();
 export {
-  xt as CARD_TAG,
-  me as CARD_TYPE,
-  Ge as EDITOR_TAG
+  Ot as CARD_TAG,
+  he as CARD_TYPE,
+  Ke as EDITOR_TAG
 };
 //# sourceMappingURL=sauna-suite.js.map

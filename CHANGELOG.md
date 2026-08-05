@@ -15,7 +15,8 @@ versioning once releases begin.
 - Target-temperature clamping and step rounding based on entity attributes.
 - Temperature progress model with localized status labels.
 - Centralized temperature status color mapping for future reuse.
-- Compact SVG trend sourced from Home Assistant Recorder history.
+- Compact SVG trend sourced from Home Assistant Recorder history for direct
+  top, middle and bottom control-temperature modes.
 - Visual editor sections for General, Entities, Temperature calculation,
   Display, Trend and Safety and confirmation settings.
 - Multi-zone temperature card configuration fields.
@@ -31,6 +32,22 @@ versioning once releases begin.
 - Minimal `custom:sauna-suite-card` placeholder card.
 - Basic visual editor placeholder.
 - Numeric and temperature utility tests.
+
+### Changed
+
+- Removed the overlapping above-target threshold setting while the status model
+  is still early and monitoring-only.
+- `target_reached_tolerance` now defines the inclusive target-reached band below
+  and above the target temperature.
+- Calculated control-temperature modes now show a localized message instead of
+  displaying one physical sensor history as a calculated trend.
+- Visible temperature labels use `°C` by default and prefer an entity's
+  configured unit where practical.
+
+### Planned
+
+- Multi-sensor history aggregation for calculated control-temperature modes is
+  planned for a later release.
 
 ### Notes
 

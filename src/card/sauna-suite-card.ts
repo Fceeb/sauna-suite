@@ -5,8 +5,8 @@ import {
   calculateTemperatureProgress,
   getTemperatureStatusColors,
 } from '../core/temperature-progress';
-import { CARD_TAG, EDITOR_TAG } from '../models/constants';
 import type { SaunaSuiteCardConfig } from '../models/card-config';
+import { CARD_TAG, EDITOR_TAG } from '../models/constants';
 import type { HassEntity, HomeAssistant } from '../models/home-assistant';
 import { normalizeConfig } from '../services/card-config';
 import {
@@ -23,8 +23,11 @@ import {
   type TemperatureHistorySample,
 } from '../services/temperature-history';
 import { buildSaunaTemperatureState, getEntity } from '../services/temperature-state';
+import { getTrendEntityId, isDirectControlTemperatureMode } from '../services/trend-entity';
 import { cardStyles } from '../styles/card-styles';
 import { translate } from '../translations/translator';
+
+const DEFAULT_TEMPERATURE_UNIT = '°C';
 
 @customElement(CARD_TAG)
 export class SaunaSuiteCard extends LitElement {
@@ -90,12 +93,12 @@ export class SaunaSuiteCard extends LitElement {
       {
         nearTargetThreshold: this.config.near_target_threshold,
         targetReachedTolerance: this.config.target_reached_tolerance,
-        aboveTargetThreshold: this.config.above_target_threshold,
       },
     );
     const statusColors = getTemperatureStatusColors(progress.status);
     const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
     const targetEntity = getEntity(this.hass, this.config.target_temperature_entity);
+    const trendAvailable = isDirectControlTemperatureMode(this.config.control_temperature_mode);
 
     return html`
       <ha-card>
@@ -112,7 +115,10 @@ export class SaunaSuiteCard extends LitElement {
             <section class="hero-temperature" aria-label=${this.t('card.controlTemperature')}>
               <div class="label">${this.t('card.controlTemperature')}</div>
               <div class=${this.valueClass(temperatureState.summary.controlTemperature)}>
-                ${this.formatTemperature(temperatureState.summary.controlTemperature)}
+                ${this.formatTemperature(
+                  temperatureState.summary.controlTemperature,
+                  this.getControlTemperatureUnit(),
+                )}
               </div>
               <div class="progress-track" aria-hidden="true">
                 <div
@@ -139,15 +145,31 @@ export class SaunaSuiteCard extends LitElement {
             ${
               this.config.show_temperature_zones
                 ? html`
-                    ${this.renderMetric('card.topTemperature', temperatureState.zones.top)}
-                    ${this.renderMetric('card.middleTemperature', temperatureState.zones.middle)}
-                    ${this.renderMetric('card.bottomTemperature', temperatureState.zones.bottom)}
+                    ${this.renderMetric(
+                      'card.topTemperature',
+                      temperatureState.zones.top,
+                      this.config.temperature_top_entity,
+                    )}
+                    ${this.renderMetric(
+                      'card.middleTemperature',
+                      temperatureState.zones.middle,
+                      this.config.temperature_middle_entity,
+                    )}
+                    ${this.renderMetric(
+                      'card.bottomTemperature',
+                      temperatureState.zones.bottom,
+                      this.config.temperature_bottom_entity,
+                    )}
                   `
                 : undefined
             }
             ${
               this.config.show_outside_temperature && this.config.outside_temperature_entity
-                ? this.renderMetric('card.outsideTemperature', temperatureState.outsideTemperature)
+                ? this.renderMetric(
+                    'card.outsideTemperature',
+                    temperatureState.outsideTemperature,
+                    this.config.outside_temperature_entity,
+                  )
                 : undefined
             }
             ${
@@ -162,15 +184,23 @@ export class SaunaSuiteCard extends LitElement {
               ? html`
                   <section class="trend-panel" aria-label=${this.t('card.temperatureTrend')}>
                     <div class="label">${this.t('card.temperatureTrend')}</div>
-                    <sauna-suite-temperature-trend
-                      .samples=${this.historySamples}
-                      .status=${progress.status}
-                      empty-label=${
-                        this.historyLoading
-                          ? this.t('card.trendLoading')
-                          : this.t('card.trendUnavailable')
-                      }
-                    ></sauna-suite-temperature-trend>
+                    ${
+                      trendAvailable
+                        ? html`
+                            <sauna-suite-temperature-trend
+                              .samples=${this.historySamples}
+                              .status=${progress.status}
+                              empty-label=${
+                                this.historyLoading
+                                  ? this.t('card.trendLoading')
+                                  : this.t('card.trendUnavailable')
+                              }
+                            ></sauna-suite-temperature-trend>
+                          `
+                        : html`<div class="trend-empty">
+                            ${this.t('card.trendDirectModesOnly')}
+                          </div>`
+                    }
                   </section>
                 `
               : undefined
@@ -218,7 +248,9 @@ export class SaunaSuiteCard extends LitElement {
     return html`
       <section class="target-control" aria-label=${this.t('card.targetTemperature')}>
         <div class="label">${this.t('card.targetTemperature')}</div>
-        <div class=${this.valueClass(currentValue)}>${this.formatTemperature(currentValue)}</div>
+        <div class=${this.valueClass(currentValue)}>
+          ${this.formatTemperature(currentValue, this.getTemperatureUnit(this.config.target_temperature_entity))}
+        </div>
         <div class="target-actions">
           <button
             class="step-button"
@@ -260,11 +292,17 @@ export class SaunaSuiteCard extends LitElement {
     `;
   }
 
-  private renderMetric(labelKey: string, value: number | undefined): TemplateResult {
+  private renderMetric(
+    labelKey: string,
+    value: number | undefined,
+    entityId?: string | undefined,
+  ): TemplateResult {
     return html`
       <div class="metric">
         <div class="label">${this.t(labelKey)}</div>
-        <div class=${this.valueClass(value)}>${this.formatTemperature(value)}</div>
+        <div class=${this.valueClass(value)}>
+          ${this.formatTemperature(value, this.getTemperatureUnit(entityId))}
+        </div>
       </div>
     `;
   }
@@ -341,17 +379,23 @@ export class SaunaSuiteCard extends LitElement {
   }
 
   private scheduleHistoryRefresh(): void {
-    if (!this.config.show_temperature_trend || !this.hass) {
+    if (
+      !this.config.show_temperature_trend ||
+      !this.hass ||
+      !isDirectControlTemperatureMode(this.config.control_temperature_mode)
+    ) {
+      this.historySamples = [];
+      this.lastHistoryFetchKey = undefined;
       this.clearHistoryTimer();
       return;
     }
 
-    const temperatureState = buildSaunaTemperatureState(this.hass, this.config);
-    const entityId = this.getTrendEntityId();
+    const entityId = getTrendEntityId(this.config);
     const fetchKey = `${entityId ?? ''}:${this.config.trend_history_minutes}:${this.config.trend_refresh_minutes}`;
 
-    if (!entityId || temperatureState.summary.controlTemperature === undefined) {
+    if (!entityId) {
       this.historySamples = [];
+      this.lastHistoryFetchKey = undefined;
       this.clearHistoryTimer();
       return;
     }
@@ -397,21 +441,8 @@ export class SaunaSuiteCard extends LitElement {
     }
   }
 
-  private getTrendEntityId(): string | undefined {
-    switch (this.config.control_temperature_mode) {
-      case 'top':
-        return this.config.temperature_top_entity;
-      case 'middle':
-        return this.config.temperature_middle_entity;
-      case 'bottom':
-        return this.config.temperature_bottom_entity;
-      default:
-        return (
-          this.config.temperature_middle_entity ??
-          this.config.temperature_top_entity ??
-          this.config.temperature_bottom_entity
-        );
-    }
+  private getControlTemperatureUnit(): string {
+    return this.getTemperatureUnit(getTrendEntityId(this.config));
   }
 
   private getSwitchStateLabel(entity: HassEntity | undefined): string {
@@ -431,16 +462,26 @@ export class SaunaSuiteCard extends LitElement {
     return Number.isFinite(value) ? value : undefined;
   }
 
+  private getTemperatureUnit(entityId: string | undefined): string {
+    const unit = getEntity(this.hass, entityId)?.attributes.unit_of_measurement;
+
+    if (typeof unit === 'string' && unit.trim().length > 0) {
+      return unit;
+    }
+
+    return DEFAULT_TEMPERATURE_UNIT;
+  }
+
   private valueClass(value: number | undefined): string {
     return value === undefined ? 'metric-value unavailable' : 'metric-value';
   }
 
-  private formatTemperature(value: number | undefined): string {
-    return value === undefined ? this.t('card.notAvailable') : `${value.toFixed(1)} degC`;
+  private formatTemperature(value: number | undefined, unit: string): string {
+    return value === undefined ? this.t('card.notAvailable') : `${value.toFixed(1)} ${unit}`;
   }
 
   private formatTemperatureDelta(value: number): string {
-    return `${value > 0 ? '+' : ''}${value.toFixed(1)} degC`;
+    return `${value > 0 ? '+' : ''}${value.toFixed(1)} ${DEFAULT_TEMPERATURE_UNIT}`;
   }
 
   private t(key: string): string {

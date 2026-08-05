@@ -21,13 +21,16 @@
 - Manual main switch button with confirmation before switching on
 - Manual target-temperature adjustment for number and input_number entities
 - Temperature status and progress display
-- Compact Recorder-backed temperature trend
+- Compact Recorder-backed temperature trend for direct top, middle and bottom
+  sensor modes
+- No automatic sauna regulation
 
 ## Phase 4: Temperature Insights
 
 - More detailed temperature presentation
 - Optional outside-temperature context
 - Heat-up progress display
+- Aggregated history for calculated control-temperature modes
 
 ## Phase 5: Sauna Sessions
 

@@ -5,7 +5,8 @@ modular and HACS-compatible sauna dashboard experience.
 
 This repository currently contains a Lovelace custom card named
 `custom:sauna-suite-card` with manual controls, multi-zone temperature
-monitoring, target-temperature adjustment and a compact Recorder-backed trend.
+monitoring, target-temperature adjustment and a compact Recorder-backed trend
+for direct sensor modes.
 
 ![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
 
@@ -121,7 +122,6 @@ show_outside_temperature: true
 show_temperature_zones: true
 near_target_threshold: 5
 target_reached_tolerance: 2
-above_target_threshold: 2
 show_temperature_trend: true
 trend_history_minutes: 120
 trend_refresh_minutes: 5
@@ -164,8 +164,14 @@ automatically.
 ## Temperature Trend
 
 The compact trend uses the Home Assistant Recorder history API for recent
-control-temperature samples. Recorder remains the source of historical values;
-Sauna Suite does not store long-term history in local storage.
+temperature samples. In this version, trends are available only when
+`control_temperature_mode` is `top`, `middle` or `bottom`, because those modes
+map to one physical sensor.
+
+For calculated modes (`average`, `weighted_average`, `minimum` and `maximum`),
+the card does not show a single sensor history as if it were the calculated
+control-temperature trend. Multi-sensor history aggregation is planned for a
+later release.
 
 If Recorder or history is unavailable, the card still works and shows an empty
 trend state.

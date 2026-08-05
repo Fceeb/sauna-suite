@@ -12,7 +12,6 @@ import {
 const thresholds = {
   nearTargetThreshold: 5,
   targetReachedTolerance: 2,
-  aboveTargetThreshold: 2,
 };
 
 describe('temperature progress', () => {
@@ -35,22 +34,22 @@ describe('temperature progress', () => {
   });
 
   it('handles exact threshold boundaries', () => {
+    expect(getTemperatureStatus(69.9, 90, thresholds)).toBe('far_below');
     expect(getTemperatureStatus(70, 90, thresholds)).toBe('heating');
     expect(getTemperatureStatus(85, 90, thresholds)).toBe('heating');
     expect(getTemperatureStatus(85.1, 90, thresholds)).toBe('near_target');
+    expect(getTemperatureStatus(87.9, 90, thresholds)).toBe('near_target');
+    expect(getTemperatureStatus(88, 90, thresholds)).toBe('target_reached');
     expect(getTemperatureStatus(90, 90, thresholds)).toBe('target_reached');
     expect(getTemperatureStatus(92, 90, thresholds)).toBe('target_reached');
     expect(getTemperatureStatus(92.1, 90, thresholds)).toBe('above_target');
   });
 
-  it('uses the above-target threshold independently', () => {
-    expect(
-      getTemperatureStatus(93, 90, {
-        nearTargetThreshold: 5,
-        targetReachedTolerance: 2,
-        aboveTargetThreshold: 4,
-      }),
-    ).toBe('target_reached');
+  it('uses target-reached tolerance on both sides of the target', () => {
+    expect(getTemperatureStatus(88, 90, thresholds)).toBe('target_reached');
+    expect(getTemperatureStatus(92, 90, thresholds)).toBe('target_reached');
+    expect(getTemperatureStatus(87.99, 90, thresholds)).toBe('near_target');
+    expect(getTemperatureStatus(92.01, 90, thresholds)).toBe('above_target');
   });
 
   it('normalizes progress and clamps it between 0 and 1', () => {
@@ -65,12 +64,10 @@ describe('temperature progress', () => {
       normalizeTemperatureThresholds({
         nearTargetThreshold: Number.NaN,
         targetReachedTolerance: -1,
-        aboveTargetThreshold: 1,
       }),
     ).toEqual({
       nearTargetThreshold: 5,
       targetReachedTolerance: 0,
-      aboveTargetThreshold: 1,
     });
   });
 

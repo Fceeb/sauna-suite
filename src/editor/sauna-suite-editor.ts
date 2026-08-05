@@ -88,14 +88,6 @@ export class SaunaSuiteEditor extends LitElement {
         20,
         0.5,
       ),
-      this.numberField(
-        'above_target_threshold',
-        'editor.aboveTargetThreshold',
-        'editor.aboveTargetThresholdDescription',
-        0,
-        20,
-        0.5,
-      ),
     ];
 
     if (this.config.control_temperature_mode === 'weighted_average') {

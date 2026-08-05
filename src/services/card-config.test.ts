@@ -15,7 +15,6 @@ describe('card configuration', () => {
       show_temperature_zones: true,
       near_target_threshold: 5,
       target_reached_tolerance: 2,
-      above_target_threshold: 2,
       show_temperature_trend: true,
       trend_history_minutes: 120,
       trend_refresh_minutes: 5,
@@ -69,12 +68,11 @@ describe('card configuration', () => {
     });
   });
 
-  it('normalizes invalid interactive settings safely', () => {
+  it('normalizes invalid interactive settings safely after removing legacy thresholds', () => {
     expect(
       normalizeConfig({
         near_target_threshold: -5,
         target_reached_tolerance: Number.NaN,
-        above_target_threshold: 1,
         trend_history_minutes: 1,
         trend_refresh_minutes: 100,
         confirm_switch_on: false,
@@ -82,10 +80,19 @@ describe('card configuration', () => {
     ).toMatchObject({
       near_target_threshold: 0,
       target_reached_tolerance: 2,
-      above_target_threshold: 2,
       trend_history_minutes: 15,
       trend_refresh_minutes: 60,
       confirm_switch_on: false,
     });
+  });
+
+  it('does not preserve unknown legacy threshold configuration', () => {
+    const legacyThresholdKey = `above_${'target'}_threshold`;
+
+    expect(
+      normalizeConfig({
+        [legacyThresholdKey]: 8,
+      } as never),
+    ).not.toHaveProperty(legacyThresholdKey);
   });
 });

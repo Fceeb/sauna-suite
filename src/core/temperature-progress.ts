@@ -12,7 +12,6 @@ export type TemperatureStatus = (typeof TEMPERATURE_STATUSES)[number];
 export interface TemperatureProgressThresholds {
   nearTargetThreshold: number;
   targetReachedTolerance: number;
-  aboveTargetThreshold: number;
 }
 
 export interface TemperatureProgress {
@@ -29,7 +28,6 @@ export interface TemperatureStatusColors {
 export const DEFAULT_TEMPERATURE_THRESHOLDS: TemperatureProgressThresholds = {
   nearTargetThreshold: 5,
   targetReachedTolerance: 2,
-  aboveTargetThreshold: 2,
 };
 
 export const TEMPERATURE_STATUS_COLORS: Record<TemperatureStatus, TemperatureStatusColors> = {
@@ -73,24 +71,14 @@ export function calculateTemperatureDifferenceToTarget(
 export function normalizeTemperatureThresholds(
   thresholds: Partial<TemperatureProgressThresholds>,
 ): TemperatureProgressThresholds {
-  const nearTargetThreshold = normalizePositive(
-    thresholds.nearTargetThreshold,
-    DEFAULT_TEMPERATURE_THRESHOLDS.nearTargetThreshold,
-  );
-  const targetReachedTolerance = normalizePositive(
-    thresholds.targetReachedTolerance,
-    DEFAULT_TEMPERATURE_THRESHOLDS.targetReachedTolerance,
-  );
-
   return {
-    nearTargetThreshold,
-    targetReachedTolerance,
-    aboveTargetThreshold: Math.max(
-      targetReachedTolerance,
-      normalizePositive(
-        thresholds.aboveTargetThreshold,
-        DEFAULT_TEMPERATURE_THRESHOLDS.aboveTargetThreshold,
-      ),
+    nearTargetThreshold: normalizePositive(
+      thresholds.nearTargetThreshold,
+      DEFAULT_TEMPERATURE_THRESHOLDS.nearTargetThreshold,
+    ),
+    targetReachedTolerance: normalizePositive(
+      thresholds.targetReachedTolerance,
+      DEFAULT_TEMPERATURE_THRESHOLDS.targetReachedTolerance,
     ),
   };
 }
@@ -116,11 +104,11 @@ export function getTemperatureStatus(
     return 'heating';
   }
 
-  if (difference < 0) {
+  if (difference < -normalizedThresholds.targetReachedTolerance) {
     return 'near_target';
   }
 
-  if (difference <= normalizedThresholds.aboveTargetThreshold) {
+  if (difference <= normalizedThresholds.targetReachedTolerance) {
     return 'target_reached';
   }
 

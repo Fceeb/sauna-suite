@@ -37,7 +37,12 @@ The card displays:
 - target-temperature controls
 - zone and outside temperatures
 - stratification
-- compact Recorder-backed trend
+- compact Recorder-backed trend for direct top, middle or bottom modes
+
+For calculated control-temperature modes, the card intentionally disables the
+trend instead of showing one physical sensor history as a calculated trend.
+Future multi-sensor history aggregation should live outside the rendering layer
+and feed the trend component with already calculated samples.
 
 The card layer must not contain automatic heater switching, temperature
 regulation, battery optimization, alarm acknowledgement or other
@@ -64,6 +69,10 @@ required.
 - `target_reached`
 - `above_target`
 
+Temperature status thresholds are non-overlapping: target reached uses the
+configured tolerance both below and above the target temperature, while
+above-target starts only beyond that tolerance.
+
 Status colors are centralized in `temperature-progress.ts` so future RGB light
 support can reuse the same semantic mapping without coupling lights to the card
 view.
@@ -80,6 +89,10 @@ service calls. Failures return structured errors and are rendered by the card.
 `src/services/temperature-history.ts` retrieves recent Recorder history through
 the Home Assistant frontend API, parses numeric samples, drops unavailable
 states and reduces large responses before rendering.
+
+`src/services/trend-entity.ts` selects trend source entities only for direct
+sensor modes (`top`, `middle` and `bottom`). Calculated modes return no trend
+entity until multi-sensor history aggregation is implemented.
 
 ## Components
 
