@@ -1,9 +1,39 @@
 {
   "card": {
+    "bottomTemperature": "Unten",
+    "controlTemperature": "Regeltemperatur",
+    "earlyDevelopment": "Fruehe Entwicklung",
+    "middleTemperature": "Mitte",
     "name": "Sauna Suite",
-    "placeholder": "Grundlagen-Platzhalter"
+    "notAvailable": "Nicht verfuegbar",
+    "outsideTemperature": "Aussen",
+    "placeholder": "Nur Monitoring-Anzeige. Es ist keine Sauna-Steuerlogik implementiert.",
+    "stratification": "Temperaturschichtung",
+    "targetTemperature": "Ziel",
+    "topTemperature": "Oben"
   },
   "editor": {
-    "cardName": "Kartenname"
+    "cardName": "Kartenname",
+    "controlTemperatureMode": "Modus fuer Regeltemperatur",
+    "mainSwitchEntity": "Hauptschalter-Entitaet",
+    "outsideTemperatureEntity": "Aussentemperatur-Entitaet",
+    "showOutsideTemperature": "Aussentemperatur anzeigen",
+    "showTemperatureZones": "Temperaturzonen anzeigen",
+    "targetTemperatureEntity": "Zieltemperatur-Entitaet",
+    "temperatureBottomEntity": "Temperatur unten",
+    "temperatureMiddleEntity": "Temperatur Mitte",
+    "temperatureTopEntity": "Temperatur oben",
+    "weightBottom": "Gewichtung unten",
+    "weightMiddle": "Gewichtung Mitte",
+    "weightTop": "Gewichtung oben"
+  },
+  "modes": {
+    "average": "Durchschnitt",
+    "bottom": "Unten",
+    "maximum": "Maximum",
+    "middle": "Mitte",
+    "minimum": "Minimum",
+    "top": "Oben",
+    "weighted_average": "Gewichteter Durchschnitt"
   }
 }

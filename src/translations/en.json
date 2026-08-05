@@ -1,9 +1,39 @@
 {
   "card": {
+    "bottomTemperature": "Bottom",
+    "controlTemperature": "Control temperature",
+    "earlyDevelopment": "Early Development",
+    "middleTemperature": "Middle",
     "name": "Sauna Suite",
-    "placeholder": "Foundation placeholder"
+    "notAvailable": "Not available",
+    "outsideTemperature": "Outside",
+    "placeholder": "Monitoring display only. No sauna control logic is implemented.",
+    "stratification": "Stratification",
+    "targetTemperature": "Target",
+    "topTemperature": "Top"
   },
   "editor": {
-    "cardName": "Card name"
+    "cardName": "Card name",
+    "controlTemperatureMode": "Control temperature mode",
+    "mainSwitchEntity": "Main switch entity",
+    "outsideTemperatureEntity": "Outside temperature entity",
+    "showOutsideTemperature": "Show outside temperature",
+    "showTemperatureZones": "Show temperature zones",
+    "targetTemperatureEntity": "Target temperature entity",
+    "temperatureBottomEntity": "Bottom temperature entity",
+    "temperatureMiddleEntity": "Middle temperature entity",
+    "temperatureTopEntity": "Top temperature entity",
+    "weightBottom": "Bottom weight",
+    "weightMiddle": "Middle weight",
+    "weightTop": "Top weight"
+  },
+  "modes": {
+    "average": "Average",
+    "bottom": "Bottom",
+    "maximum": "Maximum",
+    "middle": "Middle",
+    "minimum": "Minimum",
+    "top": "Top",
+    "weighted_average": "Weighted average"
   }
 }

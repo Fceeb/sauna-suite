@@ -7,6 +7,8 @@ export interface HassEntity {
 }
 
 export interface HomeAssistant {
+  language?: string;
+  selectedLanguage?: string;
   states: Record<string, HassEntity>;
   localize?: (key: string, ...args: unknown[]) => string;
 }

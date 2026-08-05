@@ -7,25 +7,12 @@ export const editorStyles = css`
 
   .form {
     display: grid;
-    gap: 12px;
+    gap: 16px;
   }
 
-  label {
-    color: var(--primary-text-color);
-    display: grid;
+  .fallback {
+    color: var(--secondary-text-color);
     font-size: 14px;
-    gap: 6px;
-  }
-
-  input {
-    background: var(--card-background-color);
-    border: 1px solid var(--divider-color);
-    border-radius: 6px;
-    box-sizing: border-box;
-    color: var(--primary-text-color);
-    font: inherit;
-    min-height: 40px;
-    padding: 8px 10px;
-    width: 100%;
+    line-height: 1.5;
   }
 `;
