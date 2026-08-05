@@ -11,7 +11,13 @@ import { translate } from '../translations/translator';
 interface HaFormSchema {
   name: keyof SaunaSuiteCardConfig;
   label: string;
+  description?: string;
   selector: Record<string, unknown>;
+}
+
+interface EditorSection {
+  titleKey: string;
+  schema: HaFormSchema[];
 }
 
 @customElement(EDITOR_TAG)
@@ -31,37 +37,31 @@ export class SaunaSuiteEditor extends LitElement {
   protected override render(): TemplateResult {
     return html`
       <div class="form">
-        <ha-form
-          .hass=${this.hass}
-          .data=${this.config}
-          .schema=${this.schema}
-          .computeLabel=${this.computeLabel}
-          @value-changed=${this.handleValueChanged}
-        ></ha-form>
+        ${this.sections.map(
+          (section) => html`
+            <section class="section">
+              <h3>${this.t(section.titleKey)}</h3>
+              <ha-form
+                .hass=${this.hass}
+                .data=${this.config}
+                .schema=${section.schema}
+                .computeLabel=${this.computeLabel}
+                .computeHelper=${this.computeHelper}
+                @value-changed=${this.handleValueChanged}
+              ></ha-form>
+            </section>
+          `,
+        )}
       </div>
     `;
   }
 
-  private get schema(): HaFormSchema[] {
-    const schema: HaFormSchema[] = [
-      this.textField('name', 'editor.cardName'),
-      this.entityField('main_switch_entity', 'editor.mainSwitchEntity', [
-        { domain: 'switch' },
-        { domain: 'input_boolean' },
-      ]),
-      this.temperatureSensorField('temperature_top_entity', 'editor.temperatureTopEntity'),
-      this.temperatureSensorField('temperature_middle_entity', 'editor.temperatureMiddleEntity'),
-      this.temperatureSensorField('temperature_bottom_entity', 'editor.temperatureBottomEntity'),
-      this.entityField('outside_temperature_entity', 'editor.outsideTemperatureEntity', [
-        { domain: 'sensor', device_class: 'temperature' },
-      ]),
-      this.entityField('target_temperature_entity', 'editor.targetTemperatureEntity', [
-        { domain: 'number' },
-        { domain: 'input_number' },
-      ]),
+  private get sections(): EditorSection[] {
+    const temperatureCalculationFields = [
       {
         name: 'control_temperature_mode',
         label: this.t('editor.controlTemperatureMode'),
+        description: this.t('editor.controlTemperatureModeDescription'),
         selector: {
           select: {
             mode: 'dropdown',
@@ -71,26 +71,157 @@ export class SaunaSuiteEditor extends LitElement {
             })),
           },
         },
-      },
+      } satisfies HaFormSchema,
+      this.numberField(
+        'near_target_threshold',
+        'editor.nearTargetThreshold',
+        'editor.nearTargetThresholdDescription',
+        0,
+        50,
+        0.5,
+      ),
+      this.numberField(
+        'target_reached_tolerance',
+        'editor.targetReachedTolerance',
+        'editor.targetReachedToleranceDescription',
+        0,
+        20,
+        0.5,
+      ),
     ];
 
     if (this.config.control_temperature_mode === 'weighted_average') {
-      schema.push(
-        this.numberField('weight_top', 'editor.weightTop'),
-        this.numberField('weight_middle', 'editor.weightMiddle'),
-        this.numberField('weight_bottom', 'editor.weightBottom'),
+      temperatureCalculationFields.push(
+        this.numberField(
+          'weight_top',
+          'editor.weightTop',
+          'editor.weightTopDescription',
+          0,
+          10,
+          0.1,
+        ),
+        this.numberField(
+          'weight_middle',
+          'editor.weightMiddle',
+          'editor.weightMiddleDescription',
+          0,
+          10,
+          0.1,
+        ),
+        this.numberField(
+          'weight_bottom',
+          'editor.weightBottom',
+          'editor.weightBottomDescription',
+          0,
+          10,
+          0.1,
+        ),
       );
     }
 
-    schema.push(
-      this.booleanField('show_outside_temperature', 'editor.showOutsideTemperature'),
-      this.booleanField('show_temperature_zones', 'editor.showTemperatureZones'),
-    );
-
-    return schema;
+    return [
+      {
+        titleKey: 'editor.sections.general',
+        schema: [this.textField('name', 'editor.cardName', 'editor.cardNameDescription')],
+      },
+      {
+        titleKey: 'editor.sections.entities',
+        schema: [
+          this.entityField(
+            'main_switch_entity',
+            'editor.mainSwitchEntity',
+            'editor.mainSwitchEntityDescription',
+            [{ domain: 'switch' }, { domain: 'input_boolean' }],
+          ),
+          this.temperatureSensorField(
+            'temperature_top_entity',
+            'editor.temperatureTopEntity',
+            'editor.temperatureTopEntityDescription',
+          ),
+          this.temperatureSensorField(
+            'temperature_middle_entity',
+            'editor.temperatureMiddleEntity',
+            'editor.temperatureMiddleEntityDescription',
+          ),
+          this.temperatureSensorField(
+            'temperature_bottom_entity',
+            'editor.temperatureBottomEntity',
+            'editor.temperatureBottomEntityDescription',
+          ),
+          this.entityField(
+            'outside_temperature_entity',
+            'editor.outsideTemperatureEntity',
+            'editor.outsideTemperatureEntityDescription',
+            [{ domain: 'sensor', device_class: 'temperature' }],
+          ),
+          this.entityField(
+            'target_temperature_entity',
+            'editor.targetTemperatureEntity',
+            'editor.targetTemperatureEntityDescription',
+            [{ domain: 'number' }, { domain: 'input_number' }],
+          ),
+        ],
+      },
+      {
+        titleKey: 'editor.sections.temperatureCalculation',
+        schema: temperatureCalculationFields,
+      },
+      {
+        titleKey: 'editor.sections.display',
+        schema: [
+          this.booleanField(
+            'show_outside_temperature',
+            'editor.showOutsideTemperature',
+            'editor.showOutsideTemperatureDescription',
+          ),
+          this.booleanField(
+            'show_temperature_zones',
+            'editor.showTemperatureZones',
+            'editor.showTemperatureZonesDescription',
+          ),
+        ],
+      },
+      {
+        titleKey: 'editor.sections.trend',
+        schema: [
+          this.booleanField(
+            'show_temperature_trend',
+            'editor.showTemperatureTrend',
+            'editor.showTemperatureTrendDescription',
+          ),
+          this.numberField(
+            'trend_history_minutes',
+            'editor.trendHistoryMinutes',
+            'editor.trendHistoryMinutesDescription',
+            15,
+            1440,
+            15,
+          ),
+          this.numberField(
+            'trend_refresh_minutes',
+            'editor.trendRefreshMinutes',
+            'editor.trendRefreshMinutesDescription',
+            1,
+            60,
+            1,
+          ),
+        ],
+      },
+      {
+        titleKey: 'editor.sections.safety',
+        schema: [
+          this.booleanField(
+            'confirm_switch_on',
+            'editor.confirmSwitchOn',
+            'editor.confirmSwitchOnDescription',
+          ),
+        ],
+      },
+    ];
   }
 
   private readonly computeLabel = (schema: HaFormSchema): string => schema.label;
+  private readonly computeHelper = (schema: HaFormSchema): string | undefined => schema.description;
 
   private handleValueChanged(event: CustomEvent<{ value: Partial<SaunaSuiteCardConfig> }>): void {
     this.updateConfig(event.detail.value);
@@ -113,28 +244,41 @@ export class SaunaSuiteEditor extends LitElement {
     );
   }
 
-  private textField(name: keyof SaunaSuiteCardConfig, labelKey: string): HaFormSchema {
+  private textField(
+    name: keyof SaunaSuiteCardConfig,
+    labelKey: string,
+    descriptionKey: string,
+  ): HaFormSchema {
     return {
       name,
       label: this.t(labelKey),
+      description: this.t(descriptionKey),
       selector: {
         text: {},
       },
     };
   }
 
-  private temperatureSensorField(name: keyof SaunaSuiteCardConfig, labelKey: string): HaFormSchema {
-    return this.entityField(name, labelKey, [{ domain: 'sensor', device_class: 'temperature' }]);
+  private temperatureSensorField(
+    name: keyof SaunaSuiteCardConfig,
+    labelKey: string,
+    descriptionKey: string,
+  ): HaFormSchema {
+    return this.entityField(name, labelKey, descriptionKey, [
+      { domain: 'sensor', device_class: 'temperature' },
+    ]);
   }
 
   private entityField(
     name: keyof SaunaSuiteCardConfig,
     labelKey: string,
+    descriptionKey: string,
     filter: Record<string, string>[],
   ): HaFormSchema {
     return {
       name,
       label: this.t(labelKey),
+      description: this.t(descriptionKey),
       selector: {
         entity: {
           filter,
@@ -143,24 +287,38 @@ export class SaunaSuiteEditor extends LitElement {
     };
   }
 
-  private numberField(name: keyof SaunaSuiteCardConfig, labelKey: string): HaFormSchema {
+  private numberField(
+    name: keyof SaunaSuiteCardConfig,
+    labelKey: string,
+    descriptionKey: string,
+    minimum: number,
+    maximum: number,
+    step: number,
+  ): HaFormSchema {
     return {
       name,
       label: this.t(labelKey),
+      description: this.t(descriptionKey),
       selector: {
         number: {
-          min: 0,
+          min: minimum,
+          max: maximum,
           mode: 'box',
-          step: 0.1,
+          step,
         },
       },
     };
   }
 
-  private booleanField(name: keyof SaunaSuiteCardConfig, labelKey: string): HaFormSchema {
+  private booleanField(
+    name: keyof SaunaSuiteCardConfig,
+    labelKey: string,
+    descriptionKey: string,
+  ): HaFormSchema {
     return {
       name,
       label: this.t(labelKey),
+      description: this.t(descriptionKey),
       selector: {
         boolean: {},
       },

@@ -3,17 +3,19 @@
 Sauna Suite is an open-source Home Assistant project for a professional,
 modular and HACS-compatible sauna dashboard experience.
 
-This repository currently contains the project foundation and a monitoring-only
-multi-zone temperature display for the Lovelace custom card named
-`custom:sauna-suite-card`.
+This repository currently contains a Lovelace custom card named
+`custom:sauna-suite-card` with manual controls, multi-zone temperature
+monitoring, target-temperature adjustment and a compact Recorder-backed trend
+for direct sensor modes.
 
 ![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
 
 ## Status
 
-Early development. This project does not include sauna heater switching, Home
-Assistant temperature regulation, battery optimization, alarms or any
-safety-critical control behavior.
+Early development. This version provides manual user controls and monitoring
+only. It does not automatically switch the sauna heater, regulate temperature,
+run schedules, control RGB lights, play alarms, calculate ETA or optimize
+energy, PV or battery usage.
 
 ## Planned Capabilities
 
@@ -118,6 +120,12 @@ weight_middle: 2
 weight_bottom: 1
 show_outside_temperature: true
 show_temperature_zones: true
+near_target_threshold: 5
+target_reached_tolerance: 2
+show_temperature_trend: true
+trend_history_minutes: 120
+trend_refresh_minutes: 5
+confirm_switch_on: true
 ```
 
 Supported `control_temperature_mode` values:
@@ -133,6 +141,40 @@ Supported `control_temperature_mode` values:
 Weighted averages use only sensors with valid numeric states. Missing,
 `unavailable`, `unknown` and non-numeric sensor states are ignored instead of
 being treated as zero.
+
+## Manual Controls
+
+The power button manually toggles the configured `main_switch_entity`.
+Supported domains are `switch` and `input_boolean`.
+
+Switching on requires confirmation by default. Switching off happens directly.
+These actions call only:
+
+- `switch.turn_on` / `switch.turn_off`
+- `input_boolean.turn_on` / `input_boolean.turn_off`
+
+The target-temperature controls write only to the configured
+`target_temperature_entity`. Supported domains are `number` and `input_number`.
+The card uses the entity's `min`, `max` and `step` attributes for clamping,
+rounding, plus/minus buttons and the optional slider.
+
+The target setting is not used to switch or regulate sauna equipment
+automatically.
+
+## Temperature Trend
+
+The compact trend uses the Home Assistant Recorder history API for recent
+temperature samples. In this version, trends are available only when
+`control_temperature_mode` is `top`, `middle` or `bottom`, because those modes
+map to one physical sensor.
+
+For calculated modes (`average`, `weighted_average`, `minimum` and `maximum`),
+the card does not show a single sensor history as if it were the calculated
+control-temperature trend. Multi-sensor history aggregation is planned for a
+later release.
+
+If Recorder or history is unavailable, the card still works and shows an empty
+trend state.
 
 ## Development
 

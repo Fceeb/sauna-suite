@@ -4,7 +4,7 @@ import { createDefaultConfig, normalizeConfig } from './card-config';
 
 describe('card configuration', () => {
   it('creates defaults for new cards', () => {
-    expect(createDefaultConfig()).toEqual({
+    expect(createDefaultConfig()).toMatchObject({
       type: 'custom:sauna-suite-card',
       name: 'Sauna Suite',
       control_temperature_mode: 'average',
@@ -13,6 +13,12 @@ describe('card configuration', () => {
       weight_bottom: 1,
       show_outside_temperature: false,
       show_temperature_zones: true,
+      near_target_threshold: 5,
+      target_reached_tolerance: 2,
+      show_temperature_trend: true,
+      trend_history_minutes: 120,
+      trend_refresh_minutes: 5,
+      confirm_switch_on: true,
     });
   });
 
@@ -60,5 +66,33 @@ describe('card configuration', () => {
       weight_middle: 2,
       weight_bottom: 1,
     });
+  });
+
+  it('normalizes invalid interactive settings safely after removing legacy thresholds', () => {
+    expect(
+      normalizeConfig({
+        near_target_threshold: -5,
+        target_reached_tolerance: Number.NaN,
+        trend_history_minutes: 1,
+        trend_refresh_minutes: 100,
+        confirm_switch_on: false,
+      }),
+    ).toMatchObject({
+      near_target_threshold: 0,
+      target_reached_tolerance: 2,
+      trend_history_minutes: 15,
+      trend_refresh_minutes: 60,
+      confirm_switch_on: false,
+    });
+  });
+
+  it('does not preserve unknown legacy threshold configuration', () => {
+    const legacyThresholdKey = `above_${'target'}_threshold`;
+
+    expect(
+      normalizeConfig({
+        [legacyThresholdKey]: 8,
+      } as never),
+    ).not.toHaveProperty(legacyThresholdKey);
   });
 });
