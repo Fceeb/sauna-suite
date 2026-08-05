@@ -1,0 +1,66 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="900"
+  height="520"
+  viewBox="0 0 900 520"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Sauna Suite preview</title>
+  <desc id="description">A dark Home Assistant-style card mockup for Sauna Suite.</desc>
+  <rect width="900" height="520" fill="#10151f" />
+  <rect x="70" y="55" width="760" height="410" rx="18" fill="#1b2430" stroke="#344256" />
+  <rect x="100" y="86" width="700" height="348" rx="14" fill="#202b39" />
+  <circle cx="157" cy="158" r="48" fill="#ffb454" opacity="0.16" />
+  <g fill="none" stroke="#ffb454" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M157 132v92" />
+    <path d="M132 225h50" />
+    <path d="M132 245h50" />
+    <path d="M132 265h50" />
+    <path d="M118 285h78" />
+  </g>
+  <g fill="none" stroke="#86d8ff" stroke-width="10" stroke-linecap="round">
+    <path d="M265 126v118" />
+    <circle cx="265" cy="279" r="34" fill="#26394a" />
+    <path d="M265 247v32" />
+  </g>
+  <text
+    x="325"
+    y="165"
+    fill="#f4f7fb"
+    font-family="Inter, Segoe UI, Arial, sans-serif"
+    font-size="54"
+    font-weight="700"
+  >
+    Sauna Suite
+  </text>
+  <text
+    x="325"
+    y="214"
+    fill="#9fb0c3"
+    font-family="Inter, Segoe UI, Arial, sans-serif"
+    font-size="24"
+  >
+    Home Assistant dashboard foundation
+  </text>
+  <rect x="325" y="252" width="246" height="48" rx="24" fill="#2d3b4f" stroke="#465b73" />
+  <text
+    x="354"
+    y="284"
+    fill="#ffcf7a"
+    font-family="Inter, Segoe UI, Arial, sans-serif"
+    font-size="22"
+    font-weight="700"
+  >
+    Early Development
+  </text>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" fill="#c7d2df">
+    <rect x="120" y="350" width="174" height="48" rx="10" fill="#263344" />
+    <text x="140" y="381">Top sensor</text>
+    <rect x="330" y="350" width="174" height="48" rx="10" fill="#263344" />
+    <text x="350" y="381">Middle sensor</text>
+    <rect x="540" y="350" width="174" height="48" rx="10" fill="#263344" />
+    <text x="560" y="381">Bottom sensor</text>
+  </g>
+</svg>
+

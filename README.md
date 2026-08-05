@@ -7,6 +7,8 @@ This repository currently contains the project foundation only. The first
 implementation is a minimal Lovelace custom card placeholder named
 `custom:sauna-suite-card`.
 
+![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
+
 ## Status
 
 Early foundation. No sauna control logic, battery optimization, alarms or
