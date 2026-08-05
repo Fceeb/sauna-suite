@@ -7,12 +7,19 @@ export const editorStyles = css`
 
   .form {
     display: grid;
-    gap: 16px;
+    gap: 18px;
   }
 
-  .fallback {
-    color: var(--secondary-text-color);
+  .section {
+    display: grid;
+    gap: 8px;
+  }
+
+  h3 {
+    color: var(--primary-text-color);
     font-size: 14px;
-    line-height: 1.5;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
   }
 `;

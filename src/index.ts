@@ -1,3 +1,4 @@
+import './components/temperature-trend';
 import './card/sauna-suite-card';
 import './editor/sauna-suite-editor';
 

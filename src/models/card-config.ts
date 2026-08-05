@@ -27,4 +27,11 @@ export interface SaunaSuiteCardConfig {
   weight_bottom: number;
   show_outside_temperature: boolean;
   show_temperature_zones: boolean;
+  near_target_threshold: number;
+  target_reached_tolerance: number;
+  above_target_threshold: number;
+  show_temperature_trend: boolean;
+  trend_history_minutes: number;
+  trend_refresh_minutes: number;
+  confirm_switch_on: boolean;
 }
