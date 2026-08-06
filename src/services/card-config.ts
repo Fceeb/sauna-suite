@@ -1,6 +1,8 @@
 import {
   CONTROL_TEMPERATURE_MODES,
+  HEATING_POWER_MODES,
   type ControlTemperatureMode,
+  type HeatingPowerMode,
   type SaunaSuiteCardConfig,
 } from '../models/card-config';
 import { CARD_TYPE } from '../models/constants';
@@ -8,6 +10,10 @@ import { clampValue } from '../utils/number';
 
 const DEFAULT_NAME = 'Sauna Suite';
 const DEFAULT_WEIGHT = 1;
+const DEFAULT_HEATER_POWER_KW = 9;
+const DEFAULT_OUTSIDE_TEMPERATURE_WEIGHT = 0.15;
+const DEFAULT_ETA_MINIMUM_SAMPLES = 5;
+const DEFAULT_ETA_HISTORY_MINUTES = 30;
 const DEFAULT_NEAR_TARGET_THRESHOLD = 5;
 const DEFAULT_TARGET_REACHED_TOLERANCE = 2;
 const DEFAULT_TREND_HISTORY_MINUTES = 120;
@@ -18,11 +24,20 @@ export function createDefaultConfig(): SaunaSuiteCardConfig {
     type: CARD_TYPE,
     name: DEFAULT_NAME,
     control_temperature_mode: 'average',
+    heating_power_mode: 'fixed',
+    fixed_heater_power_kw: DEFAULT_HEATER_POWER_KW,
+    heater_rated_power_kw: DEFAULT_HEATER_POWER_KW,
+    outside_temperature_weight: DEFAULT_OUTSIDE_TEMPERATURE_WEIGHT,
     weight_top: DEFAULT_WEIGHT,
     weight_middle: DEFAULT_WEIGHT,
     weight_bottom: DEFAULT_WEIGHT,
     show_outside_temperature: false,
     show_temperature_zones: true,
+    show_eta: true,
+    show_ready_time: true,
+    show_heating_rate: true,
+    eta_minimum_samples: DEFAULT_ETA_MINIMUM_SAMPLES,
+    eta_history_minutes: DEFAULT_ETA_HISTORY_MINUTES,
     near_target_threshold: DEFAULT_NEAR_TARGET_THRESHOLD,
     target_reached_tolerance: DEFAULT_TARGET_REACHED_TOLERANCE,
     show_temperature_trend: true,
@@ -38,6 +53,25 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
     type: CARD_TYPE,
     name: normalizeOptionalString(config.name, DEFAULT_NAME),
     control_temperature_mode: normalizeControlMode(config.control_temperature_mode),
+    heating_power_mode: normalizeHeatingPowerMode(config.heating_power_mode),
+    fixed_heater_power_kw: normalizeRange(
+      config.fixed_heater_power_kw,
+      defaults.fixed_heater_power_kw,
+      0,
+      50,
+    ),
+    heater_rated_power_kw: normalizeRange(
+      config.heater_rated_power_kw,
+      defaults.heater_rated_power_kw,
+      0,
+      50,
+    ),
+    outside_temperature_weight: normalizeRange(
+      config.outside_temperature_weight,
+      defaults.outside_temperature_weight,
+      0,
+      1,
+    ),
     weight_top: normalizeWeight(config.weight_top, defaults.weight_top),
     weight_middle: normalizeWeight(config.weight_middle, defaults.weight_middle),
     weight_bottom: normalizeWeight(config.weight_bottom, defaults.weight_bottom),
@@ -48,6 +82,21 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
     show_temperature_zones: normalizeBoolean(
       config.show_temperature_zones,
       defaults.show_temperature_zones,
+    ),
+    show_eta: normalizeBoolean(config.show_eta, defaults.show_eta),
+    show_ready_time: normalizeBoolean(config.show_ready_time, defaults.show_ready_time),
+    show_heating_rate: normalizeBoolean(config.show_heating_rate, defaults.show_heating_rate),
+    eta_minimum_samples: normalizeIntegerRange(
+      config.eta_minimum_samples,
+      defaults.eta_minimum_samples,
+      2,
+      60,
+    ),
+    eta_history_minutes: normalizeRange(
+      config.eta_history_minutes,
+      defaults.eta_history_minutes,
+      5,
+      1440,
     ),
     near_target_threshold: normalizePositiveNumber(
       config.near_target_threshold,
@@ -82,6 +131,11 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
   applyOptionalString(normalized, 'temperature_bottom_entity', config.temperature_bottom_entity);
   applyOptionalString(normalized, 'outside_temperature_entity', config.outside_temperature_entity);
   applyOptionalString(normalized, 'target_temperature_entity', config.target_temperature_entity);
+  applyOptionalString(
+    normalized,
+    'general_power_sensor_entity',
+    config.general_power_sensor_entity,
+  );
 
   return normalized;
 }
@@ -95,6 +149,14 @@ function normalizeControlMode(mode: unknown): ControlTemperatureMode {
   }
 
   return createDefaultConfig().control_temperature_mode;
+}
+
+function normalizeHeatingPowerMode(mode: unknown): HeatingPowerMode {
+  if (typeof mode === 'string' && HEATING_POWER_MODES.includes(mode as HeatingPowerMode)) {
+    return mode as HeatingPowerMode;
+  }
+
+  return createDefaultConfig().heating_power_mode;
 }
 
 function normalizeWeight(value: unknown, fallback: number): number {
@@ -139,7 +201,8 @@ function applyOptionalString(
     | 'temperature_middle_entity'
     | 'temperature_bottom_entity'
     | 'outside_temperature_entity'
-    | 'target_temperature_entity',
+    | 'target_temperature_entity'
+    | 'general_power_sensor_entity',
   value: unknown,
 ): void {
   const normalizedValue = normalizeOptionalString(value);
@@ -160,4 +223,13 @@ function normalizeRange(
   }
 
   return clampValue(value, minimum, maximum);
+}
+
+function normalizeIntegerRange(
+  value: unknown,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  return Math.round(normalizeRange(value, fallback, minimum, maximum));
 }

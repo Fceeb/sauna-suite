@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+﻿// @vitest-environment happy-dom
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -23,6 +23,20 @@ describe('SaunaSuiteEditor', () => {
     );
   });
 
+  it('shows heating power fields for the selected power mode', () => {
+    const editor = createEditor();
+
+    editor.setConfig({ heating_power_mode: 'fixed' });
+    expect(getSchemaNames(editor)).toContain('fixed_heater_power_kw');
+    expect(getSchemaNames(editor)).not.toContain('general_power_sensor_entity');
+    expect(getSchemaNames(editor)).not.toContain('heater_rated_power_kw');
+
+    editor.setConfig({ heating_power_mode: 'general_power_sensor' });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining(['general_power_sensor_entity', 'heater_rated_power_kw']),
+    );
+    expect(getSchemaNames(editor)).not.toContain('fixed_heater_power_kw');
+  });
   it('shows trend timing fields only when the trend is enabled', () => {
     const editor = createEditor();
 

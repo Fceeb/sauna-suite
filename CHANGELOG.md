@@ -9,6 +9,24 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.3.0-alpha.1]
+
+### Added
+
+- Added a premium heating dashboard hero with radial progress, localized heating status, ETA, expected ready time, recent heating rate and effective heater power display.
+- Added deterministic heat-up ETA calculations based on recent Recorder history for direct top, middle or bottom control sensor modes.
+- Added fixed heater power and approximate general power sensor modes with W/kW normalization and rated-power capping.
+- Extended the SVG trend with current-value marker, heating-rate annotation and heating/cooling direction styling.
+- Added visual-editor fields for ETA, power mode, power sensor and correction settings.
+
+### Alpha Notes
+
+- ETA is an estimate based on recent Recorder history and bounded deterministic corrections.
+- General power sensor mode is approximate and does not isolate other household loads.
+- This release remains monitoring and manual-control only; no automatic sauna regulation is implemented.
+- Calculated average/min/max modes still do not have aggregated Recorder history yet.
+- No RGB, audio, PV or battery control is implemented yet.
+
 ## [0.2.0-alpha.1]
 
 ### Changed

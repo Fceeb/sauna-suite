@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+﻿// @vitest-environment happy-dom
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -120,6 +120,46 @@ describe('SaunaSuiteCard', () => {
     expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('loads ETA history from the selected direct sensor mode', async () => {
+    const card = createCard();
+
+    card.setConfig({
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+      show_eta: true,
+      eta_history_minutes: 45,
+      temperature_top_entity: 'sensor.sauna_top',
+    });
+    card.hass = createHass({
+      'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '70'),
+    });
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    expect(fetchTemperatureHistory).toHaveBeenCalledWith(expect.anything(), 'sensor.sauna_top', 45);
+  });
+
+  it('does not load ETA history for calculated control modes', async () => {
+    const card = createCard();
+
+    card.setConfig({
+      control_temperature_mode: 'average',
+      show_temperature_trend: false,
+      show_eta: true,
+      temperature_top_entity: 'sensor.sauna_top',
+      temperature_middle_entity: 'sensor.sauna_middle',
+      temperature_bottom_entity: 'sensor.sauna_bottom',
+    });
+    card.hass = createHass({
+      'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+      'sensor.sauna_middle': createTemperatureEntity('sensor.sauna_middle', '70'),
+      'sensor.sauna_bottom': createTemperatureEntity('sensor.sauna_bottom', '60'),
+    });
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    expect(fetchTemperatureHistory).not.toHaveBeenCalled();
+  });
   it('renders one configured sensor without broken compact values', async () => {
     const card = createCard();
 
@@ -258,7 +298,7 @@ function createHass(
 function createTemperatureEntity(entityId: string, state: string): HassEntity {
   return createEntity(entityId, state, {
     device_class: 'temperature',
-    unit_of_measurement: 'Â°C',
+    unit_of_measurement: 'Ã‚Â°C',
   });
 }
 

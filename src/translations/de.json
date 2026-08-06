@@ -25,7 +25,13 @@
     "topTemperature": "Oben",
     "trendDirectModesOnly": "Der Trend ist derzeit nur für direkte Sensormodi verfügbar.",
     "trendLoading": "Verlaufsdaten werden geladen",
-    "trendUnavailable": "Keine Verlaufsdaten verfuegbar"
+    "trendUnavailable": "Keine Verlaufsdaten verfuegbar",
+    "effectivePower": "Heizleistung",
+    "estimatedPower": "Geschaetzte Heizleistung",
+    "etaUnavailable": "ETA nicht verfuegbar",
+    "heatingRate": "Heizrate",
+    "ready": "Bereit",
+    "readyAt": "Bereit um"
   },
   "editor": {
     "cardName": "Kartenname",
@@ -46,7 +52,8 @@
       "general": "Allgemein",
       "safety": "Sicherheit und Bestaetigung",
       "temperatureCalculation": "Temperaturberechnung",
-      "trend": "Verlauf"
+      "trend": "Verlauf",
+      "heatingEta": "Heiz-ETA"
     },
     "showOutsideTemperature": "Aussentemperatur anzeigen",
     "showOutsideTemperatureDescription": "Aussentemperatur anzeigen, wenn eine Entitaet konfiguriert ist.",
@@ -73,7 +80,27 @@
     "weightMiddle": "Gewichtung Mitte",
     "weightMiddleDescription": "Gewichtung fuer den mittleren Sensor beim gewichteten Durchschnitt.",
     "weightTop": "Gewichtung oben",
-    "weightTopDescription": "Gewichtung fuer den oberen Sensor beim gewichteten Durchschnitt."
+    "weightTopDescription": "Gewichtung fuer den oberen Sensor beim gewichteten Durchschnitt.",
+    "etaHistoryMinutes": "ETA-Verlauf in Minuten",
+    "etaHistoryMinutesDescription": "Recorder-Zeitfenster fuer ETA und Heizrate.",
+    "etaMinimumSamples": "ETA-Mindestanzahl Samples",
+    "etaMinimumSamplesDescription": "Mindestanzahl gueltiger Recorder-Samples fuer die ETA.",
+    "fixedHeaterPowerKw": "Feste Ofenleistung (kW)",
+    "fixedHeaterPowerKwDescription": "Nennleistung des Ofens fuer die ETA ohne Leistungssensor.",
+    "generalPowerSensorEntity": "Allgemeiner Leistungssensor",
+    "generalPowerSensorEntityDescription": "Ungefaehrer Gesamtleistungssensor. W und kW werden unterstuetzt.",
+    "heaterRatedPowerKw": "Ofen-Nennleistung (kW)",
+    "heaterRatedPowerKwDescription": "Maximaler Sauna-Anteil fuer die Schaetzung aus dem allgemeinen Leistungssensor.",
+    "heatingPowerMode": "Heizleistungsmodus",
+    "heatingPowerModeDescription": "Feste Ofenleistung oder ungefaehre Schaetzung aus einem allgemeinen Leistungssensor.",
+    "outsideTemperatureWeight": "Aussentemperatur-Gewichtung",
+    "outsideTemperatureWeightDescription": "Begrenzte ETA-Korrekturstaerke fuer die Aussentemperatur.",
+    "showEta": "ETA anzeigen",
+    "showEtaDescription": "Deterministische Aufheizschaetzung anzeigen, wenn genug Recorder-Daten vorhanden sind.",
+    "showHeatingRate": "Heizrate und Leistung anzeigen",
+    "showHeatingRateDescription": "Gemessene aktuelle Heizrate und effektive Heizleistung anzeigen.",
+    "showReadyTime": "Bereit-Uhrzeit anzeigen",
+    "showReadyTimeDescription": "Erwartete Uhrzeit anzeigen, wenn eine ETA verfuegbar ist."
   },
   "modes": {
     "average": "Durchschnitt",
@@ -91,5 +118,26 @@
     "near_target": "Nahe am Ziel",
     "target_reached": "Ziel erreicht",
     "unavailable": "Temperatur nicht verfuegbar"
+  },
+  "eta": {
+    "readyIn": "Bereit in",
+    "hour": "h",
+    "hours": "h",
+    "minute": "min",
+    "minutes": "min"
+  },
+  "heatingPowerModes": {
+    "fixed": "Feste Ofenleistung",
+    "general_power_sensor": "Allgemeiner Leistungssensor"
+  },
+  "heatingStatus": {
+    "off": "Aus",
+    "heating": "Heizt",
+    "slowly_heating": "Heizt langsam",
+    "near_target": "Nahe am Ziel",
+    "ready": "Bereit",
+    "above_target": "Ueber Ziel",
+    "cooling": "Kuehlt ab",
+    "data_unavailable": "Daten nicht verfuegbar"
   }
 }
