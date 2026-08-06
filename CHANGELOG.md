@@ -9,6 +9,22 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.2.0-alpha.1]
+
+### Changed
+
+- Redesigned the Sauna Suite card with a compact premium layout, including a clearer header, stronger control-temperature hero section, compact zone tiles, polished manual power control and responsive target-temperature controls.
+- Refined the Recorder trend panel with status-colored line styling, a subtle gradient fill and an optional target-temperature reference line.
+- Improved the visual editor layout with grouped collapsible sections and conditional trend timing fields.
+- Updated the repository preview image to reflect the redesigned card.
+
+### Alpha Notes
+
+- This is alpha software and may change before a stable release.
+- This release redesigns the interface only and does not add automatic sauna regulation.
+- No RGB light signaling or audio alarm support is implemented yet.
+- No PV or battery optimization is implemented yet.
+
 ## [0.1.0-alpha.3]
 
 ### Fixed

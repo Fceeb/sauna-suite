@@ -39,8 +39,8 @@ export class SaunaSuiteEditor extends LitElement {
       <div class="form">
         ${this.sections.map(
           (section) => html`
-            <section class="section">
-              <h3>${this.t(section.titleKey)}</h3>
+            <details class="section" open>
+              <summary>${this.t(section.titleKey)}</summary>
               <ha-form
                 .hass=${this.hass}
                 .data=${this.config}
@@ -49,7 +49,7 @@ export class SaunaSuiteEditor extends LitElement {
                 .computeHelper=${this.computeHelper}
                 @value-changed=${this.handleValueChanged}
               ></ha-form>
-            </section>
+            </details>
           `,
         )}
       </div>
@@ -119,6 +119,35 @@ export class SaunaSuiteEditor extends LitElement {
       );
     }
 
+    const trendFields = [
+      this.booleanField(
+        'show_temperature_trend',
+        'editor.showTemperatureTrend',
+        'editor.showTemperatureTrendDescription',
+      ),
+    ];
+
+    if (this.config.show_temperature_trend) {
+      trendFields.push(
+        this.numberField(
+          'trend_history_minutes',
+          'editor.trendHistoryMinutes',
+          'editor.trendHistoryMinutesDescription',
+          15,
+          1440,
+          15,
+        ),
+        this.numberField(
+          'trend_refresh_minutes',
+          'editor.trendRefreshMinutes',
+          'editor.trendRefreshMinutesDescription',
+          1,
+          60,
+          1,
+        ),
+      );
+    }
+
     return [
       {
         titleKey: 'editor.sections.general',
@@ -183,29 +212,7 @@ export class SaunaSuiteEditor extends LitElement {
       },
       {
         titleKey: 'editor.sections.trend',
-        schema: [
-          this.booleanField(
-            'show_temperature_trend',
-            'editor.showTemperatureTrend',
-            'editor.showTemperatureTrendDescription',
-          ),
-          this.numberField(
-            'trend_history_minutes',
-            'editor.trendHistoryMinutes',
-            'editor.trendHistoryMinutesDescription',
-            15,
-            1440,
-            15,
-          ),
-          this.numberField(
-            'trend_refresh_minutes',
-            'editor.trendRefreshMinutes',
-            'editor.trendRefreshMinutesDescription',
-            1,
-            60,
-            1,
-          ),
-        ],
+        schema: trendFields,
       },
       {
         titleKey: 'editor.sections.safety',
