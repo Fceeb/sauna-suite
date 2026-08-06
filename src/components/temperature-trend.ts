@@ -1,13 +1,12 @@
 import { LitElement, html, svg, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 
 import type { TemperatureStatus } from '../core/temperature-progress';
 import { getTemperatureStatusColors } from '../core/temperature-progress';
+import { TEMPERATURE_TREND_TAG } from '../models/constants';
+import { defineCustomElement } from '../services/custom-element-registry';
 import type { TemperatureHistorySample } from '../services/temperature-history';
 
-const TREND_TAG = 'sauna-suite-temperature-trend';
-
-@customElement(TREND_TAG)
 export class TemperatureTrend extends LitElement {
   @property({ attribute: false })
   public samples: TemperatureHistorySample[] = [];
@@ -69,8 +68,10 @@ export class TemperatureTrend extends LitElement {
   }
 }
 
+defineCustomElement(customElements, TEMPERATURE_TREND_TAG, TemperatureTrend);
+
 declare global {
   interface HTMLElementTagNameMap {
-    [TREND_TAG]: TemperatureTrend;
+    [TEMPERATURE_TREND_TAG]: TemperatureTrend;
   }
 }

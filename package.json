@@ -1,6 +1,6 @@
 {
   "name": "sauna-suite",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "A modular HACS-compatible sauna suite for Home Assistant.",
   "type": "module",
   "private": false,

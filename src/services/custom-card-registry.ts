@@ -1,10 +1,10 @@
-import { CARD_TYPE } from '../models/constants';
+import { CARD_PICKER_TYPE } from '../models/constants';
 import type { CustomCardMetadata } from '../models/custom-card';
 
-const CARD_METADATA: CustomCardMetadata = {
-  type: CARD_TYPE,
-  name: 'Sauna Suite Card',
-  description: 'A placeholder card for the Sauna Suite Home Assistant project.',
+export const CARD_METADATA: CustomCardMetadata = {
+  type: CARD_PICKER_TYPE,
+  name: 'Sauna Suite',
+  description: 'A Home Assistant dashboard card for sauna monitoring and manual controls.',
   preview: true,
 };
 
