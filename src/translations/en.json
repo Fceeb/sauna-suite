@@ -25,7 +25,13 @@
     "topTemperature": "Top",
     "trendDirectModesOnly": "Trend is currently available only for direct sensor modes.",
     "trendLoading": "Loading trend data",
-    "trendUnavailable": "No trend data available"
+    "trendUnavailable": "No trend data available",
+    "effectivePower": "Heating power",
+    "estimatedPower": "Estimated heating power",
+    "etaUnavailable": "ETA unavailable",
+    "heatingRate": "Heating rate",
+    "ready": "Ready",
+    "readyAt": "Ready at"
   },
   "editor": {
     "cardName": "Card name",
@@ -46,7 +52,8 @@
       "general": "General",
       "safety": "Safety and confirmation",
       "temperatureCalculation": "Temperature calculation",
-      "trend": "Trend"
+      "trend": "Trend",
+      "heatingEta": "Heating ETA"
     },
     "showOutsideTemperature": "Show outside temperature",
     "showOutsideTemperatureDescription": "Display the outside temperature when an entity is configured.",
@@ -73,7 +80,27 @@
     "weightMiddle": "Middle weight",
     "weightMiddleDescription": "Weight for middle sensor when weighted average is selected.",
     "weightTop": "Top weight",
-    "weightTopDescription": "Weight for top sensor when weighted average is selected."
+    "weightTopDescription": "Weight for top sensor when weighted average is selected.",
+    "etaHistoryMinutes": "ETA history minutes",
+    "etaHistoryMinutesDescription": "Recorder history window used for ETA and heating-rate calculation.",
+    "etaMinimumSamples": "ETA minimum samples",
+    "etaMinimumSamplesDescription": "Minimum valid Recorder samples required before ETA is calculated.",
+    "fixedHeaterPowerKw": "Fixed heater power (kW)",
+    "fixedHeaterPowerKwDescription": "Rated heater power used for ETA when no power sensor is configured.",
+    "generalPowerSensorEntity": "General power sensor",
+    "generalPowerSensorEntityDescription": "Approximate total power sensor. W and kW units are supported.",
+    "heaterRatedPowerKw": "Heater rated power (kW)",
+    "heaterRatedPowerKwDescription": "Maximum sauna share used to cap the general power sensor estimate.",
+    "heatingPowerMode": "Heating power mode",
+    "heatingPowerModeDescription": "Choose fixed heater power or an approximate general power sensor estimate.",
+    "outsideTemperatureWeight": "Outside-temperature weight",
+    "outsideTemperatureWeightDescription": "Bounded ETA correction strength for outside temperature context.",
+    "showEta": "Show ETA",
+    "showEtaDescription": "Display the deterministic heat-up estimate when enough Recorder data exists.",
+    "showHeatingRate": "Show heating rate and power",
+    "showHeatingRateDescription": "Display recent measured heating rate and effective heater power.",
+    "showReadyTime": "Show ready time",
+    "showReadyTimeDescription": "Display the expected clock time when ETA is available."
   },
   "modes": {
     "average": "Average",
@@ -91,5 +118,26 @@
     "near_target": "Near target",
     "target_reached": "Target reached",
     "unavailable": "Temperature unavailable"
+  },
+  "eta": {
+    "readyIn": "Ready in",
+    "hour": "h",
+    "hours": "h",
+    "minute": "min",
+    "minutes": "min"
+  },
+  "heatingPowerModes": {
+    "fixed": "Fixed heater power",
+    "general_power_sensor": "General power sensor"
+  },
+  "heatingStatus": {
+    "off": "Off",
+    "heating": "Heating",
+    "slowly_heating": "Slowly heating",
+    "near_target": "Near target",
+    "ready": "Ready",
+    "above_target": "Above target",
+    "cooling": "Cooling",
+    "data_unavailable": "Data unavailable"
   }
 }

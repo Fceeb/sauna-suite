@@ -27,8 +27,10 @@
 
 ## Phase 4: Temperature Insights
 
-- More detailed temperature presentation
+- Premium heating dashboard hero
 - Optional outside-temperature context
+- Deterministic heat-up ETA for direct sensor modes
+- Fixed heater power and approximate general power sensor support
 - Heat-up progress display
 - Aggregated history for calculated control-temperature modes
 
@@ -46,8 +48,8 @@
 
 ## Phase 7: Optimization
 
-- Power sensor support in kW
-- Fixed heater rated-power configuration
+- Deeper power analytics beyond the first ETA estimate
+- Aggregated calculated-mode history for ETA and trend
 - PV and battery-storage optimization
 - Planned sauna sessions
 

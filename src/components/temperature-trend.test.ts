@@ -10,7 +10,7 @@ describe('TemperatureTrend', () => {
     document.body.replaceChildren();
   });
 
-  it('renders a compact SVG trend with a target reference line', async () => {
+  it('renders a compact SVG trend with target, current marker and rate annotation', async () => {
     const trend = createTrend();
 
     trend.samples = [
@@ -20,6 +20,9 @@ describe('TemperatureTrend', () => {
     ];
     trend.status = 'heating';
     trend.targetValue = 70;
+    trend.currentValue = 75;
+    trend.direction = 'heating';
+    trend.heatingRateLabel = '+0.40 °C/min';
     document.body.append(trend);
 
     await trend.updateComplete;
@@ -27,6 +30,8 @@ describe('TemperatureTrend', () => {
     expect(trend.querySelector('svg.trend')).not.toBeNull();
     expect(trend.querySelector('.trend-line')).not.toBeNull();
     expect(trend.querySelector('.target-reference-line')).not.toBeNull();
+    expect(trend.querySelector('.current-value-marker')).not.toBeNull();
+    expect(trend.querySelector('.heating-rate-annotation')).not.toBeNull();
   });
 
   it('omits the target reference line when no target value is available', async () => {

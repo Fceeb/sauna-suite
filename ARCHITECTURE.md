@@ -38,11 +38,14 @@ The card displays:
 - zone and outside temperatures
 - stratification
 - compact Recorder-backed trend for direct top, middle or bottom modes
+- deterministic heat-up ETA for direct sensor modes
+- effective heater power display from fixed kW or approximate general power sensor mode
 
 For calculated control-temperature modes, the card intentionally disables the
-trend instead of showing one physical sensor history as a calculated trend.
-Future multi-sensor history aggregation should live outside the rendering layer
-and feed the trend component with already calculated samples.
+trend and ETA history instead of showing one physical sensor history as a
+calculated trend. Future multi-sensor history aggregation should live outside
+the rendering layer and feed the trend and ETA model with already calculated
+samples.
 
 The card layer must not contain automatic heater switching, temperature
 regulation, battery optimization, alarm acknowledgement or other
@@ -77,11 +80,22 @@ Status colors are centralized in `temperature-progress.ts` so future RGB light
 support can reuse the same semantic mapping without coupling lights to the card
 view.
 
+`src/core/heating-power.ts` contains pure W/kW parsing, validation and general
+power sensor capping helpers. `src/core/heating-rate.ts` calculates a robust
+recent heating rate from Recorder samples by using consecutive slopes and
+median-based outlier filtering. `src/core/heating-eta.ts` calculates a
+deterministic ETA from remaining temperature, measured rate, outside-temperature
+context and effective heater power. ETA corrections are bounded and no machine
+learning or persistent learning model is used.
+
 ## Service Layer
 
 `src/services/card-config.ts` normalizes user configuration and applies safe
 defaults. `src/services/temperature-state.ts` adapts Home Assistant entity
-states into the pure temperature model.
+states into the pure temperature model. `src/services/power-state.ts` adapts
+Home Assistant power and switch entities into the ETA power model. General power
+sensor mode is documented and treated as approximate; it caps usable sauna power
+at the configured rated heater power and does not infer other household loads.
 
 `src/services/entity-control.ts` contains manual switch and target-temperature
 service calls. Failures return structured errors and are rendered by the card.

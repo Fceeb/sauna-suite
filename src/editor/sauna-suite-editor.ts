@@ -1,7 +1,11 @@
 import { LitElement, html, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
-import { CONTROL_TEMPERATURE_MODES, type SaunaSuiteCardConfig } from '../models/card-config';
+import {
+  CONTROL_TEMPERATURE_MODES,
+  HEATING_POWER_MODES,
+  type SaunaSuiteCardConfig,
+} from '../models/card-config';
 import { EDITOR_TAG } from '../models/constants';
 import type { HomeAssistant } from '../models/home-assistant';
 import { normalizeConfig } from '../services/card-config';
@@ -119,6 +123,93 @@ export class SaunaSuiteEditor extends LitElement {
       );
     }
 
+    const heatingFields: HaFormSchema[] = [
+      {
+        name: 'heating_power_mode',
+        label: this.t('editor.heatingPowerMode'),
+        description: this.t('editor.heatingPowerModeDescription'),
+        selector: {
+          select: {
+            mode: 'dropdown',
+            options: HEATING_POWER_MODES.map((mode) => ({
+              value: mode,
+              label: this.t(`heatingPowerModes.${mode}`),
+            })),
+          },
+        },
+      },
+    ];
+
+    if (this.config.heating_power_mode === 'fixed') {
+      heatingFields.push(
+        this.numberField(
+          'fixed_heater_power_kw',
+          'editor.fixedHeaterPowerKw',
+          'editor.fixedHeaterPowerKwDescription',
+          0,
+          50,
+          0.1,
+        ),
+      );
+    }
+
+    if (this.config.heating_power_mode === 'general_power_sensor') {
+      heatingFields.push(
+        this.entityField(
+          'general_power_sensor_entity',
+          'editor.generalPowerSensorEntity',
+          'editor.generalPowerSensorEntityDescription',
+          [{ domain: 'sensor', device_class: 'power' }],
+        ),
+        this.numberField(
+          'heater_rated_power_kw',
+          'editor.heaterRatedPowerKw',
+          'editor.heaterRatedPowerKwDescription',
+          0,
+          50,
+          0.1,
+        ),
+      );
+    }
+
+    heatingFields.push(
+      this.numberField(
+        'outside_temperature_weight',
+        'editor.outsideTemperatureWeight',
+        'editor.outsideTemperatureWeightDescription',
+        0,
+        1,
+        0.01,
+      ),
+      this.booleanField('show_eta', 'editor.showEta', 'editor.showEtaDescription'),
+      this.booleanField(
+        'show_ready_time',
+        'editor.showReadyTime',
+        'editor.showReadyTimeDescription',
+      ),
+      this.booleanField(
+        'show_heating_rate',
+        'editor.showHeatingRate',
+        'editor.showHeatingRateDescription',
+      ),
+      this.numberField(
+        'eta_minimum_samples',
+        'editor.etaMinimumSamples',
+        'editor.etaMinimumSamplesDescription',
+        2,
+        60,
+        1,
+      ),
+      this.numberField(
+        'eta_history_minutes',
+        'editor.etaHistoryMinutes',
+        'editor.etaHistoryMinutesDescription',
+        5,
+        1440,
+        5,
+      ),
+    );
+
     const trendFields = [
       this.booleanField(
         'show_temperature_trend',
@@ -194,6 +285,10 @@ export class SaunaSuiteEditor extends LitElement {
       {
         titleKey: 'editor.sections.temperatureCalculation',
         schema: temperatureCalculationFields,
+      },
+      {
+        titleKey: 'editor.sections.heatingEta',
+        schema: heatingFields,
       },
       {
         titleKey: 'editor.sections.display',
