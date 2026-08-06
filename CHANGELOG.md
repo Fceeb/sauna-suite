@@ -9,6 +9,25 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.1.0-alpha.3]
+
+### Fixed
+
+- Fixed a frozen Home Assistant **By card** picker caused by an infinite Lit
+  preview render loop.
+- Made Recorder trend scheduling idempotent so unchanged preview or history
+  inputs do not replace empty history arrays, recreate timers or refetch before
+  the configured refresh interval.
+- Prevented card-picker previews without `hass` or configured entities from
+  starting Recorder timers or requests.
+
+### Alpha Notes
+
+- This is alpha software and may change before a stable release.
+- No automatic temperature regulation is implemented.
+- No RGB light signaling or audio alarm support is implemented yet.
+- No PV or battery optimization is implemented yet.
+
 ## [0.1.0-alpha.2]
 
 ### Fixed
