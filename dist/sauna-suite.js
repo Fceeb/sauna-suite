@@ -3,8 +3,8 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const G = globalThis, oe = G.ShadowRoot && (G.ShadyCSS === void 0 || G.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ae = Symbol(), ge = /* @__PURE__ */ new WeakMap();
-let Fe = class {
+const I = globalThis, oe = I.ShadowRoot && (I.ShadyCSS === void 0 || I.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ae = Symbol(), ge = /* @__PURE__ */ new WeakMap();
+let ke = class {
   constructor(e, t, i) {
     if (this._$cssResult$ = !0, i !== ae) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = e, this.t = t;
@@ -22,17 +22,17 @@ let Fe = class {
     return this.cssText;
   }
 };
-const ot = (r) => new Fe(typeof r == "string" ? r : r + "", void 0, ae), Le = (r, ...e) => {
+const ot = (r) => new ke(typeof r == "string" ? r : r + "", void 0, ae), Le = (r, ...e) => {
   const t = r.length === 1 ? r[0] : e.reduce((i, n, s) => i + ((o) => {
     if (o._$cssResult$ === !0) return o.cssText;
     if (typeof o == "number") return o;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + o + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(n) + r[s + 1], r[0]);
-  return new Fe(t, r, ae);
+  return new ke(t, r, ae);
 }, at = (r, e) => {
   if (oe) r.adoptedStyleSheets = e.map((t) => t instanceof CSSStyleSheet ? t : t.styleSheet);
   else for (const t of e) {
-    const i = document.createElement("style"), n = G.litNonce;
+    const i = document.createElement("style"), n = I.litNonce;
     n !== void 0 && i.setAttribute("nonce", n), i.textContent = t.cssText, r.appendChild(i);
   }
 }, fe = oe ? (r) => r : (r) => r instanceof CSSStyleSheet ? ((e) => {
@@ -45,7 +45,7 @@ const ot = (r) => new Fe(typeof r == "string" ? r : r + "", void 0, ae), Le = (r
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: ut, defineProperty: dt, getOwnPropertyDescriptor: lt, getOwnPropertyNames: ct, getOwnPropertySymbols: ht, getPrototypeOf: pt } = Object, y = globalThis, _e = y.trustedTypes, mt = _e ? _e.emptyScript : "", J = y.reactiveElementPolyfillSupport, z = (r, e) => r, K = { toAttribute(r, e) {
+const { is: ut, defineProperty: dt, getOwnPropertyDescriptor: lt, getOwnPropertyNames: ct, getOwnPropertySymbols: ht, getPrototypeOf: pt } = Object, y = globalThis, _e = y.trustedTypes, mt = _e ? _e.emptyScript : "", J = y.reactiveElementPolyfillSupport, z = (r, e) => r, G = { toAttribute(r, e) {
   switch (e) {
     case Boolean:
       r = r ? mt : null;
@@ -73,7 +73,7 @@ const { is: ut, defineProperty: dt, getOwnPropertyDescriptor: lt, getOwnProperty
       }
   }
   return t;
-} }, ue = (r, e) => !ut(r, e), ye = { attribute: !0, type: String, converter: K, reflect: !1, useDefault: !1, hasChanged: ue };
+} }, ue = (r, e) => !ut(r, e), ye = { attribute: !0, type: String, converter: G, reflect: !1, useDefault: !1, hasChanged: ue };
 Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), y.litPropertyMetadata ?? (y.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
 let x = class extends HTMLElement {
   static addInitializer(e) {
@@ -184,7 +184,7 @@ let x = class extends HTMLElement {
     var s;
     const i = this.constructor.elementProperties.get(e), n = this.constructor._$Eu(e, i);
     if (n !== void 0 && i.reflect === !0) {
-      const o = (((s = i.converter) == null ? void 0 : s.toAttribute) !== void 0 ? i.converter : K).toAttribute(t, i.type);
+      const o = (((s = i.converter) == null ? void 0 : s.toAttribute) !== void 0 ? i.converter : G).toAttribute(t, i.type);
       this._$Em = e, o == null ? this.removeAttribute(n) : this.setAttribute(n, o), this._$Em = null;
     }
   }
@@ -192,7 +192,7 @@ let x = class extends HTMLElement {
     var s, o;
     const i = this.constructor, n = i._$Eh.get(e);
     if (n !== void 0 && this._$Em !== n) {
-      const u = i.getPropertyOptions(n), a = typeof u.converter == "function" ? { fromAttribute: u.converter } : ((s = u.converter) == null ? void 0 : s.fromAttribute) !== void 0 ? u.converter : K;
+      const u = i.getPropertyOptions(n), a = typeof u.converter == "function" ? { fromAttribute: u.converter } : ((s = u.converter) == null ? void 0 : s.fromAttribute) !== void 0 ? u.converter : G;
       this._$Em = n;
       const l = a.fromAttribute(t, u.type);
       this[n] = l ?? ((o = this._$Ej) == null ? void 0 : o.get(n)) ?? l, this._$Em = null;
@@ -284,10 +284,10 @@ x.elementStyles = [], x.shadowRootOptions = { mode: "open" }, x[z("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const k = globalThis, be = (r) => r, W = k.trustedTypes, ve = W ? W.createPolicy("lit-html", { createHTML: (r) => r }) : void 0, Be = "$lit$", _ = `lit$${Math.random().toFixed(9).slice(2)}$`, Ve = "?" + _, gt = `<${Ve}>`, w = document, F = () => w.createComment(""), L = (r) => r === null || typeof r != "object" && typeof r != "function", de = Array.isArray, ft = (r) => de(r) || typeof (r == null ? void 0 : r[Symbol.iterator]) == "function", Q = `[ 	
+const F = globalThis, be = (r) => r, W = F.trustedTypes, ve = W ? W.createPolicy("lit-html", { createHTML: (r) => r }) : void 0, Be = "$lit$", _ = `lit$${Math.random().toFixed(9).slice(2)}$`, Ve = "?" + _, gt = `<${Ve}>`, w = document, k = () => w.createComment(""), L = (r) => r === null || typeof r != "object" && typeof r != "function", de = Array.isArray, ft = (r) => de(r) || typeof (r == null ? void 0 : r[Symbol.iterator]) == "function", Q = `[ 	
 \f\r]`, O = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Te = /-->/g, $e = />/g, b = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), we = /'/g, Ee = /"/g, Ze = /^(?:script|style|textarea|title)$/i, je = (r) => (e, ...t) => ({ _$litType$: r, strings: e, values: t }), p = je(1), Ae = je(2), M = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Se = /* @__PURE__ */ new WeakMap(), v = w.createTreeWalker(w, 129);
-function Ie(r, e) {
+function Ke(r, e) {
   if (!de(r) || !r.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return ve !== void 0 ? ve.createHTML(e) : e;
 }
@@ -301,7 +301,7 @@ const _t = (r, e) => {
     const f = o === b && r[u + 1].startsWith("/>") ? " " : "";
     s += o === O ? a + gt : d >= 0 ? (i.push(l), a.slice(0, d) + Be + a.slice(d) + _ + f) : a + _ + (d === -2 ? u : f);
   }
-  return [Ie(r, s + (r[t] || "<?>") + (e === 2 ? "</svg>" : e === 3 ? "</math>" : "")), i];
+  return [Ke(r, s + (r[t] || "<?>") + (e === 2 ? "</svg>" : e === 3 ? "</math>" : "")), i];
 };
 class B {
   constructor({ strings: e, _$litType$: t }, i) {
@@ -323,8 +323,8 @@ class B {
           const d = n.textContent.split(_), m = d.length - 1;
           if (m > 0) {
             n.textContent = W ? W.emptyScript : "";
-            for (let f = 0; f < m; f++) n.append(d[f], F()), v.nextNode(), a.push({ type: 2, index: ++s });
-            n.append(d[m], F());
+            for (let f = 0; f < m; f++) n.append(d[f], k()), v.nextNode(), a.push({ type: 2, index: ++s });
+            n.append(d[m], k());
           }
         }
       } else if (n.nodeType === 8) if (n.data === Ve) a.push({ type: 2, index: s });
@@ -408,7 +408,7 @@ class Z {
   }
   $(e) {
     var s;
-    const { values: t, _$litType$: i } = e, n = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = B.createElement(Ie(i.h, i.h[0]), this.options)), i);
+    const { values: t, _$litType$: i } = e, n = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = B.createElement(Ke(i.h, i.h[0]), this.options)), i);
     if (((s = this._$AH) == null ? void 0 : s._$AD) === n) this._$AH.p(t);
     else {
       const o = new yt(n, this), u = o.u(this.options);
@@ -423,7 +423,7 @@ class Z {
     de(this._$AH) || (this._$AH = [], this._$AR());
     const t = this._$AH;
     let i, n = 0;
-    for (const s of e) n === t.length ? t.push(i = new Z(this.O(F()), this.O(F()), this, this.options)) : i = t[n], i._$AI(s), n++;
+    for (const s of e) n === t.length ? t.push(i = new Z(this.O(k()), this.O(k()), this, this.options)) : i = t[n], i._$AI(s), n++;
     n < t.length && (this._$AR(i && i._$AB.nextSibling, n), t.length = n);
   }
   _$AR(e = this._$AA.nextSibling, t) {
@@ -504,14 +504,14 @@ class $t {
     C(this, e);
   }
 }
-const X = k.litHtmlPolyfillSupport;
-X == null || X(B, Z), (k.litHtmlVersions ?? (k.litHtmlVersions = [])).push("3.3.3");
+const X = F.litHtmlPolyfillSupport;
+X == null || X(B, Z), (F.litHtmlVersions ?? (F.litHtmlVersions = [])).push("3.3.3");
 const wt = (r, e, t) => {
   const i = (t == null ? void 0 : t.renderBefore) ?? e;
   let n = i._$litPart$;
   if (n === void 0) {
     const s = (t == null ? void 0 : t.renderBefore) ?? null;
-    i._$litPart$ = n = new Z(e.insertBefore(F(), s), s, void 0, t ?? {});
+    i._$litPart$ = n = new Z(e.insertBefore(k(), s), s, void 0, t ?? {});
   }
   return n._$AI(r), n;
 };
@@ -546,8 +546,8 @@ class $ extends x {
     return M;
   }
 }
-var ke;
-$._$litElement$ = !0, $.finalized = !0, (ke = T.litElementHydrateSupport) == null || ke.call(T, { LitElement: $ });
+var Fe;
+$._$litElement$ = !0, $.finalized = !0, (Fe = T.litElementHydrateSupport) == null || Fe.call(T, { LitElement: $ });
 const ee = T.litElementPolyfillSupport;
 ee == null || ee({ LitElement: $ });
 (T.litElementVersions ?? (T.litElementVersions = [])).push("4.2.2");
@@ -556,7 +556,7 @@ ee == null || ee({ LitElement: $ });
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Et = { attribute: !0, type: String, converter: K, reflect: !1, hasChanged: ue }, At = (r = Et, e, t) => {
+const Et = { attribute: !0, type: String, converter: G, reflect: !1, hasChanged: ue }, At = (r = Et, e, t) => {
   const { kind: i, metadata: n } = t;
   let s = globalThis.litPropertyMetadata.get(n);
   if (s === void 0 && globalThis.litPropertyMetadata.set(n, s = /* @__PURE__ */ new Map()), i === "setter" && ((r = Object.create(r)).wrapped = !0), s.set(t.name, r), i === "accessor") {
@@ -620,7 +620,7 @@ const xe = {
     fill: "rgba(228, 93, 63, 0.18)"
   }
 };
-function Ge(r, e) {
+function Ie(r, e) {
   if (!(r === void 0 || e === void 0))
     return r - e;
 }
@@ -637,7 +637,7 @@ function xt(r) {
   };
 }
 function Dt(r, e, t) {
-  const i = Ge(r, e);
+  const i = Ie(r, e);
   if (i === void 0)
     return "unavailable";
   const n = xt(t);
@@ -648,12 +648,12 @@ function Mt(r, e) {
 }
 function Ct(r, e, t) {
   return {
-    difference: Ge(r, e),
+    difference: Ie(r, e),
     progress: Mt(r, e),
     status: Dt(r, e, t)
   };
 }
-function Ke(r) {
+function Ge(r) {
   return St[r];
 }
 function De(r, e) {
@@ -663,10 +663,10 @@ const We = "custom:sauna-suite-card", Pt = "sauna-suite-card", Rt = "sauna-suite
 function le(r, e, t) {
   r.get(e) || r.define(e, t);
 }
-var Nt = Object.defineProperty, ce = (r, e, t, i) => {
+var Ht = Object.defineProperty, ce = (r, e, t, i) => {
   for (var n = void 0, s = r.length - 1, o; s >= 0; s--)
     (o = r[s]) && (n = o(e, t, n) || n);
-  return n && Nt(e, t, n), n;
+  return n && Ht(e, t, n), n;
 };
 class Y extends $ {
   constructor() {
@@ -678,7 +678,7 @@ class Y extends $ {
   render() {
     if (this.samples.length < 2)
       return p`<div class="trend-empty">${this.emptyLabel}</div>`;
-    const e = Ke(this.status), t = this.createLinePath(), i = this.createAreaPath(t);
+    const e = Ge(this.status), t = this.createLinePath(), i = this.createAreaPath(t);
     return p`
       <svg class="trend" viewBox="0 0 240 80" role="img" aria-label=${this.emptyLabel}>
         <defs>
@@ -731,7 +731,7 @@ function te(r, e) {
   if (!Number.isFinite(r))
     throw new RangeError(`${e} must be a finite number`);
 }
-const Je = "Sauna Suite", re = 1, Ut = 5, Ht = 2, zt = 120, kt = 5;
+const Je = "Sauna Suite", re = 1, Nt = 5, Ut = 2, zt = 120, Ft = 5;
 function Qe() {
   return {
     type: We,
@@ -742,11 +742,11 @@ function Qe() {
     weight_bottom: re,
     show_outside_temperature: !1,
     show_temperature_zones: !0,
-    near_target_threshold: Ut,
-    target_reached_tolerance: Ht,
+    near_target_threshold: Nt,
+    target_reached_tolerance: Ut,
     show_temperature_trend: !0,
     trend_history_minutes: zt,
-    trend_refresh_minutes: kt,
+    trend_refresh_minutes: Ft,
     confirm_switch_on: !0
   };
 }
@@ -754,15 +754,15 @@ function D(r) {
   const e = Qe(), t = {
     type: We,
     name: Xe(r.name, Je),
-    control_temperature_mode: Ft(r.control_temperature_mode),
+    control_temperature_mode: kt(r.control_temperature_mode),
     weight_top: ie(r.weight_top, e.weight_top),
     weight_middle: ie(r.weight_middle, e.weight_middle),
     weight_bottom: ie(r.weight_bottom, e.weight_bottom),
-    show_outside_temperature: I(
+    show_outside_temperature: K(
       r.show_outside_temperature,
       e.show_outside_temperature
     ),
-    show_temperature_zones: I(
+    show_temperature_zones: K(
       r.show_temperature_zones,
       e.show_temperature_zones
     ),
@@ -774,7 +774,7 @@ function D(r) {
       r.target_reached_tolerance,
       e.target_reached_tolerance
     ),
-    show_temperature_trend: I(
+    show_temperature_trend: K(
       r.show_temperature_trend,
       e.show_temperature_trend
     ),
@@ -790,17 +790,17 @@ function D(r) {
       1,
       60
     ),
-    confirm_switch_on: I(r.confirm_switch_on, e.confirm_switch_on)
+    confirm_switch_on: K(r.confirm_switch_on, e.confirm_switch_on)
   };
   return S(t, "main_switch_entity", r.main_switch_entity), S(t, "temperature_top_entity", r.temperature_top_entity), S(t, "temperature_middle_entity", r.temperature_middle_entity), S(t, "temperature_bottom_entity", r.temperature_bottom_entity), S(t, "outside_temperature_entity", r.outside_temperature_entity), S(t, "target_temperature_entity", r.target_temperature_entity), t;
 }
-function Ft(r) {
+function kt(r) {
   return typeof r == "string" && Ye.includes(r) ? r : Qe().control_temperature_mode;
 }
 function ie(r, e) {
   return typeof r != "number" || !Number.isFinite(r) ? e : Math.max(0, r);
 }
-function I(r, e) {
+function K(r, e) {
   return typeof r == "boolean" ? r : e;
 }
 function Me(r, e) {
@@ -822,7 +822,7 @@ function et(r) {
 function tt(r) {
   return P(r) === "number" || P(r) === "input_number";
 }
-function N(r) {
+function H(r) {
   return !r || r.state === "unavailable" || r.state === "unknown";
 }
 async function Lt(r, e, t) {
@@ -896,18 +896,18 @@ function rt(r) {
   const t = Number(r);
   return Number.isFinite(t) ? t : void 0;
 }
-function It(r) {
+function Kt(r) {
   const e = r.filter(Number.isFinite);
   return e.length === 0 ? void 0 : e.reduce((i, n) => i + n, 0) / e.length;
 }
-function Gt(r, e) {
+function It(r, e) {
   const t = it(r).map((s) => ({
     value: r[s],
     weight: Qt(e[s])
   })).filter((s) => s.value !== void 0), i = t.reduce((s, o) => s + o.weight, 0);
   return t.length === 0 || i <= 0 ? void 0 : t.reduce((s, o) => s + o.value * o.weight, 0) / i;
 }
-function Kt(r) {
+function Gt(r) {
   const e = he(r);
   return e.length > 0 ? Math.min(...e) : void 0;
 }
@@ -924,11 +924,11 @@ function qt(r, e, t) {
     case "bottom":
       return r.bottom;
     case "average":
-      return It(he(r));
+      return Kt(he(r));
     case "weighted_average":
-      return Gt(r, t);
+      return It(r, t);
     case "minimum":
-      return Kt(r);
+      return Gt(r);
     case "maximum":
       return Wt(r);
   }
@@ -989,9 +989,9 @@ function tr(r, e) {
 }
 function rr(r, e) {
   const t = {
-    top: U(r, e.temperature_top_entity),
-    middle: U(r, e.temperature_middle_entity),
-    bottom: U(r, e.temperature_bottom_entity)
+    top: N(r, e.temperature_top_entity),
+    middle: N(r, e.temperature_middle_entity),
+    bottom: N(r, e.temperature_bottom_entity)
   }, i = {
     top: e.weight_top,
     middle: e.weight_middle,
@@ -999,17 +999,17 @@ function rr(r, e) {
   };
   return {
     zones: t,
-    outsideTemperature: U(r, e.outside_temperature_entity),
-    targetTemperature: U(r, e.target_temperature_entity),
+    outsideTemperature: N(r, e.outside_temperature_entity),
+    targetTemperature: N(r, e.target_temperature_entity),
     summary: Jt(t, e.control_temperature_mode, i)
   };
 }
-function U(r, e) {
+function N(r, e) {
   var t;
   if (!(!r || !e))
     return rt((t = r.states[e]) == null ? void 0 : t.state);
 }
-function H(r, e) {
+function U(r, e) {
   if (!(!r || !e))
     return r.states[e];
 }
@@ -1228,15 +1228,15 @@ const nr = Le`
   editor: cr,
   modes: hr,
   status: pr
-}, Ne = {
+}, He = {
   de: dr,
   en: mr
 };
 function nt(r, e) {
   const t = r != null && r.toLowerCase().startsWith("de") ? "de" : "en";
-  return Ue(Ne[t], e) ?? Ue(Ne.en, e) ?? e;
+  return Ne(He[t], e) ?? Ne(He.en, e) ?? e;
 }
-function Ue(r, e) {
+function Ne(r, e) {
   const t = e.split(".").reduce((i, n) => {
     if (!(typeof i != "object" || i === void 0))
       return i[n];
@@ -1248,7 +1248,7 @@ var gr = Object.defineProperty, A = (r, e, t, i) => {
     (o = r[s]) && (n = o(e, t, n) || n);
   return n && gr(e, t, n), n;
 };
-const He = "°C", pe = class pe extends $ {
+const Ue = "°C", pe = class pe extends $ {
   constructor() {
     super(...arguments), this.config = D({}), this.switchPending = !1, this.targetPending = !1, this.historySamples = [], this.historyLoading = !1;
   }
@@ -1267,8 +1267,8 @@ const He = "°C", pe = class pe extends $ {
   static getStubConfig() {
     return D({});
   }
-  updated() {
-    this.scheduleHistoryRefresh();
+  updated(e) {
+    (e.has("hass") || e.has("config")) && this.scheduleHistoryRefresh();
   }
   render() {
     const e = rr(this.hass, this.config), t = Ct(
@@ -1278,7 +1278,7 @@ const He = "°C", pe = class pe extends $ {
         nearTargetThreshold: this.config.near_target_threshold,
         targetReachedTolerance: this.config.target_reached_tolerance
       }
-    ), i = Ke(t.status), n = H(this.hass, this.config.main_switch_entity), s = H(this.hass, this.config.target_temperature_entity), o = Re(this.config.control_temperature_mode);
+    ), i = Ge(t.status), n = U(this.hass, this.config.main_switch_entity), s = U(this.hass, this.config.target_temperature_entity), o = Re(this.config.control_temperature_mode);
     return p`
       <ha-card>
         <div class="content">
@@ -1361,7 +1361,7 @@ const He = "°C", pe = class pe extends $ {
     `;
   }
   renderPowerButton(e) {
-    const t = this.switchPending || !et(this.config.main_switch_entity) || N(e), i = (e == null ? void 0 : e.state) === "on";
+    const t = this.switchPending || !et(this.config.main_switch_entity) || H(e), i = (e == null ? void 0 : e.state) === "on";
     return p`
       <button
         class=${`power-button ${i ? "on" : "off"}`}
@@ -1375,7 +1375,7 @@ const He = "°C", pe = class pe extends $ {
     `;
   }
   renderTargetControl(e) {
-    const t = Pe(e), i = this.getEntityNumber(e), n = this.targetPending || !tt(this.config.target_temperature_entity) || N(e) || i === void 0;
+    const t = Pe(e), i = this.getEntityNumber(e), n = this.targetPending || !tt(this.config.target_temperature_entity) || H(e) || i === void 0;
     return p`
       <section class="target-control" aria-label=${this.t("card.targetTemperature")}>
         <div class="label">${this.t("card.targetTemperature")}</div>
@@ -1432,8 +1432,8 @@ const He = "°C", pe = class pe extends $ {
     `;
   }
   async handlePowerClick() {
-    const e = H(this.hass, this.config.main_switch_entity);
-    if (this.switchPending || N(e))
+    const e = U(this.hass, this.config.main_switch_entity);
+    if (this.switchPending || H(e))
       return;
     const t = (e == null ? void 0 : e.state) !== "on";
     if (t && this.config.confirm_switch_on && !window.confirm(this.t("card.confirmSwitchOn")))
@@ -1443,7 +1443,7 @@ const He = "°C", pe = class pe extends $ {
     this.switchPending = !1, this.serviceError = i.ok ? void 0 : i.error;
   }
   adjustTargetTemperature(e) {
-    const t = H(this.hass, this.config.target_temperature_entity), i = Pe(t), n = this.getEntityNumber(t);
+    const t = U(this.hass, this.config.target_temperature_entity), i = Pe(t), n = this.getEntityNumber(t);
     !i || n === void 0 || this.targetPending || this.updateTargetTemperature(n + i.step * e, i);
   }
   handleTargetSliderInput(e, t) {
@@ -1466,17 +1466,17 @@ const He = "°C", pe = class pe extends $ {
   }
   scheduleHistoryRefresh() {
     if (!this.config.show_temperature_trend || !this.hass || !Re(this.config.control_temperature_mode)) {
-      this.historySamples = [], this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
+      this.clearHistorySamples(), this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
       return;
     }
     const e = Oe(this.config), t = `${e ?? ""}:${this.config.trend_history_minutes}:${this.config.trend_refresh_minutes}`;
     if (!e) {
-      this.historySamples = [], this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
+      this.clearHistorySamples(), this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
       return;
     }
-    this.lastHistoryFetchKey !== t && (this.lastHistoryFetchKey = t, this.loadHistory(e)), this.historyRefreshTimer === void 0 && (this.historyRefreshTimer = window.setInterval(() => {
+    this.lastHistoryFetchKey === t && this.historyRefreshTimer !== void 0 || (this.lastHistoryFetchKey !== void 0 && this.lastHistoryFetchKey !== t && this.clearHistoryTimer(), this.historyRefreshTimer === void 0 && (this.historyRefreshTimer = window.setInterval(() => {
       this.loadHistory(e);
-    }, this.config.trend_refresh_minutes * 6e4));
+    }, this.config.trend_refresh_minutes * 6e4)), this.lastHistoryFetchKey !== t && (this.lastHistoryFetchKey = t, this.loadHistory(e)));
   }
   async loadHistory(e) {
     this.historyLoading = !0, this.historySamples = await Xt(
@@ -1488,6 +1488,9 @@ const He = "°C", pe = class pe extends $ {
   resetHistorySchedule() {
     this.lastHistoryFetchKey = void 0, this.clearHistoryTimer();
   }
+  clearHistorySamples() {
+    this.historySamples.length > 0 && (this.historySamples = []);
+  }
   clearHistoryTimer() {
     this.historyRefreshTimer !== void 0 && (window.clearInterval(this.historyRefreshTimer), this.historyRefreshTimer = void 0);
   }
@@ -1498,18 +1501,18 @@ const He = "°C", pe = class pe extends $ {
     return this.getTemperatureUnit(Oe(this.config));
   }
   getSwitchStateLabel(e) {
-    return N(e) ? this.t("card.powerUnavailable") : (e == null ? void 0 : e.state) === "on" ? this.t("card.powerOn") : this.t("card.powerOff");
+    return H(e) ? this.t("card.powerUnavailable") : (e == null ? void 0 : e.state) === "on" ? this.t("card.powerOn") : this.t("card.powerOff");
   }
   getEntityNumber(e) {
-    if (!e || N(e))
+    if (!e || H(e))
       return;
     const t = Number(e.state);
     return Number.isFinite(t) ? t : void 0;
   }
   getTemperatureUnit(e) {
     var i;
-    const t = (i = H(this.hass, e)) == null ? void 0 : i.attributes.unit_of_measurement;
-    return typeof t == "string" && t.trim().length > 0 ? t : He;
+    const t = (i = U(this.hass, e)) == null ? void 0 : i.attributes.unit_of_measurement;
+    return typeof t == "string" && t.trim().length > 0 ? t : Ue;
   }
   valueClass(e) {
     return e === void 0 ? "metric-value unavailable" : "metric-value";
@@ -1518,7 +1521,7 @@ const He = "°C", pe = class pe extends $ {
     return e === void 0 ? this.t("card.notAvailable") : `${e.toFixed(1)} ${t}`;
   }
   formatTemperatureDelta(e) {
-    return `${e > 0 ? "+" : ""}${e.toFixed(1)} ${He}`;
+    return `${e > 0 ? "+" : ""}${e.toFixed(1)} ${Ue}`;
   }
   t(e) {
     var t, i;

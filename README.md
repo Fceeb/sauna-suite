@@ -12,9 +12,9 @@ for direct sensor modes.
 
 ## Alpha Status
 
-Version `0.1.0-alpha.2` is the current HACS-installable alpha release. It fixes
-the Home Assistant card-picker registration issue from the first alpha. Expect
-breaking changes while the dashboard model and editor mature.
+Version `0.1.0-alpha.3` is the current HACS-installable alpha release. It fixes
+the Home Assistant card-picker preview render loop from earlier alpha builds.
+Expect breaking changes while the dashboard model and editor mature.
 
 This version provides manual user controls and monitoring only. It does not
 automatically switch the sauna heater, regulate temperature, run schedules,
@@ -212,9 +212,9 @@ could make the Home Assistant card picker freeze with
 
 ### Card picker freezes
 
-Update to `0.1.0-alpha.2` or newer. Alpha.2 fixes the card-picker metadata so
-Home Assistant receives the element name `sauna-suite-card` instead of the YAML
-card type `custom:sauna-suite-card`.
+Update to `0.1.0-alpha.3` or newer. Alpha.3 fixes an infinite preview render
+loop that could freeze the Home Assistant **By card** picker when the preview
+card was created without `hass` or configured trend entities.
 
 ### Resource not loaded
 

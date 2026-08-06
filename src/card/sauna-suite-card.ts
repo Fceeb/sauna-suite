@@ -1,4 +1,4 @@
-import { LitElement, html, type TemplateResult } from 'lit';
+import { LitElement, html, type PropertyValues, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
 import {
@@ -81,8 +81,10 @@ export class SaunaSuiteCard extends LitElement {
     return normalizeConfig({});
   }
 
-  protected override updated(): void {
-    this.scheduleHistoryRefresh();
+  protected override updated(changedProperties: PropertyValues): void {
+    if (changedProperties.has('hass') || changedProperties.has('config')) {
+      this.scheduleHistoryRefresh();
+    }
   }
 
   protected override render(): TemplateResult {
@@ -387,7 +389,7 @@ export class SaunaSuiteCard extends LitElement {
       !this.hass ||
       !isDirectControlTemperatureMode(this.config.control_temperature_mode)
     ) {
-      this.historySamples = [];
+      this.clearHistorySamples();
       this.lastHistoryFetchKey = undefined;
       this.clearHistoryTimer();
       return;
@@ -397,21 +399,29 @@ export class SaunaSuiteCard extends LitElement {
     const fetchKey = `${entityId ?? ''}:${this.config.trend_history_minutes}:${this.config.trend_refresh_minutes}`;
 
     if (!entityId) {
-      this.historySamples = [];
+      this.clearHistorySamples();
       this.lastHistoryFetchKey = undefined;
       this.clearHistoryTimer();
       return;
     }
 
-    if (this.lastHistoryFetchKey !== fetchKey) {
-      this.lastHistoryFetchKey = fetchKey;
-      void this.loadHistory(entityId);
+    if (this.lastHistoryFetchKey === fetchKey && this.historyRefreshTimer !== undefined) {
+      return;
+    }
+
+    if (this.lastHistoryFetchKey !== undefined && this.lastHistoryFetchKey !== fetchKey) {
+      this.clearHistoryTimer();
     }
 
     if (this.historyRefreshTimer === undefined) {
       this.historyRefreshTimer = window.setInterval(() => {
         void this.loadHistory(entityId);
       }, this.config.trend_refresh_minutes * 60_000);
+    }
+
+    if (this.lastHistoryFetchKey !== fetchKey) {
+      this.lastHistoryFetchKey = fetchKey;
+      void this.loadHistory(entityId);
     }
   }
 
@@ -428,6 +438,12 @@ export class SaunaSuiteCard extends LitElement {
   private resetHistorySchedule(): void {
     this.lastHistoryFetchKey = undefined;
     this.clearHistoryTimer();
+  }
+
+  private clearHistorySamples(): void {
+    if (this.historySamples.length > 0) {
+      this.historySamples = [];
+    }
   }
 
   private clearHistoryTimer(): void {
