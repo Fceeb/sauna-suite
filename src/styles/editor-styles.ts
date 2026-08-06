@@ -7,19 +7,26 @@ export const editorStyles = css`
 
   .form {
     display: grid;
-    gap: 18px;
+    gap: 14px;
   }
 
   .section {
-    display: grid;
-    gap: 8px;
+    background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
+    border-radius: 14px;
+    padding: 10px 12px 12px;
   }
 
-  h3 {
+  summary {
     color: var(--primary-text-color);
+    cursor: pointer;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 750;
     line-height: 1.3;
-    margin: 0;
+    margin-bottom: 8px;
+  }
+
+  summary:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
   }
 `;

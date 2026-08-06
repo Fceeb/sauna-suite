@@ -8,7 +8,7 @@ Suite Dashboard release.
 Update both `package.json` and `package-lock.json` with npm:
 
 ```bash
-npm version 0.1.0-alpha.3 --no-git-tag-version
+npm version 0.2.0-alpha.1 --no-git-tag-version
 ```
 
 Use the next semantic version for later releases. Alpha tags should keep the
@@ -19,7 +19,7 @@ same version in the package metadata and the GitHub release tag.
 GitHub release tags use a leading `v`:
 
 ```text
-v0.1.0-alpha.3
+v0.2.0-alpha.1
 ```
 
 ## Create The GitHub Release
@@ -28,7 +28,7 @@ After the release preparation PR is merged:
 
 1. Open the GitHub repository.
 2. Create a new release.
-3. Use tag `v0.1.0-alpha.3`.
+3. Use tag `v0.2.0-alpha.1`.
 4. Target the merged `main` branch.
 5. Add release notes from `CHANGELOG.md`.
 6. Publish the release.

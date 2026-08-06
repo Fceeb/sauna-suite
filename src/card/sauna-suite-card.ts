@@ -1,9 +1,10 @@
-import { LitElement, html, type PropertyValues, type TemplateResult } from 'lit';
+﻿import { LitElement, html, svg, type PropertyValues, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
 import {
   calculateTemperatureProgress,
   getTemperatureStatusColors,
+  type TemperatureStatus,
 } from '../core/temperature-progress';
 import type { SaunaSuiteCardConfig } from '../models/card-config';
 import { CARD_TAG, EDITOR_TAG } from '../models/constants';
@@ -29,6 +30,13 @@ import { cardStyles } from '../styles/card-styles';
 import { translate } from '../translations/translator';
 
 const DEFAULT_TEMPERATURE_UNIT = '°C';
+const UNAVAILABLE_COMPACT_VALUE = '—';
+
+interface TemperatureParts {
+  value: string;
+  unit: string;
+  unavailable: boolean;
+}
 
 export class SaunaSuiteCard extends LitElement {
   public static override styles = cardStyles;
@@ -100,115 +108,219 @@ export class SaunaSuiteCard extends LitElement {
     const statusColors = getTemperatureStatusColors(progress.status);
     const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
     const targetEntity = getEntity(this.hass, this.config.target_temperature_entity);
-    const trendAvailable = isDirectControlTemperatureMode(this.config.control_temperature_mode);
 
     return html`
       <ha-card>
-        <div class="content">
+        <div
+          class="content"
+          style=${`--sauna-status-line: ${statusColors.line}; --sauna-status-fill: ${statusColors.fill};`}
+        >
           <header class="header">
-            <div>
+            <div class="brand-mark" aria-hidden="true">${this.renderHeatIcon()}</div>
+            <div class="header-copy">
               <div class="title">${this.config.name}</div>
               <div class="state">${this.getSwitchStateLabel(switchEntity)}</div>
             </div>
             ${this.renderPowerButton(switchEntity)}
           </header>
 
-          <main class="main">
-            <section class="hero-temperature" aria-label=${this.t('card.controlTemperature')}>
-              <div class="label">${this.t('card.controlTemperature')}</div>
-              <div class=${this.valueClass(temperatureState.summary.controlTemperature)}>
-                ${this.formatTemperature(
-                  temperatureState.summary.controlTemperature,
-                  this.getControlTemperatureUnit(),
-                )}
-              </div>
-              <div class="progress-track" aria-hidden="true">
-                <div
-                  class="progress-bar"
-                  style=${`width: ${Math.round(progress.progress * 100)}%; background: linear-gradient(90deg, ${statusColors.fill}, ${statusColors.line});`}
-                ></div>
-              </div>
-              <div class="status-line">${this.t(`status.${progress.status}`)}</div>
-              ${
-                progress.difference !== undefined
-                  ? html`<div class="status-line">
-                      ${this.t('card.targetDifference')}:
-                      ${this.formatTemperatureDelta(progress.difference)}
-                    </div>`
-                  : undefined
-              }
-              ${this.serviceError ? html`<div class="error" role="alert">${this.serviceError}</div>` : undefined}
-            </section>
+          ${this.renderHero(
+            temperatureState.summary.controlTemperature,
+            temperatureState.targetTemperature,
+            progress.status,
+            progress.progress,
+            progress.difference,
+          )}
+          ${this.renderTemperatureZones(
+            temperatureState.zones.top,
+            temperatureState.zones.middle,
+            temperatureState.zones.bottom,
+            temperatureState.outsideTemperature,
+            temperatureState.summary.stratification,
+          )}
+          ${this.renderTrend(progress.status, temperatureState.targetTemperature)}
+          ${this.renderTargetControl(targetEntity)}
+        </div>
+      </ha-card>
+    `;
+  }
 
-            ${this.renderTargetControl(targetEntity)}
-          </main>
+  private renderHero(
+    controlTemperature: number | undefined,
+    targetTemperature: number | undefined,
+    status: TemperatureStatus,
+    progress: number,
+    difference: number | undefined,
+  ): TemplateResult {
+    const controlParts = this.getTemperatureParts(
+      controlTemperature,
+      this.getControlTemperatureUnit(),
+    );
+    const targetParts = this.getTemperatureParts(
+      targetTemperature,
+      this.getTemperatureUnit(this.config.target_temperature_entity),
+    );
 
-          <section class="grid" aria-label=${this.t('card.temperatureZones')}>
-            ${
-              this.config.show_temperature_zones
-                ? html`
-                    ${this.renderMetric(
-                      'card.topTemperature',
-                      temperatureState.zones.top,
-                      this.config.temperature_top_entity,
-                    )}
-                    ${this.renderMetric(
-                      'card.middleTemperature',
-                      temperatureState.zones.middle,
-                      this.config.temperature_middle_entity,
-                    )}
-                    ${this.renderMetric(
-                      'card.bottomTemperature',
-                      temperatureState.zones.bottom,
-                      this.config.temperature_bottom_entity,
-                    )}
-                  `
-                : undefined
-            }
-            ${
-              this.config.show_outside_temperature && this.config.outside_temperature_entity
-                ? this.renderMetric(
-                    'card.outsideTemperature',
-                    temperatureState.outsideTemperature,
-                    this.config.outside_temperature_entity,
-                  )
-                : undefined
-            }
-            ${
-              temperatureState.summary.stratification !== undefined
-                ? this.renderMetric('card.stratification', temperatureState.summary.stratification)
-                : undefined
-            }
-          </section>
+    return html`
+      <section class="hero" aria-label=${this.t('card.controlTemperature')}>
+        <div class="hero-main">
+          <div>
+            <div class="label">${this.t('card.controlTemperature')}</div>
+            <div class=${`hero-value ${controlParts.unavailable ? 'unavailable' : ''}`}>
+              <span class="hero-number">${controlParts.value}</span>
+              <span class="hero-unit">${controlParts.unit}</span>
+            </div>
+          </div>
+          <div class="target-summary" aria-label=${this.t('card.targetTemperature')}>
+            <div class="label">${this.t('card.targetTemperature')}</div>
+            <div class=${`target-value ${targetParts.unavailable ? 'unavailable' : ''}`}>
+              <span>${targetParts.value}</span>
+              <small>${targetParts.unit}</small>
+            </div>
+          </div>
+        </div>
 
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" style=${`width: ${Math.round(progress * 100)}%;`}></div>
+        </div>
+
+        <div class="hero-meta">
+          <span class="status-chip">
+            <span class="status-dot" aria-hidden="true"></span>
+            ${this.t(`status.${status}`)}
+          </span>
           ${
-            this.config.show_temperature_trend
-              ? html`
-                  <section class="trend-panel" aria-label=${this.t('card.temperatureTrend')}>
-                    <div class="label">${this.t('card.temperatureTrend')}</div>
-                    ${
-                      trendAvailable
-                        ? html`
-                            <fceeb-sauna-suite-temperature-trend
-                              .samples=${this.historySamples}
-                              .status=${progress.status}
-                              empty-label=${
-                                this.historyLoading
-                                  ? this.t('card.trendLoading')
-                                  : this.t('card.trendUnavailable')
-                              }
-                            ></fceeb-sauna-suite-temperature-trend>
-                          `
-                        : html`<div class="trend-empty">
-                            ${this.t('card.trendDirectModesOnly')}
-                          </div>`
-                    }
-                  </section>
-                `
+            difference !== undefined
+              ? html`<span class="difference">
+                  ${this.t('card.targetDifference')}: ${this.formatTemperatureDelta(difference)}
+                </span>`
               : undefined
           }
         </div>
-      </ha-card>
+        ${this.serviceError ? html`<div class="error" role="alert">${this.serviceError}</div>` : undefined}
+      </section>
+    `;
+  }
+
+  private renderTemperatureZones(
+    top: number | undefined,
+    middle: number | undefined,
+    bottom: number | undefined,
+    outside: number | undefined,
+    stratification: number | undefined,
+  ): TemplateResult | undefined {
+    const showZones = this.config.show_temperature_zones;
+    const showOutside =
+      this.config.show_outside_temperature && this.config.outside_temperature_entity !== undefined;
+
+    if (!showZones && !showOutside && stratification === undefined) {
+      return undefined;
+    }
+
+    return html`
+      <section class="zones" aria-label=${this.t('card.temperatureZones')}>
+        ${
+          showZones
+            ? html`
+                <div class="zone-grid">
+                  ${this.renderTemperatureTile(
+                    'card.topTemperature',
+                    top,
+                    this.config.temperature_top_entity,
+                  )}
+                  ${this.renderTemperatureTile(
+                    'card.middleTemperature',
+                    middle,
+                    this.config.temperature_middle_entity,
+                  )}
+                  ${this.renderTemperatureTile(
+                    'card.bottomTemperature',
+                    bottom,
+                    this.config.temperature_bottom_entity,
+                  )}
+                </div>
+              `
+            : undefined
+        }
+        <div class="secondary-grid">
+          ${
+            showOutside
+              ? this.renderTemperatureTile(
+                  'card.outsideTemperature',
+                  outside,
+                  this.config.outside_temperature_entity,
+                  'subtle',
+                )
+              : undefined
+          }
+          ${
+            stratification !== undefined
+              ? this.renderTemperatureTile(
+                  'card.stratification',
+                  stratification,
+                  undefined,
+                  'subtle',
+                )
+              : undefined
+          }
+        </div>
+      </section>
+    `;
+  }
+
+  private renderTemperatureTile(
+    labelKey: string,
+    value: number | undefined,
+    entityId?: string | undefined,
+    variant = 'zone',
+  ): TemplateResult {
+    const parts = this.getTemperatureParts(value, this.getTemperatureUnit(entityId), true);
+
+    return html`
+      <div class=${`temperature-tile ${variant}`}>
+        <div class="label">${this.t(labelKey)}</div>
+        <div class=${`tile-value ${parts.unavailable ? 'unavailable' : ''}`}>
+          <span>${parts.value}</span>
+          <small>${parts.unit}</small>
+        </div>
+      </div>
+    `;
+  }
+
+  private renderTrend(
+    status: TemperatureStatus,
+    targetTemperature: number | undefined,
+  ): TemplateResult | undefined {
+    if (!this.config.show_temperature_trend) {
+      return undefined;
+    }
+
+    const trendAvailable = isDirectControlTemperatureMode(this.config.control_temperature_mode);
+
+    return html`
+      <section class="trend-panel" aria-label=${this.t('card.temperatureTrend')}>
+        <div class="section-heading">
+          <div>
+            <div class="label">${this.t('card.temperatureTrend')}</div>
+          </div>
+        </div>
+        ${
+          trendAvailable
+            ? html`
+                <fceeb-sauna-suite-temperature-trend
+                  .samples=${this.historySamples}
+                  .status=${status}
+                  .targetValue=${targetTemperature}
+                  empty-label=${
+                    this.historyLoading
+                      ? this.t('card.trendLoading')
+                      : this.t('card.trendUnavailable')
+                  }
+                ></fceeb-sauna-suite-temperature-trend>
+              `
+            : html`<div class="trend-empty">${this.t('card.trendDirectModesOnly')}</div>`
+        }
+      </section>
     `;
   }
 
@@ -218,6 +330,11 @@ export class SaunaSuiteCard extends LitElement {
       !isSupportedSwitchEntity(this.config.main_switch_entity) ||
       isUnavailableEntity(entity);
     const isOn = entity?.state === 'on';
+    const label = this.switchPending
+      ? this.t('card.pending')
+      : isOn
+        ? this.t('card.powerOn')
+        : this.t('card.powerOff');
 
     return html`
       <button
@@ -227,13 +344,8 @@ export class SaunaSuiteCard extends LitElement {
         aria-label=${this.t('card.togglePower')}
         @click=${this.handlePowerClick}
       >
-        ${
-          this.switchPending
-            ? this.t('card.pending')
-            : isOn
-              ? this.t('card.powerOn')
-              : this.t('card.powerOff')
-        }
+        <span class="power-icon" aria-hidden="true">${this.renderPowerIcon()}</span>
+        <span>${label}</span>
       </button>
     `;
   }
@@ -241,6 +353,10 @@ export class SaunaSuiteCard extends LitElement {
   private renderTargetControl(entity: HassEntity | undefined): TemplateResult {
     const range = getTargetNumberRange(entity);
     const currentValue = this.getEntityNumber(entity);
+    const currentParts = this.getTemperatureParts(
+      currentValue,
+      this.getTemperatureUnit(this.config.target_temperature_entity),
+    );
     const disabled =
       this.targetPending ||
       !isSupportedTargetNumberEntity(this.config.target_temperature_entity) ||
@@ -249,32 +365,34 @@ export class SaunaSuiteCard extends LitElement {
 
     return html`
       <section class="target-control" aria-label=${this.t('card.targetTemperature')}>
-        <div class="label">${this.t('card.targetTemperature')}</div>
-        <div class=${this.valueClass(currentValue)}>
-          ${this.formatTemperature(
-            currentValue,
-            this.getTemperatureUnit(this.config.target_temperature_entity),
-          )}
-        </div>
-        <div class="target-actions">
-          <button
-            class="step-button"
-            type="button"
-            ?disabled=${disabled}
-            aria-label=${this.t('card.decreaseTarget')}
-            @click=${() => this.adjustTargetTemperature(-1)}
-          >
-            -
-          </button>
-          <button
-            class="step-button"
-            type="button"
-            ?disabled=${disabled}
-            aria-label=${this.t('card.increaseTarget')}
-            @click=${() => this.adjustTargetTemperature(1)}
-          >
-            +
-          </button>
+        <div class="target-header">
+          <div>
+            <div class="label">${this.t('card.targetTemperature')}</div>
+            <div class=${`target-current ${currentParts.unavailable ? 'unavailable' : ''}`}>
+              <span>${currentParts.value}</span>
+              <small>${currentParts.unit}</small>
+            </div>
+          </div>
+          <div class="target-actions">
+            <button
+              class="step-button"
+              type="button"
+              ?disabled=${disabled}
+              aria-label=${this.t('card.decreaseTarget')}
+              @click=${() => this.adjustTargetTemperature(-1)}
+            >
+              -
+            </button>
+            <button
+              class="step-button"
+              type="button"
+              ?disabled=${disabled}
+              aria-label=${this.t('card.increaseTarget')}
+              @click=${() => this.adjustTargetTemperature(1)}
+            >
+              +
+            </button>
+          </div>
         </div>
         ${
           range && currentValue !== undefined
@@ -297,18 +415,21 @@ export class SaunaSuiteCard extends LitElement {
     `;
   }
 
-  private renderMetric(
-    labelKey: string,
-    value: number | undefined,
-    entityId?: string | undefined,
-  ): TemplateResult {
-    return html`
-      <div class="metric">
-        <div class="label">${this.t(labelKey)}</div>
-        <div class=${this.valueClass(value)}>
-          ${this.formatTemperature(value, this.getTemperatureUnit(entityId))}
-        </div>
-      </div>
+  private renderHeatIcon(): TemplateResult {
+    return svg`
+      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+        <path d="M8 20c-1.5-1.1-2.3-2.5-2.3-4.2 0-1.8.9-3.2 2.6-4.4 1.3-.9 2-2.1 2-3.4 0-1-.3-2-.9-3 2.3.9 3.8 2.7 3.8 5.1 0 1-.2 1.8-.6 2.6.9-.5 1.6-1.2 2.1-2.2 2.1 1.4 3.2 3.2 3.2 5.3 0 1.7-.8 3.1-2.3 4.2" />
+        <path d="M9.5 20c-.6-.7-.9-1.5-.9-2.4 0-1.2.6-2.2 1.7-3 .9-.6 1.4-1.4 1.4-2.4 1.5 1 2.2 2.2 2.2 3.7 0 .6-.1 1.1-.4 1.6.5-.2.9-.6 1.3-1.1.7.7 1.1 1.5 1.1 2.4 0 .4-.1.8-.3 1.2" />
+      </svg>
+    `;
+  }
+
+  private renderPowerIcon(): TemplateResult {
+    return svg`
+      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+        <path d="M12 3v8" />
+        <path d="M7.1 6.8a7 7 0 1 0 9.8 0" />
+      </svg>
     `;
   }
 
@@ -491,12 +612,21 @@ export class SaunaSuiteCard extends LitElement {
     return DEFAULT_TEMPERATURE_UNIT;
   }
 
-  private valueClass(value: number | undefined): string {
-    return value === undefined ? 'metric-value unavailable' : 'metric-value';
-  }
-
-  private formatTemperature(value: number | undefined, unit: string): string {
-    return value === undefined ? this.t('card.notAvailable') : `${value.toFixed(1)} ${unit}`;
+  private getTemperatureParts(
+    value: number | undefined,
+    unit: string,
+    compactUnavailable = false,
+  ): TemperatureParts {
+    return {
+      value:
+        value === undefined
+          ? compactUnavailable
+            ? UNAVAILABLE_COMPACT_VALUE
+            : UNAVAILABLE_COMPACT_VALUE
+          : value.toFixed(1),
+      unit: value === undefined ? '' : unit,
+      unavailable: value === undefined,
+    };
   }
 
   private formatTemperatureDelta(value: number): string {

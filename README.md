@@ -5,16 +5,13 @@ modular and HACS-compatible sauna dashboard experience.
 
 This repository currently contains a Lovelace custom card named
 `custom:sauna-suite-card` with manual controls, multi-zone temperature
-monitoring, target-temperature adjustment and a compact Recorder-backed trend
-for direct sensor modes.
+monitoring, target-temperature adjustment, a redesigned compact interface and a Recorder-backed trend for direct sensor modes.
 
 ![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
 
 ## Alpha Status
 
-Version `0.1.0-alpha.3` is the current HACS-installable alpha release. It fixes
-the Home Assistant card-picker preview render loop from earlier alpha builds.
-Expect breaking changes while the dashboard model and editor mature.
+Version `0.2.0-alpha.1` is the current HACS-installable alpha release. It redesigns the card into a modern, compact dashboard experience without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
 
 This version provides manual user controls and monitoring only. It does not
 automatically switch the sauna heater, regulate temperature, run schedules,
@@ -182,7 +179,7 @@ automatically.
 
 ## Temperature Trend
 
-The compact trend uses the Home Assistant Recorder history API for recent
+The redesigned compact trend uses the Home Assistant Recorder history API for recent
 temperature samples. In this version, trends are available only when
 `control_temperature_mode` is `top`, `middle` or `bottom`, because those modes
 map to one physical sensor.
@@ -226,7 +223,9 @@ that the release asset is named `sauna-suite.js`. The resource type must be
 
 Use a hard browser refresh, clear the browser cache or open the dashboard in a
 private window. Mobile companion apps may also need their frontend cache
-refreshed after an update.
+refreshed after an update. If the card still shows the older alpha layout after
+updating to `0.2.0-alpha.1`, Home Assistant is likely still serving the cached
+JavaScript file.
 
 ### Duplicate custom-element registration
 
