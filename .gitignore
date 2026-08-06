@@ -4,4 +4,4 @@ coverage/
 .vs/
 *.log
 *.tsbuildinfo
-
+/sauna-suite.js
