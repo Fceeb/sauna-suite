@@ -9,6 +9,25 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.1.0-alpha.2]
+
+### Fixed
+
+- Fixed a frozen Home Assistant card picker caused by incorrect custom-card
+  metadata.
+- Fixed the card-picker metadata type to use `sauna-suite-card` without the
+  `custom:` prefix while keeping user-facing YAML as
+  `custom:sauna-suite-card`.
+- Fixed duplicate custom-element registration so loading the bundle twice no
+  longer throws.
+
+### Alpha Notes
+
+- This is alpha software and may change before a stable release.
+- No automatic temperature regulation is implemented.
+- No RGB light signaling or audio alarm support is implemented yet.
+- No PV or battery optimization is implemented yet.
+
 ## [0.1.0-alpha.1]
 
 ### Added

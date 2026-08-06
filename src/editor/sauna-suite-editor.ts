@@ -1,10 +1,11 @@
 import { LitElement, html, type TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 import { CONTROL_TEMPERATURE_MODES, type SaunaSuiteCardConfig } from '../models/card-config';
 import { EDITOR_TAG } from '../models/constants';
 import type { HomeAssistant } from '../models/home-assistant';
 import { normalizeConfig } from '../services/card-config';
+import { defineCustomElement } from '../services/custom-element-registry';
 import { editorStyles } from '../styles/editor-styles';
 import { translate } from '../translations/translator';
 
@@ -20,7 +21,6 @@ interface EditorSection {
   schema: HaFormSchema[];
 }
 
-@customElement(EDITOR_TAG)
 export class SaunaSuiteEditor extends LitElement {
   public static override styles = editorStyles;
 
@@ -329,6 +329,8 @@ export class SaunaSuiteEditor extends LitElement {
     return translate(this.hass?.selectedLanguage ?? this.hass?.language, key);
   }
 }
+
+defineCustomElement(customElements, EDITOR_TAG, SaunaSuiteEditor);
 
 declare global {
   interface HTMLElementTagNameMap {

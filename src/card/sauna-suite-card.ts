@@ -1,5 +1,5 @@
 import { LitElement, html, type TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 import {
   calculateTemperatureProgress,
@@ -9,6 +9,7 @@ import type { SaunaSuiteCardConfig } from '../models/card-config';
 import { CARD_TAG, EDITOR_TAG } from '../models/constants';
 import type { HassEntity, HomeAssistant } from '../models/home-assistant';
 import { normalizeConfig } from '../services/card-config';
+import { defineCustomElement } from '../services/custom-element-registry';
 import {
   getTargetNumberRange,
   isSupportedSwitchEntity,
@@ -29,7 +30,6 @@ import { translate } from '../translations/translator';
 
 const DEFAULT_TEMPERATURE_UNIT = '°C';
 
-@customElement(CARD_TAG)
 export class SaunaSuiteCard extends LitElement {
   public static override styles = cardStyles;
 
@@ -187,7 +187,7 @@ export class SaunaSuiteCard extends LitElement {
                     ${
                       trendAvailable
                         ? html`
-                            <sauna-suite-temperature-trend
+                            <fceeb-sauna-suite-temperature-trend
                               .samples=${this.historySamples}
                               .status=${progress.status}
                               empty-label=${
@@ -195,7 +195,7 @@ export class SaunaSuiteCard extends LitElement {
                                   ? this.t('card.trendLoading')
                                   : this.t('card.trendUnavailable')
                               }
-                            ></sauna-suite-temperature-trend>
+                            ></fceeb-sauna-suite-temperature-trend>
                           `
                         : html`<div class="trend-empty">
                             ${this.t('card.trendDirectModesOnly')}
@@ -249,7 +249,10 @@ export class SaunaSuiteCard extends LitElement {
       <section class="target-control" aria-label=${this.t('card.targetTemperature')}>
         <div class="label">${this.t('card.targetTemperature')}</div>
         <div class=${this.valueClass(currentValue)}>
-          ${this.formatTemperature(currentValue, this.getTemperatureUnit(this.config.target_temperature_entity))}
+          ${this.formatTemperature(
+            currentValue,
+            this.getTemperatureUnit(this.config.target_temperature_entity),
+          )}
         </div>
         <div class="target-actions">
           <button
@@ -488,6 +491,8 @@ export class SaunaSuiteCard extends LitElement {
     return translate(this.hass?.selectedLanguage ?? this.hass?.language, key);
   }
 }
+
+defineCustomElement(customElements, CARD_TAG, SaunaSuiteCard);
 
 declare global {
   interface HTMLElementTagNameMap {

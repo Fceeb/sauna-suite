@@ -12,7 +12,8 @@ for direct sensor modes.
 
 ## Alpha Status
 
-Version `0.1.0-alpha.1` is the first HACS-installable alpha release. Expect
+Version `0.1.0-alpha.2` is the current HACS-installable alpha release. It fixes
+the Home Assistant card-picker registration issue from the first alpha. Expect
 breaking changes while the dashboard model and editor mature.
 
 This version provides manual user controls and monitoring only. It does not
@@ -204,8 +205,16 @@ Confirm the Lovelace resource is registered and points to the installed file:
 /hacsfiles/sauna-suite/sauna-suite.js
 ```
 
-Then refresh the dashboard. If the error remains, remove and re-add the
-resource or reload the Home Assistant frontend.
+Then refresh the dashboard. If the error remains, update to
+`0.1.0-alpha.2` or newer. Alpha.2 fixes incorrect custom-card metadata that
+could make the Home Assistant card picker freeze with
+`Custom element not found: custom:sauna-suite-card`.
+
+### Card picker freezes
+
+Update to `0.1.0-alpha.2` or newer. Alpha.2 fixes the card-picker metadata so
+Home Assistant receives the element name `sauna-suite-card` instead of the YAML
+card type `custom:sauna-suite-card`.
 
 ### Resource not loaded
 
@@ -218,6 +227,12 @@ that the release asset is named `sauna-suite.js`. The resource type must be
 Use a hard browser refresh, clear the browser cache or open the dashboard in a
 private window. Mobile companion apps may also need their frontend cache
 refreshed after an update.
+
+### Duplicate custom-element registration
+
+Update to `0.1.0-alpha.2` or newer if the browser console reports that a custom
+element has already been defined. Alpha.2 guards internal custom-element
+registration so loading the bundle twice no longer throws.
 
 ### Recorder trend unavailable
 
