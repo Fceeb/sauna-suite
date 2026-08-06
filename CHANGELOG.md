@@ -7,49 +7,31 @@ versioning once releases begin.
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [0.1.0-alpha.1]
+
 ### Added
 
+- First HACS-installable Dashboard alpha release.
+- Multi-zone temperature monitoring for top, middle and bottom sauna sensors.
+- Optional outside temperature display.
+- Control-temperature display modes for direct zone, average, weighted average,
+  minimum and maximum values.
 - Manual main switch control for `switch` and `input_boolean` entities.
 - Confirmation before manually switching on the configured sauna power entity.
-- Manual target-temperature controls for `number` and `input_number` entities.
-- Target-temperature clamping and step rounding based on entity attributes.
-- Temperature progress model with localized status labels.
-- Centralized temperature status color mapping for future reuse.
-- Compact SVG trend sourced from Home Assistant Recorder history for direct
-  top, middle and bottom control-temperature modes.
-- Visual editor sections for General, Entities, Temperature calculation,
-  Display, Trend and Safety and confirmation settings.
-- Multi-zone temperature card configuration fields.
-- Monitoring-only top, middle, bottom, target and outside temperature display.
-- Control-temperature modes for direct zone, average, weighted average, minimum
-  and maximum values.
-- Temperature stratification display for top minus bottom temperature.
-- Home Assistant visual editor selectors for all card settings.
-- German and English labels for new card and editor text.
-- Tests for temperature modes, invalid states, weights and configuration
-  defaults.
-- Initial HACS-compatible project foundation.
-- Minimal `custom:sauna-suite-card` placeholder card.
-- Basic visual editor placeholder.
-- Numeric and temperature utility tests.
+- Manual target-temperature adjustment for `number` and `input_number`
+  entities.
+- Temperature progress and localized status display.
+- Direct-sensor Recorder trend for top, middle and bottom control modes.
+- Visual editor for card configuration.
+- German and English translations.
 
-### Changed
+### Alpha Notes
 
-- Removed the overlapping above-target threshold setting while the status model
-  is still early and monitoring-only.
-- `target_reached_tolerance` now defines the inclusive target-reached band below
-  and above the target temperature.
-- Calculated control-temperature modes now show a localized message instead of
-  displaying one physical sensor history as a calculated trend.
-- Visible temperature labels use `°C` by default and prefer an entity's
-  configured unit where practical.
-
-### Planned
-
-- Multi-sensor history aggregation for calculated control-temperature modes is
-  planned for a later release.
-
-### Notes
-
+- This is alpha software and may change before a stable release.
+- No automatic temperature regulation is implemented.
+- No RGB light signaling or audio alarm support is implemented yet.
+- No PV or battery optimization is implemented yet.
 - This release remains manual monitoring/display only and does not control sauna
   equipment automatically.

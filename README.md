@@ -10,12 +10,15 @@ for direct sensor modes.
 
 ![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
 
-## Status
+## Alpha Status
 
-Early development. This version provides manual user controls and monitoring
-only. It does not automatically switch the sauna heater, regulate temperature,
-run schedules, control RGB lights, play alarms, calculate ETA or optimize
-energy, PV or battery usage.
+Version `0.1.0-alpha.1` is the first HACS-installable alpha release. Expect
+breaking changes while the dashboard model and editor mature.
+
+This version provides manual user controls and monitoring only. It does not
+automatically switch the sauna heater, regulate temperature, run schedules,
+control RGB lights, play alarms, calculate ETA or optimize energy, PV or
+battery usage.
 
 ## Planned Capabilities
 
@@ -39,8 +42,7 @@ energy, PV or battery usage.
 
 ### HACS Custom Repository
 
-Sauna Suite is intended to be installed as a HACS custom repository until it is
-available through the default HACS repository list.
+Sauna Suite is installed as a HACS custom repository.
 
 1. Open HACS in Home Assistant.
 2. Open the three-dot menu and choose **Custom repositories**.
@@ -50,7 +52,7 @@ available through the default HACS repository list.
    https://github.com/Fceeb/sauna-suite
    ```
 
-4. Select the repository category **Dashboard**.
+4. Select repository type/category **Dashboard**.
 5. Install Sauna Suite from HACS.
 6. Add the Lovelace resource if Home Assistant does not add it automatically:
 
@@ -64,8 +66,12 @@ available through the default HACS repository list.
    JavaScript module
    ```
 
-Releases will provide the HACS-ready file named `sauna-suite.js`. The
-`hacs.json` manifest points to that release asset.
+Releases provide the HACS-ready file named `sauna-suite.js`. The `hacs.json`
+manifest points HACS to that release asset.
+
+After installation or update, refresh the Home Assistant frontend. A full page
+reload is usually enough; if Home Assistant still serves an old file, clear the
+browser cache or use a hard refresh.
 
 ### Manual Development Installation
 
@@ -100,7 +106,19 @@ Resource type:
 JavaScript module
 ```
 
-## Configuration Example
+Restarting Home Assistant is usually not required for a Lovelace resource, but
+a dashboard reload or frontend refresh is required after replacing the
+JavaScript file.
+
+## Card Type
+
+Use this Lovelace card type:
+
+```yaml
+type: custom:sauna-suite-card
+```
+
+## Basic Configuration Example
 
 All settings can be configured through the visual editor. YAML is optional for
 manual setups:
@@ -176,22 +194,46 @@ later release.
 If Recorder or history is unavailable, the card still works and shows an empty
 trend state.
 
+## Troubleshooting
+
+### Custom element does not exist
+
+Confirm the Lovelace resource is registered and points to the installed file:
+
+```text
+/hacsfiles/sauna-suite/sauna-suite.js
+```
+
+Then refresh the dashboard. If the error remains, remove and re-add the
+resource or reload the Home Assistant frontend.
+
+### Resource not loaded
+
+Check that HACS installed Sauna Suite as a **Dashboard** custom repository and
+that the release asset is named `sauna-suite.js`. The resource type must be
+`JavaScript module`.
+
+### Old JavaScript file cached
+
+Use a hard browser refresh, clear the browser cache or open the dashboard in a
+private window. Mobile companion apps may also need their frontend cache
+refreshed after an update.
+
+### Recorder trend unavailable
+
+The trend requires Home Assistant Recorder history for the selected direct
+sensor mode (`top`, `middle` or `bottom`). Calculated modes intentionally do not
+show a trend yet. If Recorder is disabled, purged or unavailable, the rest of
+the card still works.
+
 ## Development
 
 ```bash
+npm run format:check
 npm run lint
 npm run typecheck
 npm test
 npm run build
-```
-
-## Card
-
-The card is registered as:
-
-```yaml
-type: custom:sauna-suite-card
-name: Sauna Suite
 ```
 
 ## License
