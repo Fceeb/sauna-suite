@@ -42,9 +42,11 @@
 
 ## Phase 6: Notifications and Light Signaling
 
+- Optional RGB status light for visual-only temperature progress
+- Ready-temperature signal with hold, blink and pulse modes
+- Runtime-only acknowledgement button for the ready signal
+- Optional in-memory restoration of the previous light state
 - Media-player alarm support
-- Acknowledgement flow
-- RGB light signaling
 
 ## Phase 7: Optimization
 

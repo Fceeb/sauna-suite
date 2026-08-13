@@ -258,6 +258,194 @@ describe('SaunaSuiteCard', () => {
       entity_id: 'switch.sauna',
     });
   });
+
+  it('does not send RGB service calls in card-picker previews without hass', async () => {
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_light_entity: 'light.sauna',
+    });
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    expect(fetchTemperatureHistory).not.toHaveBeenCalled();
+  });
+
+  it('sends temperature-gradient RGB updates only while sauna is on', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_light_entity: 'light.sauna',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '70'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'light.sauna': createLightEntity('light.sauna', 'on', ['rgb']),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+
+    expect(callService).toHaveBeenCalledWith(
+      'light',
+      'turn_on',
+      expect.objectContaining({ entity_id: 'light.sauna', rgb_color: expect.any(Array) }),
+    );
+  });
+
+  it('shows unsupported-light warning without throwing', async () => {
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_light_entity: 'light.sauna',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    card.hass = createHass({
+      'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+      'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '70'),
+      'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+      'light.sauna': createLightEntity('light.sauna', 'on', ['brightness']),
+    });
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+    await expectUpdateComplete(card);
+
+    expect(getText(card)).toContain('Configured light does not support color.');
+  });
+
+  it('starts a hold ready signal and acknowledges it', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_mode: 'ready_only',
+      rgb_light_entity: 'light.sauna',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      ready_signal_requires_acknowledgement: true,
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'light.sauna': createLightEntity('light.sauna', 'on', ['rgb']),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+    await expectUpdateComplete(card);
+
+    expect(getText(card)).toContain('Acknowledge');
+    card.shadowRoot?.querySelector<HTMLButtonElement>('.ack-button')?.click();
+    await Promise.resolve();
+
+    expect(callService).toHaveBeenCalledWith('light', 'turn_on', expect.anything());
+  });
+
+  it('uses blink and pulse timers without creating orphan intervals', async () => {
+    vi.useFakeTimers();
+    const clearIntervalSpy = vi.spyOn(window, 'clearInterval');
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_mode: 'ready_only',
+      rgb_light_entity: 'light.sauna',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      ready_signal_mode: 'blink',
+      ready_signal_interval_seconds: 1,
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'light.sauna': createLightEntity('light.sauna', 'on', ['rgb']),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(callService).toHaveBeenCalledWith('light', 'turn_off', { entity_id: 'light.sauna' });
+
+    card.remove();
+    expect(clearIntervalSpy).toHaveBeenCalled();
+  });
+
+  it('pulses the ready signal by lowering brightness on timer ticks', async () => {
+    vi.useFakeTimers();
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_mode: 'ready_only',
+      rgb_light_entity: 'light.sauna',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      ready_signal_mode: 'pulse',
+      ready_signal_brightness: 80,
+      ready_signal_interval_seconds: 1,
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'light.sauna': createLightEntity('light.sauna', 'on', ['rgb']),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(callService).toHaveBeenCalledWith(
+      'light',
+      'turn_on',
+      expect.objectContaining({ brightness_pct: 28 }),
+    );
+  });
 });
 
 interface HistoryTestApi {
@@ -298,12 +486,23 @@ function createHass(
 function createTemperatureEntity(entityId: string, state: string): HassEntity {
   return createEntity(entityId, state, {
     device_class: 'temperature',
-    unit_of_measurement: 'Ã‚Â°C',
+    unit_of_measurement: '°C',
   });
 }
 
 function createSwitchEntity(entityId: string, state: string): HassEntity {
   return createEntity(entityId, state, {});
+}
+
+function createLightEntity(
+  entityId: string,
+  state: string,
+  supportedColorModes: string[],
+): HassEntity {
+  return createEntity(entityId, state, {
+    friendly_name: 'Sauna RGB',
+    supported_color_modes: supportedColorModes,
+  });
 }
 
 function createEntity(

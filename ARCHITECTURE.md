@@ -40,6 +40,7 @@ The card displays:
 - compact Recorder-backed trend for direct top, middle or bottom modes
 - deterministic heat-up ETA for direct sensor modes
 - effective heater power display from fixed kW or approximate general power sensor mode
+- optional visual RGB status and ready-temperature signaling through one Home Assistant light entity
 
 For calculated control-temperature modes, the card intentionally disables the
 trend and ETA history instead of showing one physical sensor history as a
@@ -48,8 +49,8 @@ the rendering layer and feed the trend and ETA model with already calculated
 samples.
 
 The card layer must not contain automatic heater switching, temperature
-regulation, battery optimization, alarm acknowledgement or other
-safety-sensitive workflows.
+regulation, battery optimization, audio alarms or other safety-sensitive
+workflows. RGB signaling is visual only and does not influence heater state.
 
 ## Editor Layer
 
@@ -76,9 +77,15 @@ Temperature status thresholds are non-overlapping: target reached uses the
 configured tolerance both below and above the target temperature, while
 above-target starts only beyond that tolerance.
 
-Status colors are centralized in `temperature-progress.ts` so future RGB light
-support can reuse the same semantic mapping without coupling lights to the card
-view.
+Status colors are centralized in `temperature-progress.ts`.
+`src/core/temperature-color.ts` maps progress toward the configured target to
+semantic RGB/HS colors for the card, trend and RGB light controller without
+coupling UI rendering to light service calls.
+
+`src/core/ready-signal.ts` contains the pure ready-event detector. It triggers
+only on a not-ready to ready transition while the main switch is on, then
+requires reset hysteresis (`target - near_target_threshold`) or a sauna off/on
+cycle before another trigger can occur.
 
 `src/core/heating-power.ts` contains pure W/kW parsing, validation and general
 power sensor capping helpers. `src/core/heating-rate.ts` calculates a robust
@@ -107,6 +114,12 @@ states and reduces large responses before rendering.
 `src/services/trend-entity.ts` selects trend source entities only for direct
 sensor modes (`top`, `middle` and `bottom`). Calculated modes return no trend
 entity until multi-sensor history aggregation is implemented.
+
+`src/services/rgb-light-controller.ts` adapts semantic colors to Home Assistant
+`light.turn_on` / `light.turn_off` service payloads. It validates the light
+domain, detects `rgb_color`, `hs_color` and `color_temp` capability support,
+suppresses duplicate commands, throttles repeated updates and optionally
+restores the previous light state from in-memory card/session state.
 
 ## Components
 

@@ -4,6 +4,9 @@ import { property, state } from 'lit/decorators.js';
 import {
   CONTROL_TEMPERATURE_MODES,
   HEATING_POWER_MODES,
+  READY_SIGNAL_COLORS,
+  READY_SIGNAL_MODES,
+  RGB_MODES,
   type SaunaSuiteCardConfig,
 } from '../models/card-config';
 import { EDITOR_TAG } from '../models/constants';
@@ -239,6 +242,154 @@ export class SaunaSuiteEditor extends LitElement {
       );
     }
 
+    const rgbFields: HaFormSchema[] = [
+      this.booleanField('rgb_enabled', 'editor.rgbEnabled', 'editor.rgbEnabledDescription'),
+    ];
+
+    if (this.config.rgb_enabled) {
+      rgbFields.push(
+        this.entityField(
+          'rgb_light_entity',
+          'editor.rgbLightEntity',
+          'editor.rgbLightEntityDescription',
+          [{ domain: 'light' }],
+        ),
+        {
+          name: 'rgb_mode',
+          label: this.t('editor.rgbMode'),
+          description: this.t('editor.rgbModeDescription'),
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: RGB_MODES.map((mode) => ({
+                value: mode,
+                label: this.t(`rgbModes.${mode}`),
+              })),
+            },
+          },
+        },
+        this.booleanField(
+          'rgb_restore_previous_state',
+          'editor.rgbRestorePreviousState',
+          'editor.rgbRestorePreviousStateDescription',
+        ),
+        this.booleanField(
+          'rgb_only_when_sauna_on',
+          'editor.rgbOnlyWhenSaunaOn',
+          'editor.rgbOnlyWhenSaunaOnDescription',
+        ),
+      );
+
+      if (this.config.rgb_mode === 'temperature_gradient') {
+        rgbFields.push(
+          this.numberField(
+            'rgb_brightness',
+            'editor.rgbBrightness',
+            'editor.rgbBrightnessDescription',
+            1,
+            100,
+            1,
+          ),
+          this.numberField(
+            'rgb_update_interval_seconds',
+            'editor.rgbUpdateIntervalSeconds',
+            'editor.rgbUpdateIntervalSecondsDescription',
+            1,
+            3600,
+            1,
+          ),
+        );
+      }
+
+      rgbFields.push(
+        this.booleanField(
+          'ready_signal_enabled',
+          'editor.readySignalEnabled',
+          'editor.readySignalEnabledDescription',
+        ),
+      );
+
+      if (this.config.ready_signal_enabled) {
+        rgbFields.push(
+          {
+            name: 'ready_signal_mode',
+            label: this.t('editor.readySignalMode'),
+            description: this.t('editor.readySignalModeDescription'),
+            selector: {
+              select: {
+                mode: 'dropdown',
+                options: READY_SIGNAL_MODES.map((mode) => ({
+                  value: mode,
+                  label: this.t(`readySignalModes.${mode}`),
+                })),
+              },
+            },
+          },
+          {
+            name: 'ready_signal_color',
+            label: this.t('editor.readySignalColor'),
+            description: this.t('editor.readySignalColorDescription'),
+            selector: {
+              select: {
+                mode: 'dropdown',
+                options: READY_SIGNAL_COLORS.map((color) => ({
+                  value: color,
+                  label: this.t(`readySignalColors.${color}`),
+                })),
+              },
+            },
+          },
+          this.numberField(
+            'ready_signal_brightness',
+            'editor.readySignalBrightness',
+            'editor.readySignalBrightnessDescription',
+            1,
+            100,
+            1,
+          ),
+          this.numberField(
+            'ready_signal_interval_seconds',
+            'editor.readySignalIntervalSeconds',
+            'editor.readySignalIntervalSecondsDescription',
+            1,
+            3600,
+            1,
+          ),
+          this.numberField(
+            'ready_signal_duration_seconds',
+            'editor.readySignalDurationSeconds',
+            'editor.readySignalDurationSecondsDescription',
+            1,
+            3600,
+            1,
+          ),
+          this.booleanField(
+            'ready_signal_requires_acknowledgement',
+            'editor.readySignalRequiresAcknowledgement',
+            'editor.readySignalRequiresAcknowledgementDescription',
+          ),
+          this.booleanField(
+            'ready_signal_repeat',
+            'editor.readySignalRepeat',
+            'editor.readySignalRepeatDescription',
+          ),
+        );
+
+        if (this.config.ready_signal_repeat) {
+          rgbFields.push(
+            this.numberField(
+              'ready_signal_repeat_interval_seconds',
+              'editor.readySignalRepeatIntervalSeconds',
+              'editor.readySignalRepeatIntervalSecondsDescription',
+              1,
+              86400,
+              1,
+            ),
+          );
+        }
+      }
+    }
+
     return [
       {
         titleKey: 'editor.sections.general',
@@ -308,6 +459,10 @@ export class SaunaSuiteEditor extends LitElement {
       {
         titleKey: 'editor.sections.trend',
         schema: trendFields,
+      },
+      {
+        titleKey: 'editor.sections.rgbReadySignal',
+        schema: rgbFields,
       },
       {
         titleKey: 'editor.sections.safety',
