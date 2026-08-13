@@ -115,7 +115,8 @@ export const cardStyles = css`
 
   .hero,
   .target-control,
-  .trend-panel {
+  .trend-panel,
+  .rgb-status {
     background:
       linear-gradient(135deg, var(--sauna-status-fill), transparent 46%),
       color-mix(in srgb, var(--primary-text-color) 4%, transparent);
@@ -304,6 +305,51 @@ export const cardStyles = css`
     background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
   }
 
+  .rgb-status {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .rgb-copy,
+  .rgb-actions {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .rgb-copy {
+    flex: 1 1 auto;
+  }
+
+  .rgb-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .rgb-indicator {
+    background: var(--sauna-rgb-color, var(--sauna-status-line));
+    border-radius: 999px;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--sauna-rgb-color) 18%, transparent);
+    flex: 0 0 auto;
+    height: 12px;
+    width: 12px;
+  }
+
+  .ack-button {
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 999px;
+    color: var(--text-primary-color, #fff);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    min-height: 34px;
+    padding: 0 14px;
+  }
+
   .target-header {
     align-items: center;
     display: grid;
@@ -358,6 +404,20 @@ export const cardStyles = css`
 
     .target-summary {
       min-width: 0;
+    }
+
+    .rgb-status,
+    .rgb-actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .rgb-actions {
+      justify-content: flex-start;
+    }
+
+    .ack-button {
+      width: 100%;
     }
 
     .hero-number {

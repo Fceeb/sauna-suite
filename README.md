@@ -6,17 +6,20 @@ modular and HACS-compatible sauna dashboard experience.
 This repository currently contains a Lovelace custom card named
 `custom:sauna-suite-card` with manual controls, multi-zone temperature
 monitoring, target-temperature adjustment, a redesigned compact interface, a Recorder-backed trend for direct sensor modes and a deterministic heat-up ETA estimate.
+It can also optionally control one Home Assistant color-capable `light` entity
+for visual RGB status signaling and a ready-temperature signal.
 
 ![Sauna Suite preview](docs/images/sauna-suite-preview.svg)
 
 ## Alpha Status
 
-Version `0.3.0-alpha.1` is the current HACS-installable alpha release. It adds a premium heating dashboard and deterministic heat-up ETA estimate without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
+Version `0.4.0-alpha.1` is the current HACS-installable alpha release. It adds optional RGB sauna status lighting and a ready-temperature signal without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
 
 This version provides manual user controls and monitoring only. It does not
 automatically switch the sauna heater, regulate temperature, run schedules,
-control RGB lights, play alarms, start schedules or optimize energy, PV or
-battery usage.
+play audio alarms, start schedules or optimize energy, PV or battery usage.
+RGB support is visual signaling only and never switches, regulates or
+influences the sauna heater.
 
 ## Planned Capabilities
 
@@ -152,6 +155,22 @@ show_temperature_trend: true
 trend_history_minutes: 120
 trend_refresh_minutes: 5
 confirm_switch_on: true
+rgb_enabled: true
+rgb_light_entity: light.sauna_rgb
+rgb_mode: temperature_gradient
+rgb_brightness: 80
+rgb_update_interval_seconds: 5
+rgb_restore_previous_state: true
+rgb_only_when_sauna_on: true
+ready_signal_enabled: true
+ready_signal_mode: hold
+ready_signal_color: green
+ready_signal_brightness: 100
+ready_signal_interval_seconds: 1
+ready_signal_duration_seconds: 30
+ready_signal_requires_acknowledgement: true
+ready_signal_repeat: false
+ready_signal_repeat_interval_seconds: 60
 ```
 
 Supported `control_temperature_mode` values:
@@ -215,6 +234,40 @@ shown as "Ready".
 
 This feature remains monitoring and manual-control only. It does not switch,
 regulate or schedule sauna equipment automatically.
+
+## RGB Status And Ready Signal
+
+RGB support is optional and uses only the standard Home Assistant
+`light.turn_on` and `light.turn_off` services. Configure one color-capable
+`light` entity through the visual editor or YAML. Sauna Suite detects supported
+color capabilities and uses `rgb_color` when available, then `hs_color`. Lights
+that only support `color_temp` are treated as unsupported for this feature
+because the sauna statuses depend on distinct semantic colors such as blue,
+green, gold and red.
+
+`temperature_gradient` mode maps progress toward the configured target
+temperature to a smooth semantic color range: blue while far below target,
+cyan/green while heating, yellow near target, warm green/gold at target and
+orange/red above target. `ready_only` mode leaves the light alone until the
+ready-temperature signal triggers.
+
+When `rgb_restore_previous_state` is enabled, the card stores the previous
+light state in memory before it first takes control and restores it when RGB
+signaling stops where possible. This state is not persisted across Home
+Assistant reloads or browser sessions.
+
+The ready signal triggers only on a transition from not ready to ready while
+the main switch is on. It does not retrigger continuously while the sauna
+remains at target temperature. A new ready event becomes eligible after the
+temperature falls below `target - near_target_threshold` or after the sauna is
+turned off and on again.
+
+Acknowledgement is local runtime state in this alpha. If acknowledgement is
+enabled, the card shows a compact **Acknowledge** action while the ready signal
+is active. Acknowledging stops the signal, optionally restores the previous
+light state and prevents repeat signals until the reset hysteresis applies.
+
+HomePod and generic media-player audio notifications are not included yet.
 
 ## Temperature Trend
 

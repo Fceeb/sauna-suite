@@ -54,6 +54,47 @@ describe('SaunaSuiteEditor', () => {
       ]),
     );
   });
+
+  it('shows RGB fields only when RGB signaling is enabled', () => {
+    const editor = createEditor();
+
+    editor.setConfig({ rgb_enabled: false });
+    expect(getSchemaNames(editor)).toContain('rgb_enabled');
+    expect(getSchemaNames(editor)).not.toContain('rgb_light_entity');
+
+    editor.setConfig({ rgb_enabled: true });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining(['rgb_light_entity', 'rgb_mode', 'ready_signal_enabled']),
+    );
+  });
+
+  it('shows RGB and ready-signal conditional sub-fields', () => {
+    const editor = createEditor();
+
+    editor.setConfig({
+      rgb_enabled: true,
+      rgb_mode: 'ready_only',
+      ready_signal_enabled: true,
+      ready_signal_repeat: false,
+    });
+    expect(getSchemaNames(editor)).not.toContain('rgb_brightness');
+    expect(getSchemaNames(editor)).toContain('ready_signal_mode');
+    expect(getSchemaNames(editor)).not.toContain('ready_signal_repeat_interval_seconds');
+
+    editor.setConfig({
+      rgb_enabled: true,
+      rgb_mode: 'temperature_gradient',
+      ready_signal_enabled: true,
+      ready_signal_repeat: true,
+    });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining([
+        'rgb_brightness',
+        'rgb_update_interval_seconds',
+        'ready_signal_repeat_interval_seconds',
+      ]),
+    );
+  });
 });
 
 interface EditorSectionTestApi {

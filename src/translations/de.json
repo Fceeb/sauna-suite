@@ -31,7 +31,12 @@
     "etaUnavailable": "ETA nicht verfuegbar",
     "heatingRate": "Heizrate",
     "ready": "Bereit",
-    "readyAt": "Bereit um"
+    "readyAt": "Bereit um",
+    "rgbStatus": "RGB-Status",
+    "rgbLight": "RGB-Licht",
+    "rgbUnsupportedLight": "Konfiguriertes Licht unterstuetzt keine RGB- oder HS-Farbe.",
+    "rgbLightUnavailable": "RGB-Licht nicht verfuegbar.",
+    "acknowledgeReadySignal": "Quittieren"
   },
   "editor": {
     "cardName": "Kartenname",
@@ -53,7 +58,8 @@
       "safety": "Sicherheit und Bestaetigung",
       "temperatureCalculation": "Temperaturberechnung",
       "trend": "Verlauf",
-      "heatingEta": "Heiz-ETA"
+      "heatingEta": "Heiz-ETA",
+      "rgbReadySignal": "RGB & Bereit-Signal"
     },
     "showOutsideTemperature": "Aussentemperatur anzeigen",
     "showOutsideTemperatureDescription": "Aussentemperatur anzeigen, wenn eine Entitaet konfiguriert ist.",
@@ -100,7 +106,39 @@
     "showHeatingRate": "Heizrate und Leistung anzeigen",
     "showHeatingRateDescription": "Gemessene aktuelle Heizrate und effektive Heizleistung anzeigen.",
     "showReadyTime": "Bereit-Uhrzeit anzeigen",
-    "showReadyTimeDescription": "Erwartete Uhrzeit anzeigen, wenn eine ETA verfuegbar ist."
+    "showReadyTimeDescription": "Erwartete Uhrzeit anzeigen, wenn eine ETA verfuegbar ist.",
+    "rgbEnabled": "RGB-Licht aktivieren",
+    "rgbEnabledDescription": "Das konfigurierte Licht nur fuer visuelle Sauna-Statussignale nutzen.",
+    "rgbLightEntity": "RGB-Licht-Entitaet",
+    "rgbLightEntityDescription": "Home-Assistant-Light-Entitaet mit Farbunterstuetzung.",
+    "rgbMode": "RGB-Modus",
+    "rgbModeDescription": "Temperaturverlauf oder nur Bereit-Signal auswaehlen.",
+    "rgbBrightness": "RGB-Helligkeit",
+    "rgbBrightnessDescription": "Helligkeit in Prozent fuer Temperaturverlauf-Updates.",
+    "rgbUpdateIntervalSeconds": "RGB-Aktualisierungsintervall",
+    "rgbUpdateIntervalSecondsDescription": "Mindestabstand in Sekunden zwischen wiederholten RGB-Updates.",
+    "rgbRestorePreviousState": "Vorherigen Lichtzustand wiederherstellen",
+    "rgbRestorePreviousStateDescription": "Vorher erfassten Lichtzustand wiederherstellen, wenn Sauna Suite die Kontrolle beendet.",
+    "rgbOnlyWhenSaunaOn": "Nur wenn Sauna eingeschaltet ist",
+    "rgbOnlyWhenSaunaOnDescription": "RGB-Signale stoppen, wenn der konfigurierte Hauptschalter aus ist.",
+    "readySignalEnabled": "Bereit-Signal aktivieren",
+    "readySignalEnabledDescription": "Signalisieren, wenn die Sauna erstmals die Zieltemperatur erreicht.",
+    "readySignalMode": "Bereit-Signal-Modus",
+    "readySignalModeDescription": "Bereit-Farbe halten, blinken oder pulsieren.",
+    "readySignalColor": "Farbe",
+    "readySignalColorDescription": "Benannte Farbe fuer das Bereit-Signal.",
+    "readySignalBrightness": "Helligkeit",
+    "readySignalBrightnessDescription": "Helligkeit in Prozent fuer das Bereit-Signal.",
+    "readySignalIntervalSeconds": "Bereit-Signal-Intervall",
+    "readySignalIntervalSecondsDescription": "Sekunden zwischen Blink- oder Puls-Schritten. Minimum ist eine Sekunde.",
+    "readySignalDurationSeconds": "Bereit-Signal-Dauer",
+    "readySignalDurationSecondsDescription": "Dauer eines Bereit-Signals, bevor es stoppt.",
+    "readySignalRequiresAcknowledgement": "Quittierung erforderlich",
+    "readySignalRequiresAcknowledgementDescription": "Quittieren-Button anzeigen, solange das Bereit-Signal aktiv ist.",
+    "readySignalRepeat": "Bereit-Signal wiederholen",
+    "readySignalRepeatDescription": "Signal wiederholen, solange die Sauna bereit und nicht quittiert ist.",
+    "readySignalRepeatIntervalSeconds": "Wiederholungsintervall",
+    "readySignalRepeatIntervalSecondsDescription": "Sekunden bis zur Wiederholung eines nicht quittierten Bereit-Signals."
   },
   "modes": {
     "average": "Durchschnitt",
@@ -129,6 +167,31 @@
   "heatingPowerModes": {
     "fixed": "Feste Ofenleistung",
     "general_power_sensor": "Allgemeiner Leistungssensor"
+  },
+  "rgbModes": {
+    "off": "Aus",
+    "temperature_gradient": "Temperaturverlauf",
+    "ready_only": "Nur Bereit-Signal"
+  },
+  "readySignalModes": {
+    "hold": "Halten",
+    "blink": "Blinken",
+    "pulse": "Pulsieren"
+  },
+  "readySignalColors": {
+    "green": "Gruen",
+    "gold": "Gold",
+    "red": "Rot",
+    "blue": "Blau",
+    "purple": "Violett",
+    "white": "Weiss"
+  },
+  "rgbStatus": {
+    "off": "Aus",
+    "temperature_gradient": "Temperaturverlauf",
+    "ready_signal_active": "Bereit-Signal aktiv",
+    "acknowledged": "Quittiert",
+    "light_unavailable": "Licht nicht verfuegbar"
   },
   "heatingStatus": {
     "off": "Aus",

@@ -17,6 +17,18 @@ import {
   getTemperatureStatusColors,
   type TemperatureStatus,
 } from '../core/temperature-progress';
+import {
+  getTemperatureSemanticColor,
+  normalizeReadyColor,
+  type RgbColor,
+} from '../core/temperature-color';
+import {
+  acknowledgeReadySignal,
+  createReadySignalDetectorState,
+  detectReadySignalTransition,
+  isReady,
+  type ReadySignalDetectorState,
+} from '../core/ready-signal';
 import type { SaunaSuiteCardConfig } from '../models/card-config';
 import { CARD_TAG, EDITOR_TAG } from '../models/constants';
 import type { HassEntity, HomeAssistant } from '../models/home-assistant';
@@ -32,6 +44,11 @@ import {
   type TargetNumberRange,
 } from '../services/entity-control';
 import { buildHeatingPowerState, type HeatingPowerState } from '../services/power-state';
+import {
+  detectLightCapabilities,
+  RgbLightController,
+  type RgbLightCommand,
+} from '../services/rgb-light-controller';
 import {
   fetchTemperatureHistory,
   type TemperatureHistorySample,
@@ -87,11 +104,31 @@ export class SaunaSuiteCard extends LitElement {
   @state()
   private historyLoading = false;
 
+  @state()
+  private rgbStatus:
+    'off' | 'temperature_gradient' | 'ready_signal_active' | 'acknowledged' | 'light_unavailable' =
+    'off';
+
+  @state()
+  private rgbWarning?: string | undefined;
+
+  @state()
+  private readySignalActive = false;
+
   private historyRefreshTimer?: number | undefined;
   private targetDebounceTimer?: number | undefined;
   private lastHistoryFetchKey?: string | undefined;
+  private readySignalStepTimer?: number | undefined;
+  private readySignalStopTimer?: number | undefined;
+  private readySignalRepeatTimer?: number | undefined;
+  private readySignalPhase = true;
+  private readySignalDetectorState: ReadySignalDetectorState = createReadySignalDetectorState();
+  private readonly rgbLightController = new RgbLightController();
 
   public setConfig(config: Partial<SaunaSuiteCardConfig>): void {
+    this.clearReadySignalTimers();
+    this.readySignalDetectorState = createReadySignalDetectorState();
+    this.readySignalActive = false;
     this.config = normalizeConfig(config);
     this.resetHistorySchedule();
   }
@@ -100,6 +137,8 @@ export class SaunaSuiteCard extends LitElement {
     super.disconnectedCallback();
     this.clearHistoryTimer();
     this.clearTargetDebounceTimer();
+    this.clearReadySignalTimers();
+    void this.releaseRgbControl();
   }
 
   public getCardSize(): number {
@@ -117,6 +156,7 @@ export class SaunaSuiteCard extends LitElement {
   protected override updated(changedProperties: PropertyValues): void {
     if (changedProperties.has('hass') || changedProperties.has('config')) {
       this.scheduleHistoryRefresh();
+      void this.synchronizeRgbLighting();
     }
   }
 
@@ -147,6 +187,14 @@ export class SaunaSuiteCard extends LitElement {
         this.hasEtaHistoryConsumer() && heatingRate.rateCPerMinute === undefined,
     });
     const statusColors = getTemperatureStatusColors(progress.status);
+    const semanticColor = getTemperatureSemanticColor(
+      temperatureState.summary.controlTemperature,
+      temperatureState.targetTemperature,
+      {
+        nearTargetThreshold: this.config.near_target_threshold,
+        targetReachedTolerance: this.config.target_reached_tolerance,
+      },
+    );
     const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
     const targetEntity = getEntity(this.hass, this.config.target_temperature_entity);
     const dashboardStatus = this.getHeatingDashboardStatus(
@@ -194,9 +242,46 @@ export class SaunaSuiteCard extends LitElement {
             temperatureState.targetTemperature,
             heatingRate,
           )}
-          ${this.renderTargetControl(targetEntity)}
+          ${this.renderRgbStatus(semanticColor.rgb)} ${this.renderTargetControl(targetEntity)}
         </div>
       </ha-card>
+    `;
+  }
+
+  private renderRgbStatus(color: RgbColor): TemplateResult | undefined {
+    if (!this.config.rgb_light_entity) {
+      return undefined;
+    }
+
+    const rgbStyle = `--sauna-rgb-color: rgb(${color.red}, ${color.green}, ${color.blue});`;
+
+    return html`
+      <section class="rgb-status" aria-label=${this.t('card.rgbStatus')}>
+        <div class="rgb-copy">
+          <span class="rgb-indicator" style=${rgbStyle} aria-hidden="true"></span>
+          <div>
+            <div class="label">${this.t('card.rgbLight')}</div>
+            <div class="status-line">${this.getLightLabel()}</div>
+            ${this.rgbWarning ? html`<div class="error">${this.rgbWarning}</div>` : undefined}
+          </div>
+        </div>
+        <div class="rgb-actions">
+          <span class="status-chip">${this.t(`rgbStatus.${this.rgbStatus}`)}</span>
+          ${
+            this.readySignalActive && this.config.ready_signal_requires_acknowledgement
+              ? html`
+                  <button
+                    class="ack-button"
+                    type="button"
+                    @click=${this.handleReadyAcknowledgement}
+                  >
+                    ${this.t('card.acknowledgeReadySignal')}
+                  </button>
+                `
+              : undefined
+          }
+        </div>
+      </section>
     `;
   }
 
@@ -603,6 +688,248 @@ export class SaunaSuiteCard extends LitElement {
     this.serviceError = result.ok ? undefined : result.error;
   }
 
+  private async synchronizeRgbLighting(force = false): Promise<void> {
+    if (!this.hass) {
+      return;
+    }
+
+    if (!this.config.rgb_light_entity) {
+      this.stopReadySignal(false);
+      const result = await this.releaseRgbControl();
+      this.setRgbRuntimeState('off', result.error);
+      return;
+    }
+
+    const light = getEntity(this.hass, this.config.rgb_light_entity);
+    const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
+    const saunaOn = switchEntity?.state === 'on';
+    const temperatureState = buildSaunaTemperatureState(this.hass, this.config);
+    const semanticColor = getTemperatureSemanticColor(
+      temperatureState.summary.controlTemperature,
+      temperatureState.targetTemperature,
+      {
+        nearTargetThreshold: this.config.near_target_threshold,
+        targetReachedTolerance: this.config.target_reached_tolerance,
+      },
+    );
+
+    this.updateReadyDetector(
+      saunaOn,
+      temperatureState.summary.controlTemperature,
+      temperatureState.targetTemperature,
+    );
+
+    if (
+      !this.config.rgb_enabled ||
+      this.config.rgb_mode === 'off' ||
+      (this.config.rgb_only_when_sauna_on && !saunaOn)
+    ) {
+      this.stopReadySignal(false);
+      const result = await this.releaseRgbControl();
+      this.setRgbRuntimeState('off', result.error);
+      return;
+    }
+
+    const command = this.getRgbCommand(semanticColor.rgb);
+    if (!command) {
+      const result = await this.rgbLightController.sync({
+        hass: this.hass,
+        config: this.config,
+        light,
+        saunaOn,
+        command,
+        force,
+      });
+      this.setRgbRuntimeState(this.getRgbStatusForCommand(), result.error);
+      return;
+    }
+
+    const capabilities = detectLightCapabilities(light);
+
+    if (!capabilities.supported) {
+      this.setRgbRuntimeState('light_unavailable', this.t('card.rgbUnsupportedLight'));
+      return;
+    }
+
+    const result = await this.rgbLightController.sync({
+      hass: this.hass,
+      config: this.config,
+      light,
+      saunaOn,
+      command,
+      force,
+    });
+
+    if (!result.ok) {
+      this.setRgbRuntimeState(
+        'light_unavailable',
+        result.error ?? this.t('card.rgbLightUnavailable'),
+      );
+      return;
+    }
+
+    this.setRgbRuntimeState(this.getRgbStatusForCommand(), undefined);
+  }
+
+  private updateReadyDetector(
+    saunaOn: boolean,
+    controlTemperature: number | undefined,
+    targetTemperature: number | undefined,
+  ): void {
+    const detection = detectReadySignalTransition(this.readySignalDetectorState, {
+      saunaOn,
+      controlTemperature,
+      targetTemperature,
+      thresholds: {
+        nearTargetThreshold: this.config.near_target_threshold,
+        targetReachedTolerance: this.config.target_reached_tolerance,
+      },
+    });
+
+    this.readySignalDetectorState = detection.state;
+
+    if (
+      detection.triggered &&
+      this.config.ready_signal_enabled &&
+      this.config.rgb_enabled &&
+      this.config.rgb_mode !== 'off'
+    ) {
+      this.startReadySignal();
+    }
+  }
+
+  private getRgbCommand(temperatureColor: RgbColor): RgbLightCommand | undefined {
+    if (this.readySignalActive) {
+      return this.getReadySignalCommand();
+    }
+
+    if (this.config.rgb_mode === 'temperature_gradient') {
+      return {
+        color: temperatureColor,
+        brightness: this.config.rgb_brightness,
+      };
+    }
+
+    return undefined;
+  }
+
+  private getReadySignalCommand(): RgbLightCommand {
+    if (this.config.ready_signal_mode === 'blink' && !this.readySignalPhase) {
+      return { off: true };
+    }
+
+    const brightness =
+      this.config.ready_signal_mode === 'pulse' && !this.readySignalPhase
+        ? Math.max(10, Math.round(this.config.ready_signal_brightness * 0.35))
+        : this.config.ready_signal_brightness;
+
+    return {
+      color: normalizeReadyColor(this.config.ready_signal_color),
+      brightness,
+    };
+  }
+
+  private getRgbStatusForCommand():
+    'off' | 'temperature_gradient' | 'ready_signal_active' | 'acknowledged' | 'light_unavailable' {
+    if (this.rgbStatus === 'acknowledged') {
+      return 'acknowledged';
+    }
+
+    if (this.readySignalActive) {
+      return 'ready_signal_active';
+    }
+
+    return this.config.rgb_mode === 'temperature_gradient' ? 'temperature_gradient' : 'off';
+  }
+
+  private startReadySignal(): void {
+    if (this.readySignalActive) {
+      return;
+    }
+
+    this.clearReadySignalTimers();
+    this.readySignalActive = true;
+    this.readySignalPhase = true;
+    this.setRgbRuntimeState('ready_signal_active', undefined);
+    void this.synchronizeRgbLighting(true);
+
+    if (this.config.ready_signal_mode !== 'hold') {
+      const intervalMs = Math.max(1000, this.config.ready_signal_interval_seconds * 1000);
+      this.readySignalStepTimer = window.setInterval(() => {
+        this.readySignalPhase = !this.readySignalPhase;
+        void this.synchronizeRgbLighting(true);
+      }, intervalMs);
+    }
+
+    this.readySignalStopTimer = window.setTimeout(() => {
+      this.stopReadySignal(true);
+    }, this.config.ready_signal_duration_seconds * 1000);
+  }
+
+  private stopReadySignal(scheduleRepeat: boolean): void {
+    if (!this.readySignalActive && this.readySignalStepTimer === undefined) {
+      return;
+    }
+
+    this.readySignalActive = false;
+    this.clearReadySignalStepAndStopTimers();
+    void this.synchronizeRgbLighting(true);
+
+    if (scheduleRepeat && this.shouldRepeatReadySignal()) {
+      this.readySignalRepeatTimer = window.setTimeout(() => {
+        if (this.shouldRepeatReadySignal()) {
+          this.startReadySignal();
+        }
+      }, this.config.ready_signal_repeat_interval_seconds * 1000);
+    }
+  }
+
+  private shouldRepeatReadySignal(): boolean {
+    const temperatureState = buildSaunaTemperatureState(this.hass, this.config);
+    const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
+
+    return (
+      this.config.ready_signal_repeat &&
+      this.config.ready_signal_enabled &&
+      !this.readySignalDetectorState.acknowledged &&
+      isReady({
+        saunaOn: switchEntity?.state === 'on',
+        controlTemperature: temperatureState.summary.controlTemperature,
+        targetTemperature: temperatureState.targetTemperature,
+        thresholds: {
+          nearTargetThreshold: this.config.near_target_threshold,
+          targetReachedTolerance: this.config.target_reached_tolerance,
+        },
+      })
+    );
+  }
+
+  private handleReadyAcknowledgement = (): void => {
+    this.readySignalDetectorState = acknowledgeReadySignal(this.readySignalDetectorState);
+    this.setRgbRuntimeState('acknowledged', undefined);
+    this.stopReadySignal(false);
+    void this.releaseRgbControl();
+  };
+
+  private async releaseRgbControl(): Promise<{ error?: string | undefined }> {
+    const result = await this.rgbLightController.release(this.hass);
+    return { error: result.ok ? undefined : result.error };
+  }
+
+  private setRgbRuntimeState(
+    status:
+      'off' | 'temperature_gradient' | 'ready_signal_active' | 'acknowledged' | 'light_unavailable',
+    warning: string | undefined,
+  ): void {
+    if (this.rgbStatus !== status) {
+      this.rgbStatus = status;
+    }
+
+    if (this.rgbWarning !== warning) {
+      this.rgbWarning = warning;
+    }
+  }
+
   private scheduleHistoryRefresh(): void {
     if (
       !this.hasHistoryConsumer() ||
@@ -674,6 +1001,27 @@ export class SaunaSuiteCard extends LitElement {
     if (this.targetDebounceTimer !== undefined) {
       window.clearTimeout(this.targetDebounceTimer);
       this.targetDebounceTimer = undefined;
+    }
+  }
+
+  private clearReadySignalTimers(): void {
+    this.clearReadySignalStepAndStopTimers();
+
+    if (this.readySignalRepeatTimer !== undefined) {
+      window.clearTimeout(this.readySignalRepeatTimer);
+      this.readySignalRepeatTimer = undefined;
+    }
+  }
+
+  private clearReadySignalStepAndStopTimers(): void {
+    if (this.readySignalStepTimer !== undefined) {
+      window.clearInterval(this.readySignalStepTimer);
+      this.readySignalStepTimer = undefined;
+    }
+
+    if (this.readySignalStopTimer !== undefined) {
+      window.clearTimeout(this.readySignalStopTimer);
+      this.readySignalStopTimer = undefined;
     }
   }
 
@@ -843,6 +1191,15 @@ export class SaunaSuiteCard extends LitElement {
     }
 
     return `${value.toFixed(1)} kW`;
+  }
+
+  private getLightLabel(): string {
+    const entity = getEntity(this.hass, this.config.rgb_light_entity);
+    const friendlyName = entity?.attributes.friendly_name;
+
+    return typeof friendlyName === 'string' && friendlyName.length > 0
+      ? friendlyName
+      : (this.config.rgb_light_entity ?? this.t('card.notAvailable'));
   }
 
   private t(key: string): string {

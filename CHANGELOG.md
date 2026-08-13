@@ -9,6 +9,25 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.4.0-alpha.1]
+
+### Added
+
+- Added optional RGB status lighting for one Home Assistant `light` entity.
+- Added semantic temperature-progress color mapping for blue/cyan/green/yellow/gold/orange/red states.
+- Added a ready-temperature signal with hold, blink and pulse modes.
+- Added local runtime acknowledgement for active ready signals.
+- Added optional in-memory restoration of the previous light state.
+- Added visual-editor fields and German/English translations for RGB and ready-signal settings.
+
+### Alpha Notes
+
+- RGB control is visual signaling only and does not control the sauna heater.
+- The selected light may be temporarily controlled by Sauna Suite while RGB signaling is active.
+- Acknowledgement state is runtime-only and is not persisted.
+- HomePod/audio notifications are not included yet.
+- No automatic temperature regulation, PV control or battery optimization is implemented.
+
 ## [0.3.0-alpha.1]
 
 ### Added

@@ -1,8 +1,14 @@
 import {
   CONTROL_TEMPERATURE_MODES,
   HEATING_POWER_MODES,
+  READY_SIGNAL_COLORS,
+  READY_SIGNAL_MODES,
+  RGB_MODES,
   type ControlTemperatureMode,
   type HeatingPowerMode,
+  type ReadySignalColor,
+  type ReadySignalMode,
+  type RgbMode,
   type SaunaSuiteCardConfig,
 } from '../models/card-config';
 import { CARD_TYPE } from '../models/constants';
@@ -18,6 +24,12 @@ const DEFAULT_NEAR_TARGET_THRESHOLD = 5;
 const DEFAULT_TARGET_REACHED_TOLERANCE = 2;
 const DEFAULT_TREND_HISTORY_MINUTES = 120;
 const DEFAULT_TREND_REFRESH_MINUTES = 5;
+const DEFAULT_RGB_BRIGHTNESS = 100;
+const DEFAULT_RGB_UPDATE_INTERVAL_SECONDS = 5;
+const DEFAULT_READY_SIGNAL_BRIGHTNESS = 100;
+const DEFAULT_READY_SIGNAL_INTERVAL_SECONDS = 1;
+const DEFAULT_READY_SIGNAL_DURATION_SECONDS = 30;
+const DEFAULT_READY_SIGNAL_REPEAT_INTERVAL_SECONDS = 60;
 
 export function createDefaultConfig(): SaunaSuiteCardConfig {
   return {
@@ -44,6 +56,21 @@ export function createDefaultConfig(): SaunaSuiteCardConfig {
     trend_history_minutes: DEFAULT_TREND_HISTORY_MINUTES,
     trend_refresh_minutes: DEFAULT_TREND_REFRESH_MINUTES,
     confirm_switch_on: true,
+    rgb_enabled: false,
+    rgb_mode: 'temperature_gradient',
+    rgb_brightness: DEFAULT_RGB_BRIGHTNESS,
+    rgb_update_interval_seconds: DEFAULT_RGB_UPDATE_INTERVAL_SECONDS,
+    rgb_restore_previous_state: true,
+    rgb_only_when_sauna_on: true,
+    ready_signal_enabled: true,
+    ready_signal_mode: 'hold',
+    ready_signal_color: 'green',
+    ready_signal_brightness: DEFAULT_READY_SIGNAL_BRIGHTNESS,
+    ready_signal_interval_seconds: DEFAULT_READY_SIGNAL_INTERVAL_SECONDS,
+    ready_signal_duration_seconds: DEFAULT_READY_SIGNAL_DURATION_SECONDS,
+    ready_signal_requires_acknowledgement: false,
+    ready_signal_repeat: false,
+    ready_signal_repeat_interval_seconds: DEFAULT_READY_SIGNAL_REPEAT_INTERVAL_SECONDS,
   };
 }
 
@@ -123,6 +150,58 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
       60,
     ),
     confirm_switch_on: normalizeBoolean(config.confirm_switch_on, defaults.confirm_switch_on),
+    rgb_enabled: normalizeBoolean(config.rgb_enabled, defaults.rgb_enabled),
+    rgb_mode: normalizeRgbMode(config.rgb_mode),
+    rgb_brightness: normalizeIntegerRange(config.rgb_brightness, defaults.rgb_brightness, 1, 100),
+    rgb_update_interval_seconds: normalizeIntegerRange(
+      config.rgb_update_interval_seconds,
+      defaults.rgb_update_interval_seconds,
+      1,
+      3600,
+    ),
+    rgb_restore_previous_state: normalizeBoolean(
+      config.rgb_restore_previous_state,
+      defaults.rgb_restore_previous_state,
+    ),
+    rgb_only_when_sauna_on: normalizeBoolean(
+      config.rgb_only_when_sauna_on,
+      defaults.rgb_only_when_sauna_on,
+    ),
+    ready_signal_enabled: normalizeBoolean(
+      config.ready_signal_enabled,
+      defaults.ready_signal_enabled,
+    ),
+    ready_signal_mode: normalizeReadySignalMode(config.ready_signal_mode),
+    ready_signal_color: normalizeReadySignalColor(config.ready_signal_color),
+    ready_signal_brightness: normalizeIntegerRange(
+      config.ready_signal_brightness,
+      defaults.ready_signal_brightness,
+      1,
+      100,
+    ),
+    ready_signal_interval_seconds: normalizeIntegerRange(
+      config.ready_signal_interval_seconds,
+      defaults.ready_signal_interval_seconds,
+      1,
+      3600,
+    ),
+    ready_signal_duration_seconds: normalizeIntegerRange(
+      config.ready_signal_duration_seconds,
+      defaults.ready_signal_duration_seconds,
+      1,
+      3600,
+    ),
+    ready_signal_requires_acknowledgement: normalizeBoolean(
+      config.ready_signal_requires_acknowledgement,
+      defaults.ready_signal_requires_acknowledgement,
+    ),
+    ready_signal_repeat: normalizeBoolean(config.ready_signal_repeat, defaults.ready_signal_repeat),
+    ready_signal_repeat_interval_seconds: normalizeIntegerRange(
+      config.ready_signal_repeat_interval_seconds,
+      defaults.ready_signal_repeat_interval_seconds,
+      1,
+      86400,
+    ),
   };
 
   applyOptionalString(normalized, 'main_switch_entity', config.main_switch_entity);
@@ -136,6 +215,7 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
     'general_power_sensor_entity',
     config.general_power_sensor_entity,
   );
+  applyOptionalString(normalized, 'rgb_light_entity', config.rgb_light_entity);
 
   return normalized;
 }
@@ -157,6 +237,30 @@ function normalizeHeatingPowerMode(mode: unknown): HeatingPowerMode {
   }
 
   return createDefaultConfig().heating_power_mode;
+}
+
+function normalizeRgbMode(mode: unknown): RgbMode {
+  if (typeof mode === 'string' && RGB_MODES.includes(mode as RgbMode)) {
+    return mode as RgbMode;
+  }
+
+  return createDefaultConfig().rgb_mode;
+}
+
+function normalizeReadySignalMode(mode: unknown): ReadySignalMode {
+  if (typeof mode === 'string' && READY_SIGNAL_MODES.includes(mode as ReadySignalMode)) {
+    return mode as ReadySignalMode;
+  }
+
+  return createDefaultConfig().ready_signal_mode;
+}
+
+function normalizeReadySignalColor(color: unknown): ReadySignalColor {
+  if (typeof color === 'string' && READY_SIGNAL_COLORS.includes(color as ReadySignalColor)) {
+    return color as ReadySignalColor;
+  }
+
+  return createDefaultConfig().ready_signal_color;
 }
 
 function normalizeWeight(value: unknown, fallback: number): number {
@@ -202,7 +306,8 @@ function applyOptionalString(
     | 'temperature_bottom_entity'
     | 'outside_temperature_entity'
     | 'target_temperature_entity'
-    | 'general_power_sensor_entity',
+    | 'general_power_sensor_entity'
+    | 'rgb_light_entity',
   value: unknown,
 ): void {
   const normalizedValue = normalizeOptionalString(value);

@@ -31,7 +31,12 @@
     "etaUnavailable": "ETA unavailable",
     "heatingRate": "Heating rate",
     "ready": "Ready",
-    "readyAt": "Ready at"
+    "readyAt": "Ready at",
+    "rgbStatus": "RGB status",
+    "rgbLight": "RGB light",
+    "rgbUnsupportedLight": "Configured light does not support RGB or HS color.",
+    "rgbLightUnavailable": "RGB light unavailable.",
+    "acknowledgeReadySignal": "Acknowledge"
   },
   "editor": {
     "cardName": "Card name",
@@ -53,7 +58,8 @@
       "safety": "Safety and confirmation",
       "temperatureCalculation": "Temperature calculation",
       "trend": "Trend",
-      "heatingEta": "Heating ETA"
+      "heatingEta": "Heating ETA",
+      "rgbReadySignal": "RGB & Ready Signal"
     },
     "showOutsideTemperature": "Show outside temperature",
     "showOutsideTemperatureDescription": "Display the outside temperature when an entity is configured.",
@@ -100,7 +106,39 @@
     "showHeatingRate": "Show heating rate and power",
     "showHeatingRateDescription": "Display recent measured heating rate and effective heater power.",
     "showReadyTime": "Show ready time",
-    "showReadyTimeDescription": "Display the expected clock time when ETA is available."
+    "showReadyTimeDescription": "Display the expected clock time when ETA is available.",
+    "rgbEnabled": "Enable RGB light",
+    "rgbEnabledDescription": "Use the configured light only for visual sauna status signaling.",
+    "rgbLightEntity": "RGB light entity",
+    "rgbLightEntityDescription": "Home Assistant light entity with color support.",
+    "rgbMode": "RGB mode",
+    "rgbModeDescription": "Choose continuous temperature gradient or ready-only signaling.",
+    "rgbBrightness": "RGB brightness",
+    "rgbBrightnessDescription": "Brightness percentage for temperature-gradient updates.",
+    "rgbUpdateIntervalSeconds": "RGB update interval",
+    "rgbUpdateIntervalSecondsDescription": "Minimum seconds between repeated RGB updates.",
+    "rgbRestorePreviousState": "Restore previous light state",
+    "rgbRestorePreviousStateDescription": "Restore the light state captured before Sauna Suite takes control.",
+    "rgbOnlyWhenSaunaOn": "Only while sauna is on",
+    "rgbOnlyWhenSaunaOnDescription": "Stop RGB signaling when the configured main switch is off.",
+    "readySignalEnabled": "Enable ready signal",
+    "readySignalEnabledDescription": "Signal when the sauna first reaches the target temperature.",
+    "readySignalMode": "Ready signal mode",
+    "readySignalModeDescription": "Hold, blink or pulse the configured ready color.",
+    "readySignalColor": "Ready signal color",
+    "readySignalColorDescription": "Named color used for the ready signal.",
+    "readySignalBrightness": "Ready signal brightness",
+    "readySignalBrightnessDescription": "Brightness percentage used by the ready signal.",
+    "readySignalIntervalSeconds": "Ready signal interval",
+    "readySignalIntervalSecondsDescription": "Seconds between blink or pulse steps. Minimum is one second.",
+    "readySignalDurationSeconds": "Ready signal duration",
+    "readySignalDurationSecondsDescription": "How long one ready signal runs before stopping.",
+    "readySignalRequiresAcknowledgement": "Require acknowledgement",
+    "readySignalRequiresAcknowledgementDescription": "Show an acknowledgement button while the ready signal is active.",
+    "readySignalRepeat": "Repeat ready signal",
+    "readySignalRepeatDescription": "Repeat the signal while the sauna remains ready and unacknowledged.",
+    "readySignalRepeatIntervalSeconds": "Repeat interval",
+    "readySignalRepeatIntervalSecondsDescription": "Seconds to wait before repeating an unacknowledged ready signal."
   },
   "modes": {
     "average": "Average",
@@ -129,6 +167,31 @@
   "heatingPowerModes": {
     "fixed": "Fixed heater power",
     "general_power_sensor": "General power sensor"
+  },
+  "rgbModes": {
+    "off": "Off",
+    "temperature_gradient": "Temperature gradient",
+    "ready_only": "Ready only"
+  },
+  "readySignalModes": {
+    "hold": "Hold",
+    "blink": "Blink",
+    "pulse": "Pulse"
+  },
+  "readySignalColors": {
+    "green": "Green",
+    "gold": "Gold",
+    "red": "Red",
+    "blue": "Blue",
+    "purple": "Purple",
+    "white": "White"
+  },
+  "rgbStatus": {
+    "off": "Off",
+    "temperature_gradient": "Temperature gradient",
+    "ready_signal_active": "Ready signal active",
+    "acknowledged": "Acknowledged",
+    "light_unavailable": "Light unavailable"
   },
   "heatingStatus": {
     "off": "Off",
