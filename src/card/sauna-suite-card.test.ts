@@ -330,7 +330,7 @@ describe('SaunaSuiteCard', () => {
     await Promise.resolve();
     await expectUpdateComplete(card);
 
-    expect(getText(card)).toContain('Configured light does not support color.');
+    expect(getText(card)).toContain('Configured light does not support RGB or HS color.');
   });
 
   it('starts a hold ready signal and acknowledges it', async () => {
@@ -446,6 +446,65 @@ describe('SaunaSuiteCard', () => {
       expect.objectContaining({ brightness_pct: 28 }),
     );
   });
+
+  it('restores the previous RGB light before controlling a newly configured light', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '70'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'light.sauna_a': createLightEntity('light.sauna_a', 'on', ['rgb'], {
+          brightness: 80,
+          rgb_color: [10, 20, 30],
+        }),
+        'light.sauna_b': createLightEntity('light.sauna_b', 'on', ['rgb']),
+      },
+      callService,
+    );
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_light_entity: 'light.sauna_a',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_light_entity: 'light.sauna_b',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+
+    expect(callService.mock.calls[1]).toEqual([
+      'light',
+      'turn_on',
+      {
+        entity_id: 'light.sauna_a',
+        brightness: 80,
+        rgb_color: [10, 20, 30],
+      },
+    ]);
+    expect(callService.mock.calls[2]).toEqual([
+      'light',
+      'turn_on',
+      expect.objectContaining({ entity_id: 'light.sauna_b' }),
+    ]);
+  });
 });
 
 interface HistoryTestApi {
@@ -498,10 +557,12 @@ function createLightEntity(
   entityId: string,
   state: string,
   supportedColorModes: string[],
+  extraAttributes: Record<string, unknown> = {},
 ): HassEntity {
   return createEntity(entityId, state, {
     friendly_name: 'Sauna RGB',
     supported_color_modes: supportedColorModes,
+    ...extraAttributes,
   });
 }
 

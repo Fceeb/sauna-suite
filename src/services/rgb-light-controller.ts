@@ -50,7 +50,7 @@ export class RgbLightController {
     const active = this.shouldBeActive(input.config, input.saunaOn, input.command);
 
     if (!active) {
-      return this.release(input.hass, input.config);
+      return this.release(input.hass);
     }
 
     if (!input.hass?.callService) {
@@ -82,14 +82,26 @@ export class RgbLightController {
     }
 
     const entityId = input.config.rgb_light_entity;
+    if (this.controlledEntityId && this.controlledEntityId !== entityId) {
+      const releaseResult = await this.release(input.hass);
+
+      if (!releaseResult.ok) {
+        return releaseResult;
+      }
+    }
+
     const payload = buildLightPayload(entityId, capabilities.capability, command);
     const commandKey = JSON.stringify(payload);
     const now = input.now ?? Date.now();
     const intervalMs = input.config.rgb_update_interval_seconds * 1000;
 
+    if (this.lastCommandKey === commandKey) {
+      return { ok: true, active: true, status: 'throttled' };
+    }
+
     if (
+      this.lastCommandKey !== undefined &&
       !input.force &&
-      this.lastCommandKey === commandKey &&
       now - this.lastCommandAt < intervalMs
     ) {
       return { ok: true, active: true, status: 'throttled' };
@@ -113,10 +125,7 @@ export class RgbLightController {
     }
   }
 
-  public async release(
-    hass: HomeAssistant | undefined,
-    config: SaunaSuiteCardConfig,
-  ): Promise<RgbLightResult> {
+  public async release(hass: HomeAssistant | undefined): Promise<RgbLightResult> {
     this.lastCommandKey = undefined;
     this.lastCommandAt = 0;
 
@@ -124,7 +133,7 @@ export class RgbLightController {
       return { ok: true, active: false, status: 'inactive' };
     }
 
-    if (!config.rgb_restore_previous_state || !hass?.callService) {
+    if (!hass?.callService) {
       this.clearCapturedState();
       return { ok: true, active: false, status: 'inactive' };
     }
@@ -208,7 +217,7 @@ export function detectLightCapabilities(light: HassEntity | undefined): LightCap
   }
 
   if (modes.has('color_temp') || light.attributes.color_temp) {
-    return { capability: 'color_temp', supported: true };
+    return { capability: 'color_temp', supported: false };
   }
 
   return { capability: 'unsupported', supported: false };

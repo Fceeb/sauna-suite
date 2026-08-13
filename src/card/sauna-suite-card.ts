@@ -126,7 +126,6 @@ export class SaunaSuiteCard extends LitElement {
   private readonly rgbLightController = new RgbLightController();
 
   public setConfig(config: Partial<SaunaSuiteCardConfig>): void {
-    void this.releaseRgbControl();
     this.clearReadySignalTimers();
     this.readySignalDetectorState = createReadySignalDetectorState();
     this.readySignalActive = false;
@@ -690,7 +689,14 @@ export class SaunaSuiteCard extends LitElement {
   }
 
   private async synchronizeRgbLighting(force = false): Promise<void> {
-    if (!this.hass || !this.config.rgb_light_entity) {
+    if (!this.hass) {
+      return;
+    }
+
+    if (!this.config.rgb_light_entity) {
+      this.stopReadySignal(false);
+      const result = await this.releaseRgbControl();
+      this.setRgbRuntimeState('off', result.error);
       return;
     }
 
@@ -906,7 +912,7 @@ export class SaunaSuiteCard extends LitElement {
   };
 
   private async releaseRgbControl(): Promise<{ error?: string | undefined }> {
-    const result = await this.rgbLightController.release(this.hass, this.config);
+    const result = await this.rgbLightController.release(this.hass);
     return { error: result.ok ? undefined : result.error };
   }
 

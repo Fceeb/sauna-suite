@@ -117,9 +117,11 @@ entity until multi-sensor history aggregation is implemented.
 
 `src/services/rgb-light-controller.ts` adapts semantic colors to Home Assistant
 `light.turn_on` / `light.turn_off` service payloads. It validates the light
-domain, detects `rgb_color`, `hs_color` and `color_temp` capability support,
-suppresses duplicate commands, throttles repeated updates and optionally
-restores the previous light state from in-memory card/session state.
+domain, uses RGB or HS color capability for semantic status colors, treats
+color-temperature-only lights as unsupported for this feature, suppresses
+duplicate commands, throttles changed updates and optionally restores the
+previous light state from in-memory card/session state before controlling a
+newly configured light entity.
 
 ## Components
 

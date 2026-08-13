@@ -240,8 +240,10 @@ regulate or schedule sauna equipment automatically.
 RGB support is optional and uses only the standard Home Assistant
 `light.turn_on` and `light.turn_off` services. Configure one color-capable
 `light` entity through the visual editor or YAML. Sauna Suite detects supported
-color capabilities and prefers `rgb_color`, then `hs_color`, then
-`color_temp` as a fallback when no RGB/HS mode exists.
+color capabilities and uses `rgb_color` when available, then `hs_color`. Lights
+that only support `color_temp` are treated as unsupported for this feature
+because the sauna statuses depend on distinct semantic colors such as blue,
+green, gold and red.
 
 `temperature_gradient` mode maps progress toward the configured target
 temperature to a smooth semantic color range: blue while far below target,

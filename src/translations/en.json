@@ -34,7 +34,7 @@
     "readyAt": "Ready at",
     "rgbStatus": "RGB status",
     "rgbLight": "RGB light",
-    "rgbUnsupportedLight": "Configured light does not support color.",
+    "rgbUnsupportedLight": "Configured light does not support RGB or HS color.",
     "rgbLightUnavailable": "RGB light unavailable.",
     "acknowledgeReadySignal": "Acknowledge"
   },
