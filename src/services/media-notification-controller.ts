@@ -17,6 +17,7 @@ export interface MediaNotificationResult {
 
 export class MediaNotificationController {
   private activeEventId?: number | undefined;
+  private capturedVolumeEventId?: number | undefined;
   private capturedVolume?: number | undefined;
 
   public async notify(input: {
@@ -123,15 +124,17 @@ export class MediaNotificationController {
 
   public reset(): void {
     this.activeEventId = undefined;
+    this.capturedVolumeEventId = undefined;
     this.capturedVolume = undefined;
   }
 
   private captureVolumeOnce(eventId: number, mediaPlayer: HassEntity): void {
-    if (this.activeEventId === eventId && this.capturedVolume !== undefined) {
+    if (this.capturedVolumeEventId === eventId) {
       return;
     }
 
     const volume = mediaPlayer.attributes.volume_level;
+    this.capturedVolumeEventId = eventId;
     this.capturedVolume =
       typeof volume === 'number' && Number.isFinite(volume) ? volume : undefined;
   }

@@ -29,9 +29,12 @@ import {
   type ReadySignalDetectorState,
 } from '../core/ready-signal';
 import {
+  createAcknowledgementEntityBaseline,
   canAcknowledgeFromCard,
   detectCardAcknowledgement,
   detectEntityAcknowledgement,
+  updateAcknowledgementEntityBaseline,
+  type AcknowledgementEntityBaseline,
 } from '../core/acknowledgement';
 import {
   acknowledgeReadyNotificationEvent,
@@ -148,6 +151,7 @@ export class SaunaSuiteCard extends LitElement {
   private readySignalPhase = true;
   private nextReadyEventId = 1;
   private readySignalDetectorState: ReadySignalDetectorState = createReadySignalDetectorState();
+  private acknowledgementEntityBaseline?: AcknowledgementEntityBaseline | undefined;
   private readonly rgbLightController = new RgbLightController();
   private readonly mediaNotificationController = new MediaNotificationController();
 
@@ -156,6 +160,7 @@ export class SaunaSuiteCard extends LitElement {
     void this.stopMediaNotification();
     void this.releaseRgbControl();
     this.readySignalDetectorState = createReadySignalDetectorState();
+    this.acknowledgementEntityBaseline = undefined;
     this.readySignalActive = false;
     this.notificationEvent = undefined;
     this.notificationStatus = 'none';
@@ -787,6 +792,10 @@ export class SaunaSuiteCard extends LitElement {
     const event = createReadyNotificationEvent(this.nextReadyEventId++, Date.now());
     this.notificationEvent = event;
     this.mediaWarning = undefined;
+    this.acknowledgementEntityBaseline = createAcknowledgementEntityBaseline(
+      this.config.acknowledgement_entity,
+      getEntity(this.hass, this.config.acknowledgement_entity),
+    );
 
     if (
       this.config.ready_signal_enabled &&
@@ -810,16 +819,25 @@ export class SaunaSuiteCard extends LitElement {
       return;
     }
 
+    const entity = getEntity(this.hass, this.config.acknowledgement_entity);
     const result = detectEntityAcknowledgement(
       this.config.acknowledgement_mode,
       this.config.acknowledgement_entity,
-      getEntity(this.hass, this.config.acknowledgement_entity),
+      entity,
       this.notificationEvent,
+      this.acknowledgementEntityBaseline,
     );
 
     if (result.acknowledged) {
       await this.acknowledgeReadyEvent(true);
+      return;
     }
+
+    this.acknowledgementEntityBaseline = updateAcknowledgementEntityBaseline(
+      this.acknowledgementEntityBaseline,
+      this.config.acknowledgement_entity,
+      entity,
+    );
   }
 
   private async synchronizeRgbLighting(force = false): Promise<void> {

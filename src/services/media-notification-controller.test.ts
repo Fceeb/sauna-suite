@@ -94,10 +94,72 @@ describe('media notification controller', () => {
     expect(callService).toHaveBeenCalledWith('media_player', 'media_stop', {
       entity_id: 'media_player.sauna',
     });
-    expect(callService).toHaveBeenCalledWith('media_player', 'volume_set', {
-      entity_id: 'media_player.sauna',
-      volume_level: 0.25,
+    const volumeCalls = callService.mock.calls.filter(
+      ([domain, service]) => domain === 'media_player' && service === 'volume_set',
+    );
+
+    expect(volumeCalls.at(-1)).toEqual([
+      'media_player',
+      'volume_set',
+      {
+        entity_id: 'media_player.sauna',
+        volume_level: 0.25,
+      },
+    ]);
+  });
+
+  it('preserves the original volume across repeat notifications for the same event', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const controller = new MediaNotificationController();
+    const config = normalizeConfig({
+      media_notification_enabled: true,
+      media_player_entity: 'media_player.sauna',
+      tts_entity: 'tts.piper',
+      media_notification_volume: 0.8,
     });
+
+    await controller.notify({
+      hass: hass(callService),
+      config,
+      mediaPlayer: mediaPlayer({ volume_level: 0.25 }),
+      eventId: 5,
+      context: {},
+    });
+    await controller.notify({
+      hass: hass(callService),
+      config,
+      mediaPlayer: mediaPlayer({ volume_level: 0.8 }),
+      eventId: 5,
+      context: {},
+    });
+    await controller.stop({ hass: hass(callService), config, eventId: 5 });
+
+    const volumeCalls = callService.mock.calls.filter(
+      ([domain, service]) => domain === 'media_player' && service === 'volume_set',
+    );
+
+    expect(volumeCalls.at(-1)).toEqual([
+      'media_player',
+      'volume_set',
+      {
+        entity_id: 'media_player.sauna',
+        volume_level: 0.25,
+      },
+    ]);
+  });
+
+  it('does not call media_stop when no playback started for the current event', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const controller = new MediaNotificationController();
+    const config = normalizeConfig({
+      media_notification_enabled: true,
+      media_player_entity: 'media_player.sauna',
+      tts_entity: 'tts.piper',
+    });
+
+    await controller.stop({ hass: hass(callService), config, eventId: 9 });
+
+    expect(callService).not.toHaveBeenCalledWith('media_player', 'media_stop', expect.anything());
   });
 
   it('fails independently for unavailable media players', async () => {

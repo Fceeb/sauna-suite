@@ -16,6 +16,14 @@ export interface ReadyAcknowledgementEventContext {
   acknowledged: boolean;
 }
 
+export interface AcknowledgementEntityBaseline {
+  entityId: string;
+  domain: AcknowledgementEntityDomain;
+  state: string;
+  transitionTime?: number | undefined;
+  armedForOnEdge: boolean;
+}
+
 export interface AcknowledgementDetectionResult {
   acknowledged: boolean;
   reason:
@@ -74,6 +82,7 @@ export function detectEntityAcknowledgement(
   entityId: string | undefined,
   entity: HassEntity | undefined,
   event: ReadyAcknowledgementEventContext | undefined,
+  baseline: AcknowledgementEntityBaseline | undefined,
 ): AcknowledgementDetectionResult {
   if (!event || !entity) {
     return { acknowledged: false, reason: 'missing_entity' };
@@ -92,20 +101,77 @@ export function detectEntityAcknowledgement(
     return { acknowledged: false, reason: 'unsupported_entity' };
   }
 
+  if (!baseline || baseline.entityId !== entityId || baseline.domain !== domain) {
+    return { acknowledged: false, reason: 'stale_transition' };
+  }
+
   const transitionTime = getEntityTransitionTime(entity);
   if (transitionTime === undefined || transitionTime <= event.startedAt) {
     return { acknowledged: false, reason: 'stale_transition' };
   }
 
   if (domain === 'input_button' || domain === 'button') {
-    return { acknowledged: true, reason: 'entity' };
+    return transitionTime > (baseline.transitionTime ?? event.startedAt)
+      ? { acknowledged: true, reason: 'entity' }
+      : { acknowledged: false, reason: 'stale_transition' };
   }
 
-  if ((domain === 'input_boolean' || domain === 'binary_sensor') && entity.state === 'on') {
+  if (
+    (domain === 'input_boolean' || domain === 'binary_sensor') &&
+    baseline.armedForOnEdge &&
+    baseline.state === 'off' &&
+    entity.state === 'on'
+  ) {
     return { acknowledged: true, reason: 'entity' };
   }
 
   return { acknowledged: false, reason: 'stale_transition' };
+}
+
+export function createAcknowledgementEntityBaseline(
+  entityId: string | undefined,
+  entity: HassEntity | undefined,
+): AcknowledgementEntityBaseline | undefined {
+  const domain = getAcknowledgementEntityDomain(entityId);
+
+  if (!domain || !entityId || !entity) {
+    return undefined;
+  }
+
+  return {
+    entityId,
+    domain,
+    state: entity.state,
+    transitionTime: getEntityTransitionTime(entity),
+    armedForOnEdge: entity.state === 'off',
+  };
+}
+
+export function updateAcknowledgementEntityBaseline(
+  baseline: AcknowledgementEntityBaseline | undefined,
+  entityId: string | undefined,
+  entity: HassEntity | undefined,
+): AcknowledgementEntityBaseline | undefined {
+  const domain = getAcknowledgementEntityDomain(entityId);
+
+  if (!domain || !entityId || !entity) {
+    return undefined;
+  }
+
+  if (!baseline || baseline.entityId !== entityId || baseline.domain !== domain) {
+    return createAcknowledgementEntityBaseline(entityId, entity);
+  }
+
+  if ((domain === 'input_boolean' || domain === 'binary_sensor') && entity.state === 'off') {
+    return {
+      ...baseline,
+      state: 'off',
+      transitionTime: getEntityTransitionTime(entity),
+      armedForOnEdge: true,
+    };
+  }
+
+  return baseline;
 }
 
 export function getEntityTransitionTime(entity: HassEntity): number | undefined {
