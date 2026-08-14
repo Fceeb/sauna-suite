@@ -28,6 +28,14 @@ export const READY_SIGNAL_COLORS = ['green', 'gold', 'red', 'blue', 'purple', 'w
 
 export type ReadySignalColor = (typeof READY_SIGNAL_COLORS)[number];
 
+export const ACKNOWLEDGEMENT_MODES = ['card_only', 'entity_only', 'card_or_entity'] as const;
+
+export type AcknowledgementMode = (typeof ACKNOWLEDGEMENT_MODES)[number];
+
+export const MEDIA_NOTIFICATION_MODES = ['tts', 'media'] as const;
+
+export type MediaNotificationMode = (typeof MEDIA_NOTIFICATION_MODES)[number];
+
 export interface SaunaSuiteCardConfig {
   type: typeof CARD_TYPE;
   name?: string;
@@ -75,4 +83,19 @@ export interface SaunaSuiteCardConfig {
   ready_signal_requires_acknowledgement: boolean;
   ready_signal_repeat: boolean;
   ready_signal_repeat_interval_seconds: number;
+  acknowledgement_mode: AcknowledgementMode;
+  acknowledgement_entity?: string;
+  acknowledgement_reset_input_boolean: boolean;
+  show_acknowledge_button: boolean;
+  media_notification_enabled: boolean;
+  media_player_entity?: string;
+  media_notification_mode: MediaNotificationMode;
+  media_notification_message: string;
+  media_notification_media_id?: string;
+  media_notification_volume: number;
+  media_notification_repeat: boolean;
+  media_notification_repeat_interval_seconds: number;
+  media_notification_stop_on_acknowledge: boolean;
+  media_notification_restore_volume: boolean;
+  tts_entity?: string;
 }

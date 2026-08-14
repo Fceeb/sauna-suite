@@ -36,7 +36,8 @@
     "rgbLight": "RGB-Licht",
     "rgbUnsupportedLight": "Konfiguriertes Licht unterstuetzt keine RGB- oder HS-Farbe.",
     "rgbLightUnavailable": "RGB-Licht nicht verfuegbar.",
-    "acknowledgeReadySignal": "Quittieren"
+    "acknowledgeReadySignal": "Quittieren",
+    "notificationStatus": "Bereit-Meldung"
   },
   "editor": {
     "cardName": "Kartenname",
@@ -59,7 +60,9 @@
       "temperatureCalculation": "Temperaturberechnung",
       "trend": "Verlauf",
       "heatingEta": "Heiz-ETA",
-      "rgbReadySignal": "RGB & Bereit-Signal"
+      "rgbReadySignal": "RGB",
+      "acknowledgement": "Quittierung",
+      "mediaNotification": "Audio / Mediengeraet"
     },
     "showOutsideTemperature": "Aussentemperatur anzeigen",
     "showOutsideTemperatureDescription": "Aussentemperatur anzeigen, wenn eine Entitaet konfiguriert ist.",
@@ -138,7 +141,37 @@
     "readySignalRepeat": "Bereit-Signal wiederholen",
     "readySignalRepeatDescription": "Signal wiederholen, solange die Sauna bereit und nicht quittiert ist.",
     "readySignalRepeatIntervalSeconds": "Wiederholungsintervall",
-    "readySignalRepeatIntervalSecondsDescription": "Sekunden bis zur Wiederholung eines nicht quittierten Bereit-Signals."
+    "readySignalRepeatIntervalSecondsDescription": "Sekunden bis zur Wiederholung eines nicht quittierten Bereit-Signals.",
+    "acknowledgementMode": "Quittierungsmodus",
+    "acknowledgementModeDescription": "Legt fest, ob Karte, externe Home-Assistant-Entitaet oder beide das Ready-Event quittieren duerfen.",
+    "acknowledgementEntity": "Quittier-Entitaet",
+    "acknowledgementEntityDescription": "Optionale input_button-, button-, input_boolean- oder binary_sensor-Entitaet fuer externe Quittierung.",
+    "acknowledgementResetInputBoolean": "input_boolean nach Quittierung zuruecksetzen",
+    "acknowledgementResetInputBooleanDescription": "Die konfigurierte input_boolean-Entitaet nach erfolgreicher Quittierung ausschalten.",
+    "showAcknowledgeButton": "Quittieren-Button anzeigen",
+    "showAcknowledgeButtonDescription": "Quittieren-Aktion in der Karte anzeigen, solange ein Ready-Event aktiv ist.",
+    "mediaNotificationEnabled": "Audio-Benachrichtigung aktivieren",
+    "mediaNotificationEnabledDescription": "Bereit-Benachrichtigung auf einem Home-Assistant-Mediengeraet abspielen.",
+    "mediaPlayerEntity": "Mediengeraet",
+    "mediaPlayerEntityDescription": "Home-Assistant-media_player fuer Bereit-Benachrichtigungen.",
+    "mediaNotificationMode": "Benachrichtigungsmodus",
+    "mediaNotificationModeDescription": "Sprachausgabe per TTS oder konfigurierte Medienquelle abspielen.",
+    "mediaNotificationMessage": "TTS-Nachricht",
+    "mediaNotificationMessageDescription": "Nachricht fuer die Sprachausgabe. Unterstuetzt {temperature}, {target}, {eta} und {ready_time}.",
+    "mediaNotificationMediaId": "Medien-ID",
+    "mediaNotificationMediaIdDescription": "Medienquelle, URL oder media-source-ID fuer den Medienmodus.",
+    "mediaNotificationVolume": "Lautstaerke",
+    "mediaNotificationVolumeDescription": "Lautstaerke fuer die Bereit-Benachrichtigung von 0.0 bis 1.0.",
+    "mediaNotificationRepeat": "Audio-Benachrichtigung wiederholen",
+    "mediaNotificationRepeatDescription": "Wiederholen, solange das aktuelle Ready-Event aktiv und nicht quittiert ist.",
+    "mediaNotificationRepeatIntervalSeconds": "Wiederholungsintervall",
+    "mediaNotificationRepeatIntervalSecondsDescription": "Sekunden zwischen wiederholten Audio-Benachrichtigungen.",
+    "mediaNotificationStopOnAcknowledge": "Audio bei Quittierung stoppen",
+    "mediaNotificationStopOnAcknowledgeDescription": "Wiedergabe bei Quittierung des Ready-Events nach Moeglichkeit stoppen.",
+    "mediaNotificationRestoreVolume": "Vorherige Lautstaerke wiederherstellen",
+    "mediaNotificationRestoreVolumeDescription": "Vor der Benachrichtigung erfasste Lautstaerke wiederherstellen.",
+    "ttsEntity": "TTS-Entitaet",
+    "ttsEntityDescription": "Home-Assistant-tts-Entitaet fuer den Standarddienst tts.speak."
   },
   "modes": {
     "average": "Durchschnitt",
@@ -192,6 +225,24 @@
     "ready_signal_active": "Bereit-Signal aktiv",
     "acknowledged": "Quittiert",
     "light_unavailable": "Licht nicht verfuegbar"
+  },
+  "notificationStatus": {
+    "none": "Keine Meldung",
+    "ready": "Bereit",
+    "signaling": "Signalisierung aktiv",
+    "waiting_for_acknowledgement": "Warte auf Quittierung",
+    "acknowledged": "Quittiert",
+    "media_unavailable": "Mediengeraet nicht verfuegbar",
+    "rgb_unavailable": "RGB-Licht nicht verfuegbar"
+  },
+  "acknowledgementModes": {
+    "card_only": "Nur Karte",
+    "entity_only": "Nur Entitaet",
+    "card_or_entity": "Karte oder Entitaet"
+  },
+  "mediaNotificationModes": {
+    "tts": "Sprachausgabe",
+    "media": "Medien"
   },
   "heatingStatus": {
     "off": "Aus",

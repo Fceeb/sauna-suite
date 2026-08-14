@@ -505,6 +505,141 @@ describe('SaunaSuiteCard', () => {
       expect.objectContaining({ entity_id: 'light.sauna_b' }),
     ]);
   });
+
+  it('plays a media TTS notification from the shared ready event', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      media_notification_enabled: true,
+      media_player_entity: 'media_player.sauna',
+      tts_entity: 'tts.piper',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'media_player.sauna': createMediaPlayerEntity('media_player.sauna', 'idle'),
+        'tts.piper': createEntity('tts.piper', 'idle', {}),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+
+    expect(callService).toHaveBeenCalledWith('tts', 'speak', expect.anything());
+    expect(getText(card)).toContain('Ready notification');
+  });
+
+  it('card acknowledgement stops both RGB and media channels', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      rgb_enabled: true,
+      rgb_mode: 'ready_only',
+      rgb_light_entity: 'light.sauna',
+      media_notification_enabled: true,
+      media_player_entity: 'media_player.sauna',
+      tts_entity: 'tts.piper',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'light.sauna': createLightEntity('light.sauna', 'on', ['rgb']),
+        'media_player.sauna': createMediaPlayerEntity('media_player.sauna', 'idle'),
+        'tts.piper': createEntity('tts.piper', 'idle', {}),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+    await expectUpdateComplete(card);
+    card.shadowRoot?.querySelector<HTMLButtonElement>('.ack-button')?.click();
+    await Promise.resolve();
+
+    expect(callService).toHaveBeenCalledWith('media_player', 'media_stop', {
+      entity_id: 'media_player.sauna',
+    });
+    expect(callService).toHaveBeenCalledWith('light', 'turn_on', expect.anything());
+  });
+
+  it('entity acknowledgement resets an input_boolean after the current ready event starts', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-14T10:00:00Z'));
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      acknowledgement_mode: 'entity_only',
+      acknowledgement_entity: 'input_boolean.sauna_ack',
+      acknowledgement_reset_input_boolean: true,
+      media_notification_enabled: true,
+      media_player_entity: 'media_player.sauna',
+      tts_entity: 'tts.piper',
+      main_switch_entity: 'switch.sauna',
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+    });
+    card.hass = createHass(
+      {
+        'switch.sauna': createSwitchEntity('switch.sauna', 'on'),
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '80'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'media_player.sauna': createMediaPlayerEntity('media_player.sauna', 'idle'),
+        'tts.piper': createEntity('tts.piper', 'idle', {}),
+        'input_boolean.sauna_ack': createEntity('input_boolean.sauna_ack', 'off', {}),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+    vi.setSystemTime(new Date('2026-08-14T10:01:00Z'));
+    card.hass = createHass(
+      {
+        ...card.hass.states,
+        'input_boolean.sauna_ack': createEntity(
+          'input_boolean.sauna_ack',
+          'on',
+          {},
+          '2026-08-14T10:01:00Z',
+        ),
+      },
+      callService,
+    );
+    await expectUpdateComplete(card);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(callService).toHaveBeenCalledWith('input_boolean', 'turn_off', {
+      entity_id: 'input_boolean.sauna_ack',
+    });
+  });
 });
 
 interface HistoryTestApi {
@@ -566,16 +701,24 @@ function createLightEntity(
   });
 }
 
+function createMediaPlayerEntity(entityId: string, state: string): HassEntity {
+  return createEntity(entityId, state, {
+    friendly_name: 'Sauna HomePod',
+    volume_level: 0.25,
+  });
+}
+
 function createEntity(
   entityId: string,
   state: string,
   attributes: Record<string, unknown>,
+  changedAt = '2026-08-05T12:00:00Z',
 ): HassEntity {
   return {
     entity_id: entityId,
     state,
     attributes,
-    last_changed: '2026-08-05T12:00:00Z',
-    last_updated: '2026-08-05T12:00:00Z',
+    last_changed: changedAt,
+    last_updated: changedAt,
   };
 }

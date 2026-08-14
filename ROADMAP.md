@@ -46,7 +46,9 @@
 - Ready-temperature signal with hold, blink and pulse modes
 - Runtime-only acknowledgement button for the ready signal
 - Optional in-memory restoration of the previous light state
-- Media-player alarm support
+- Unified card and external-entity acknowledgement for one ready event
+- Media-player and HomePod-ready notifications through Home Assistant
+- Runtime-only acknowledgement state
 
 ## Phase 7: Optimization
 

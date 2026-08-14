@@ -41,6 +41,7 @@ The card displays:
 - deterministic heat-up ETA for direct sensor modes
 - effective heater power display from fixed kW or approximate general power sensor mode
 - optional visual RGB status and ready-temperature signaling through one Home Assistant light entity
+- optional media-player ready notifications and unified ready-event acknowledgement
 
 For calculated control-temperature modes, the card intentionally disables the
 trend and ETA history instead of showing one physical sensor history as a
@@ -49,8 +50,9 @@ the rendering layer and feed the trend and ETA model with already calculated
 samples.
 
 The card layer must not contain automatic heater switching, temperature
-regulation, battery optimization, audio alarms or other safety-sensitive
-workflows. RGB signaling is visual only and does not influence heater state.
+regulation, battery optimization or other safety-sensitive workflows. RGB and
+media notifications are visual/audio signaling only and do not influence heater
+state.
 
 ## Editor Layer
 
@@ -87,6 +89,10 @@ only on a not-ready to ready transition while the main switch is on, then
 requires reset hysteresis (`target - near_target_threshold`) or a sauna off/on
 cycle before another trigger can occur.
 
+`src/core/acknowledgement.ts` contains reusable card/entity acknowledgement
+rules. `src/core/notification-state.ts` models the single runtime ready event
+that may activate RGB, media-player notifications and future channels.
+
 `src/core/heating-power.ts` contains pure W/kW parsing, validation and general
 power sensor capping helpers. `src/core/heating-rate.ts` calculates a robust
 recent heating rate from Recorder samples by using consecutive slopes and
@@ -122,6 +128,12 @@ color-temperature-only lights as unsupported for this feature, suppresses
 duplicate commands, throttles changed updates and optionally restores the
 previous light state from in-memory card/session state before controlling a
 newly configured light entity.
+
+`src/services/media-notification-controller.ts` uses standard Home Assistant
+`tts.speak`, `media_player.play_media`, `media_player.volume_set` and
+best-effort `media_player.media_stop` calls. Media failures return structured
+errors and do not affect temperature monitoring, manual controls or RGB
+signaling.
 
 ## Components
 

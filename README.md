@@ -13,13 +13,14 @@ for visual RGB status signaling and a ready-temperature signal.
 
 ## Alpha Status
 
-Version `0.4.0-alpha.1` is the current HACS-installable alpha release. It adds optional RGB sauna status lighting and a ready-temperature signal without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
+Version `0.5.0-alpha.1` is the current HACS-installable alpha release. It adds unified ready-event acknowledgement and optional media-player ready notifications without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
 
 This version provides manual user controls and monitoring only. It does not
 automatically switch the sauna heater, regulate temperature, run schedules,
 play audio alarms, start schedules or optimize energy, PV or battery usage.
 RGB support is visual signaling only and never switches, regulates or
 influences the sauna heater.
+Audio/media notifications are also signaling only.
 
 ## Planned Capabilities
 
@@ -171,6 +172,19 @@ ready_signal_duration_seconds: 30
 ready_signal_requires_acknowledgement: true
 ready_signal_repeat: false
 ready_signal_repeat_interval_seconds: 60
+acknowledgement_mode: card_or_entity
+acknowledgement_entity: input_button.sauna_quittieren
+show_acknowledge_button: true
+media_notification_enabled: true
+media_player_entity: media_player.sauna_homepod
+tts_entity: tts.piper
+media_notification_mode: tts
+media_notification_message: 'Die Sauna ist bereit.'
+media_notification_volume: 0.5
+media_notification_repeat: true
+media_notification_repeat_interval_seconds: 60
+media_notification_stop_on_acknowledge: true
+media_notification_restore_volume: true
 ```
 
 Supported `control_temperature_mode` values:
@@ -267,7 +281,42 @@ enabled, the card shows a compact **Acknowledge** action while the ready signal
 is active. Acknowledging stops the signal, optionally restores the previous
 light state and prevents repeat signals until the reset hysteresis applies.
 
-HomePod and generic media-player audio notifications are not included yet.
+## Ready Notifications And Acknowledgement
+
+Sauna Suite uses one runtime ready event for RGB, media-player notifications
+and future notification channels. A single acknowledgement from the card or a
+configured Home Assistant entity acknowledges that ready event and stops all
+active notification channels.
+
+Supported acknowledgement entities are `input_button`, `button`,
+`input_boolean` and `binary_sensor`. This allows external dashboard buttons,
+wall controls, automations, scripts and voice-assistant workflows. Recommended
+helpers include `input_button.sauna_quittieren` or
+`input_boolean.sauna_quittieren`. Sauna Suite does not create helpers
+automatically; select an existing entity in the visual editor.
+
+Entity acknowledgement is event-aware. An entity that was already active before
+the ready event started does not acknowledge the new event. For
+`input_boolean`, acknowledgement requires a fresh `off` to `on` transition; it
+can optionally be reset to `off` after acknowledgement.
+
+Media notifications use standard Home Assistant services. TTS uses `tts.speak`
+with a user-selected `tts` entity, so no cloud provider is hard-coded. Media
+mode uses `media_player.play_media` with a configured media ID or media-source
+identifier. Compatible HomePods work through their existing Home Assistant
+`media_player` integration.
+
+Messages support the local Sauna Suite placeholders `{temperature}`, `{target}`,
+`{eta}` and `{ready_time}`. Arbitrary Home Assistant/Jinja templates are not
+executed in the frontend.
+
+The card can temporarily set media-player volume before playback and restore
+the previous volume where practical. On acknowledgement it can call
+`media_player.media_stop`, but Home Assistant media-player integrations do not
+always expose enough information to prove playback ownership, so this is a
+best-effort stop for the active notification.
+
+Acknowledgement state is runtime-only and is not persisted across reloads.
 
 ## Temperature Trend
 

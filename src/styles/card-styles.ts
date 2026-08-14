@@ -116,6 +116,7 @@ export const cardStyles = css`
   .hero,
   .target-control,
   .trend-panel,
+  .notification-status,
   .rgb-status {
     background:
       linear-gradient(135deg, var(--sauna-status-fill), transparent 46%),
@@ -311,6 +312,12 @@ export const cardStyles = css`
     justify-content: space-between;
   }
 
+  .notification-status {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
   .rgb-copy,
   .rgb-actions {
     align-items: center;
@@ -406,6 +413,7 @@ export const cardStyles = css`
       min-width: 0;
     }
 
+    .notification-status,
     .rgb-status,
     .rgb-actions {
       align-items: stretch;

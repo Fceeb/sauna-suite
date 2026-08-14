@@ -36,7 +36,8 @@
     "rgbLight": "RGB light",
     "rgbUnsupportedLight": "Configured light does not support RGB or HS color.",
     "rgbLightUnavailable": "RGB light unavailable.",
-    "acknowledgeReadySignal": "Acknowledge"
+    "acknowledgeReadySignal": "Acknowledge",
+    "notificationStatus": "Ready notification"
   },
   "editor": {
     "cardName": "Card name",
@@ -59,7 +60,9 @@
       "temperatureCalculation": "Temperature calculation",
       "trend": "Trend",
       "heatingEta": "Heating ETA",
-      "rgbReadySignal": "RGB & Ready Signal"
+      "rgbReadySignal": "RGB",
+      "acknowledgement": "Acknowledgement",
+      "mediaNotification": "Audio / Media Player"
     },
     "showOutsideTemperature": "Show outside temperature",
     "showOutsideTemperatureDescription": "Display the outside temperature when an entity is configured.",
@@ -138,7 +141,37 @@
     "readySignalRepeat": "Repeat ready signal",
     "readySignalRepeatDescription": "Repeat the signal while the sauna remains ready and unacknowledged.",
     "readySignalRepeatIntervalSeconds": "Repeat interval",
-    "readySignalRepeatIntervalSecondsDescription": "Seconds to wait before repeating an unacknowledged ready signal."
+    "readySignalRepeatIntervalSecondsDescription": "Seconds to wait before repeating an unacknowledged ready signal.",
+    "acknowledgementMode": "Acknowledgement mode",
+    "acknowledgementModeDescription": "Choose whether the card, an external Home Assistant entity or both may acknowledge the ready event.",
+    "acknowledgementEntity": "Acknowledgement entity",
+    "acknowledgementEntityDescription": "Optional input_button, button, input_boolean or binary_sensor used as an external acknowledgement control.",
+    "acknowledgementResetInputBoolean": "Reset input_boolean after acknowledgement",
+    "acknowledgementResetInputBooleanDescription": "Turn the configured input_boolean off after a successful acknowledgement.",
+    "showAcknowledgeButton": "Show acknowledge button",
+    "showAcknowledgeButtonDescription": "Show the card acknowledgement action while a ready event is active.",
+    "mediaNotificationEnabled": "Enable audio notification",
+    "mediaNotificationEnabledDescription": "Play a ready notification on a Home Assistant media_player entity.",
+    "mediaPlayerEntity": "Media player entity",
+    "mediaPlayerEntityDescription": "Home Assistant media_player entity used for ready notifications.",
+    "mediaNotificationMode": "Notification mode",
+    "mediaNotificationModeDescription": "Use TTS speech or play a configured media source.",
+    "mediaNotificationMessage": "TTS message",
+    "mediaNotificationMessageDescription": "Message spoken by TTS. Supports {temperature}, {target}, {eta} and {ready_time}.",
+    "mediaNotificationMediaId": "Media ID",
+    "mediaNotificationMediaIdDescription": "Media source, URL or media-source identifier for media mode.",
+    "mediaNotificationVolume": "Notification volume",
+    "mediaNotificationVolumeDescription": "Volume used for the ready notification, from 0.0 to 1.0.",
+    "mediaNotificationRepeat": "Repeat audio notification",
+    "mediaNotificationRepeatDescription": "Repeat while the current ready event remains active and unacknowledged.",
+    "mediaNotificationRepeatIntervalSeconds": "Repeat interval",
+    "mediaNotificationRepeatIntervalSecondsDescription": "Seconds between repeated audio notifications.",
+    "mediaNotificationStopOnAcknowledge": "Stop audio on acknowledgement",
+    "mediaNotificationStopOnAcknowledgeDescription": "Attempt to stop playback when the ready event is acknowledged.",
+    "mediaNotificationRestoreVolume": "Restore previous volume",
+    "mediaNotificationRestoreVolumeDescription": "Restore the media-player volume captured before the notification.",
+    "ttsEntity": "TTS entity",
+    "ttsEntityDescription": "Home Assistant tts entity used with the standard tts.speak service."
   },
   "modes": {
     "average": "Average",
@@ -192,6 +225,24 @@
     "ready_signal_active": "Ready signal active",
     "acknowledged": "Acknowledged",
     "light_unavailable": "Light unavailable"
+  },
+  "notificationStatus": {
+    "none": "No notification",
+    "ready": "Ready",
+    "signaling": "Signaling",
+    "waiting_for_acknowledgement": "Waiting for acknowledgement",
+    "acknowledged": "Acknowledged",
+    "media_unavailable": "Media unavailable",
+    "rgb_unavailable": "RGB unavailable"
+  },
+  "acknowledgementModes": {
+    "card_only": "Card only",
+    "entity_only": "Entity only",
+    "card_or_entity": "Card or entity"
+  },
+  "mediaNotificationModes": {
+    "tts": "Text to speech",
+    "media": "Media"
   },
   "heatingStatus": {
     "off": "Off",

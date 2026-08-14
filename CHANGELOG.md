@@ -9,6 +9,24 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.5.0-alpha.1]
+
+### Added
+
+- Added a unified runtime ready-event acknowledgement model shared by RGB and media notifications.
+- Added optional card, entity or card-or-entity acknowledgement modes.
+- Added support for acknowledgement entities: `input_button`, `button`, `input_boolean` and `binary_sensor`.
+- Added optional media-player ready notifications using standard Home Assistant TTS and media-player services.
+- Added TTS message placeholders for `{temperature}`, `{target}`, `{eta}` and `{ready_time}`.
+- Added media-player volume setting, optional volume restoration, repeat notifications and best-effort stop on acknowledgement.
+
+### Alpha Notes
+
+- Acknowledgement state is runtime-only and is not persisted.
+- Media playback ownership is best-effort because Home Assistant integrations vary.
+- This release remains signaling and manual-control only; no automatic sauna regulation is implemented.
+- No scheduled starts, PV optimization, battery optimization or session analytics are implemented.
+
 ## [0.4.0-alpha.1]
 
 ### Added
