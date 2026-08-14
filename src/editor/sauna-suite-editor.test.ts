@@ -95,6 +95,49 @@ describe('SaunaSuiteEditor', () => {
       ]),
     );
   });
+
+  it('shows acknowledgement entity fields only for entity-capable modes', () => {
+    const editor = createEditor();
+
+    editor.setConfig({ acknowledgement_mode: 'card_only' });
+    expect(getSchemaNames(editor)).toContain('show_acknowledge_button');
+    expect(getSchemaNames(editor)).not.toContain('acknowledgement_entity');
+
+    editor.setConfig({
+      acknowledgement_mode: 'entity_only',
+      acknowledgement_entity: 'input_boolean.sauna_ack',
+    });
+    expect(getSchemaNames(editor)).toContain('acknowledgement_entity');
+    expect(getSchemaNames(editor)).toContain('acknowledgement_reset_input_boolean');
+    expect(getSchemaNames(editor)).not.toContain('show_acknowledge_button');
+  });
+
+  it('shows media fields conditionally for TTS and media modes', () => {
+    const editor = createEditor();
+
+    editor.setConfig({ media_notification_enabled: false });
+    expect(getSchemaNames(editor)).toContain('media_notification_enabled');
+    expect(getSchemaNames(editor)).not.toContain('media_player_entity');
+
+    editor.setConfig({ media_notification_enabled: true, media_notification_mode: 'tts' });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining(['media_player_entity', 'tts_entity', 'media_notification_message']),
+    );
+    expect(getSchemaNames(editor)).not.toContain('media_notification_media_id');
+
+    editor.setConfig({
+      media_notification_enabled: true,
+      media_notification_mode: 'media',
+      media_notification_repeat: true,
+    });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining([
+        'media_notification_media_id',
+        'media_notification_repeat_interval_seconds',
+      ]),
+    );
+    expect(getSchemaNames(editor)).not.toContain('tts_entity');
+  });
 });
 
 interface EditorSectionTestApi {

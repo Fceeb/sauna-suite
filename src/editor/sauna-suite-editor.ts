@@ -2,8 +2,10 @@ import { LitElement, html, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
 import {
+  ACKNOWLEDGEMENT_MODES,
   CONTROL_TEMPERATURE_MODES,
   HEATING_POWER_MODES,
+  MEDIA_NOTIFICATION_MODES,
   READY_SIGNAL_COLORS,
   READY_SIGNAL_MODES,
   RGB_MODES,
@@ -390,6 +392,154 @@ export class SaunaSuiteEditor extends LitElement {
       }
     }
 
+    const acknowledgementFields: HaFormSchema[] = [
+      {
+        name: 'acknowledgement_mode',
+        label: this.t('editor.acknowledgementMode'),
+        description: this.t('editor.acknowledgementModeDescription'),
+        selector: {
+          select: {
+            mode: 'dropdown',
+            options: ACKNOWLEDGEMENT_MODES.map((mode) => ({
+              value: mode,
+              label: this.t(`acknowledgementModes.${mode}`),
+            })),
+          },
+        },
+      },
+    ];
+
+    if (this.config.acknowledgement_mode !== 'entity_only') {
+      acknowledgementFields.push(
+        this.booleanField(
+          'show_acknowledge_button',
+          'editor.showAcknowledgeButton',
+          'editor.showAcknowledgeButtonDescription',
+        ),
+      );
+    }
+
+    if (this.config.acknowledgement_mode !== 'card_only') {
+      acknowledgementFields.push(
+        this.entityField(
+          'acknowledgement_entity',
+          'editor.acknowledgementEntity',
+          'editor.acknowledgementEntityDescription',
+          [
+            { domain: 'input_button' },
+            { domain: 'button' },
+            { domain: 'input_boolean' },
+            { domain: 'binary_sensor' },
+          ],
+        ),
+      );
+
+      if (this.config.acknowledgement_entity?.startsWith('input_boolean.')) {
+        acknowledgementFields.push(
+          this.booleanField(
+            'acknowledgement_reset_input_boolean',
+            'editor.acknowledgementResetInputBoolean',
+            'editor.acknowledgementResetInputBooleanDescription',
+          ),
+        );
+      }
+    }
+
+    const mediaFields: HaFormSchema[] = [
+      this.booleanField(
+        'media_notification_enabled',
+        'editor.mediaNotificationEnabled',
+        'editor.mediaNotificationEnabledDescription',
+      ),
+    ];
+
+    if (this.config.media_notification_enabled) {
+      mediaFields.push(
+        this.entityField(
+          'media_player_entity',
+          'editor.mediaPlayerEntity',
+          'editor.mediaPlayerEntityDescription',
+          [{ domain: 'media_player' }],
+        ),
+        {
+          name: 'media_notification_mode',
+          label: this.t('editor.mediaNotificationMode'),
+          description: this.t('editor.mediaNotificationModeDescription'),
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: MEDIA_NOTIFICATION_MODES.map((mode) => ({
+                value: mode,
+                label: this.t(`mediaNotificationModes.${mode}`),
+              })),
+            },
+          },
+        },
+        this.numberField(
+          'media_notification_volume',
+          'editor.mediaNotificationVolume',
+          'editor.mediaNotificationVolumeDescription',
+          0,
+          1,
+          0.05,
+        ),
+        this.booleanField(
+          'media_notification_restore_volume',
+          'editor.mediaNotificationRestoreVolume',
+          'editor.mediaNotificationRestoreVolumeDescription',
+        ),
+      );
+
+      if (this.config.media_notification_mode === 'tts') {
+        mediaFields.push(
+          this.entityField('tts_entity', 'editor.ttsEntity', 'editor.ttsEntityDescription', [
+            { domain: 'tts' },
+          ]),
+          this.textField(
+            'media_notification_message',
+            'editor.mediaNotificationMessage',
+            'editor.mediaNotificationMessageDescription',
+          ),
+        );
+      }
+
+      if (this.config.media_notification_mode === 'media') {
+        mediaFields.push(
+          this.textField(
+            'media_notification_media_id',
+            'editor.mediaNotificationMediaId',
+            'editor.mediaNotificationMediaIdDescription',
+          ),
+        );
+      }
+
+      mediaFields.push(
+        this.booleanField(
+          'media_notification_repeat',
+          'editor.mediaNotificationRepeat',
+          'editor.mediaNotificationRepeatDescription',
+        ),
+        this.booleanField(
+          'media_notification_stop_on_acknowledge',
+          'editor.mediaNotificationStopOnAcknowledge',
+          'editor.mediaNotificationStopOnAcknowledgeDescription',
+        ),
+      );
+
+      if (this.config.media_notification_repeat) {
+        mediaFields.push(
+          this.numberField(
+            'media_notification_repeat_interval_seconds',
+            'editor.mediaNotificationRepeatIntervalSeconds',
+            'editor.mediaNotificationRepeatIntervalSecondsDescription',
+            1,
+            86400,
+            1,
+          ),
+        );
+      }
+    }
+
     return [
       {
         titleKey: 'editor.sections.general',
@@ -463,6 +613,14 @@ export class SaunaSuiteEditor extends LitElement {
       {
         titleKey: 'editor.sections.rgbReadySignal',
         schema: rgbFields,
+      },
+      {
+        titleKey: 'editor.sections.acknowledgement',
+        schema: acknowledgementFields,
+      },
+      {
+        titleKey: 'editor.sections.mediaNotification',
+        schema: mediaFields,
       },
       {
         titleKey: 'editor.sections.safety',

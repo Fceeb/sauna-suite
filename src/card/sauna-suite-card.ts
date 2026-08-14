@@ -23,12 +23,28 @@ import {
   type RgbColor,
 } from '../core/temperature-color';
 import {
-  acknowledgeReadySignal,
   createReadySignalDetectorState,
   detectReadySignalTransition,
   isReady,
   type ReadySignalDetectorState,
 } from '../core/ready-signal';
+import {
+  createAcknowledgementEntityBaseline,
+  canAcknowledgeFromCard,
+  detectCardAcknowledgement,
+  detectEntityAcknowledgement,
+  updateAcknowledgementEntityBaseline,
+  type AcknowledgementEntityBaseline,
+} from '../core/acknowledgement';
+import {
+  acknowledgeReadyNotificationEvent,
+  createReadyNotificationEvent,
+  getReadyNotificationStatus,
+  markNotificationChannel,
+  markNotificationFailure,
+  type ReadyNotificationEvent,
+  type ReadyNotificationStatus,
+} from '../core/notification-state';
 import type { SaunaSuiteCardConfig } from '../models/card-config';
 import { CARD_TAG, EDITOR_TAG } from '../models/constants';
 import type { HassEntity, HomeAssistant } from '../models/home-assistant';
@@ -49,6 +65,7 @@ import {
   RgbLightController,
   type RgbLightCommand,
 } from '../services/rgb-light-controller';
+import { MediaNotificationController } from '../services/media-notification-controller';
 import {
   fetchTemperatureHistory,
   type TemperatureHistorySample,
@@ -115,20 +132,39 @@ export class SaunaSuiteCard extends LitElement {
   @state()
   private readySignalActive = false;
 
+  @state()
+  private notificationEvent?: ReadyNotificationEvent | undefined;
+
+  @state()
+  private notificationStatus: ReadyNotificationStatus = 'none';
+
+  @state()
+  private mediaWarning?: string | undefined;
+
   private historyRefreshTimer?: number | undefined;
   private targetDebounceTimer?: number | undefined;
   private lastHistoryFetchKey?: string | undefined;
   private readySignalStepTimer?: number | undefined;
   private readySignalStopTimer?: number | undefined;
   private readySignalRepeatTimer?: number | undefined;
+  private mediaNotificationRepeatTimer?: number | undefined;
   private readySignalPhase = true;
+  private nextReadyEventId = 1;
   private readySignalDetectorState: ReadySignalDetectorState = createReadySignalDetectorState();
+  private acknowledgementEntityBaseline?: AcknowledgementEntityBaseline | undefined;
   private readonly rgbLightController = new RgbLightController();
+  private readonly mediaNotificationController = new MediaNotificationController();
 
   public setConfig(config: Partial<SaunaSuiteCardConfig>): void {
-    this.clearReadySignalTimers();
+    this.clearNotificationTimers();
+    void this.stopMediaNotification();
+    void this.releaseRgbControl();
     this.readySignalDetectorState = createReadySignalDetectorState();
+    this.acknowledgementEntityBaseline = undefined;
     this.readySignalActive = false;
+    this.notificationEvent = undefined;
+    this.notificationStatus = 'none';
+    this.mediaNotificationController.reset();
     this.config = normalizeConfig(config);
     this.resetHistorySchedule();
   }
@@ -137,7 +173,8 @@ export class SaunaSuiteCard extends LitElement {
     super.disconnectedCallback();
     this.clearHistoryTimer();
     this.clearTargetDebounceTimer();
-    this.clearReadySignalTimers();
+    this.clearNotificationTimers();
+    void this.stopMediaNotification();
     void this.releaseRgbControl();
   }
 
@@ -156,7 +193,7 @@ export class SaunaSuiteCard extends LitElement {
   protected override updated(changedProperties: PropertyValues): void {
     if (changedProperties.has('hass') || changedProperties.has('config')) {
       this.scheduleHistoryRefresh();
-      void this.synchronizeRgbLighting();
+      void this.synchronizeReadyNotifications();
     }
   }
 
@@ -242,9 +279,40 @@ export class SaunaSuiteCard extends LitElement {
             temperatureState.targetTemperature,
             heatingRate,
           )}
-          ${this.renderRgbStatus(semanticColor.rgb)} ${this.renderTargetControl(targetEntity)}
+          ${this.renderNotificationStatus()} ${this.renderRgbStatus(semanticColor.rgb)}
+          ${this.renderTargetControl(targetEntity)}
         </div>
       </ha-card>
+    `;
+  }
+
+  private renderNotificationStatus(): TemplateResult | undefined {
+    if (!this.hasNotificationConfiguration() && !this.notificationEvent) {
+      return undefined;
+    }
+
+    const showAcknowledge =
+      this.notificationEvent?.active === true &&
+      !this.notificationEvent.acknowledged &&
+      canAcknowledgeFromCard(this.config.acknowledgement_mode, this.config.show_acknowledge_button);
+
+    return html`
+      <section class="notification-status" aria-label=${this.t('card.notificationStatus')}>
+        <div>
+          <div class="label">${this.t('card.notificationStatus')}</div>
+          <div class="status-line">${this.t(`notificationStatus.${this.notificationStatus}`)}</div>
+          ${this.mediaWarning ? html`<div class="error">${this.mediaWarning}</div>` : undefined}
+        </div>
+        ${
+          showAcknowledge
+            ? html`
+                <button class="ack-button" type="button" @click=${this.handleReadyAcknowledgement}>
+                  ${this.t('card.acknowledgeReadySignal')}
+                </button>
+              `
+            : undefined
+        }
+      </section>
     `;
   }
 
@@ -267,19 +335,6 @@ export class SaunaSuiteCard extends LitElement {
         </div>
         <div class="rgb-actions">
           <span class="status-chip">${this.t(`rgbStatus.${this.rgbStatus}`)}</span>
-          ${
-            this.readySignalActive && this.config.ready_signal_requires_acknowledgement
-              ? html`
-                  <button
-                    class="ack-button"
-                    type="button"
-                    @click=${this.handleReadyAcknowledgement}
-                  >
-                    ${this.t('card.acknowledgeReadySignal')}
-                  </button>
-                `
-              : undefined
-          }
         </div>
       </section>
     `;
@@ -688,6 +743,103 @@ export class SaunaSuiteCard extends LitElement {
     this.serviceError = result.ok ? undefined : result.error;
   }
 
+  private async synchronizeReadyNotifications(): Promise<void> {
+    if (!this.hass) {
+      return;
+    }
+
+    const temperatureState = buildSaunaTemperatureState(this.hass, this.config);
+    const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
+    const saunaOn = switchEntity?.state === 'on';
+    const readyInput = {
+      saunaOn,
+      controlTemperature: temperatureState.summary.controlTemperature,
+      targetTemperature: temperatureState.targetTemperature,
+      thresholds: {
+        nearTargetThreshold: this.config.near_target_threshold,
+        targetReachedTolerance: this.config.target_reached_tolerance,
+      },
+    };
+    const detection = detectReadySignalTransition(this.readySignalDetectorState, readyInput);
+
+    this.readySignalDetectorState = detection.state;
+
+    if (!detection.state.ready && this.notificationEvent?.active && !this.readySignalActive) {
+      this.clearNotificationTimers();
+      this.notificationEvent = undefined;
+      this.notificationStatus = 'none';
+      await this.stopMediaNotification();
+      await this.releaseRgbControl();
+    }
+
+    if (detection.triggered) {
+      await this.startReadyNotificationEvent(
+        temperatureState.summary.controlTemperature,
+        temperatureState.targetTemperature,
+      );
+    }
+
+    await this.checkAcknowledgementEntity();
+    await this.synchronizeRgbLighting();
+    this.refreshNotificationStatus();
+  }
+
+  private async startReadyNotificationEvent(
+    controlTemperature: number | undefined,
+    targetTemperature: number | undefined,
+  ): Promise<void> {
+    this.clearNotificationTimers();
+    const event = createReadyNotificationEvent(this.nextReadyEventId++, Date.now());
+    this.notificationEvent = event;
+    this.mediaWarning = undefined;
+    this.acknowledgementEntityBaseline = createAcknowledgementEntityBaseline(
+      this.config.acknowledgement_entity,
+      getEntity(this.hass, this.config.acknowledgement_entity),
+    );
+
+    if (
+      this.config.ready_signal_enabled &&
+      this.config.rgb_enabled &&
+      this.config.rgb_mode !== 'off'
+    ) {
+      this.startReadySignal();
+      this.updateNotificationEvent(markNotificationChannel(event, 'rgb', true));
+    }
+
+    if (this.config.media_notification_enabled) {
+      await this.playMediaNotification(controlTemperature, targetTemperature);
+      this.scheduleMediaNotificationRepeat();
+    }
+
+    this.refreshNotificationStatus();
+  }
+
+  private async checkAcknowledgementEntity(): Promise<void> {
+    if (!this.notificationEvent || !this.config.acknowledgement_entity) {
+      return;
+    }
+
+    const entity = getEntity(this.hass, this.config.acknowledgement_entity);
+    const result = detectEntityAcknowledgement(
+      this.config.acknowledgement_mode,
+      this.config.acknowledgement_entity,
+      entity,
+      this.notificationEvent,
+      this.acknowledgementEntityBaseline,
+    );
+
+    if (result.acknowledged) {
+      await this.acknowledgeReadyEvent(true);
+      return;
+    }
+
+    this.acknowledgementEntityBaseline = updateAcknowledgementEntityBaseline(
+      this.acknowledgementEntityBaseline,
+      this.config.acknowledgement_entity,
+      entity,
+    );
+  }
+
   private async synchronizeRgbLighting(force = false): Promise<void> {
     if (!this.hass) {
       return;
@@ -711,12 +863,6 @@ export class SaunaSuiteCard extends LitElement {
         nearTargetThreshold: this.config.near_target_threshold,
         targetReachedTolerance: this.config.target_reached_tolerance,
       },
-    );
-
-    this.updateReadyDetector(
-      saunaOn,
-      temperatureState.summary.controlTemperature,
-      temperatureState.targetTemperature,
     );
 
     if (
@@ -769,33 +915,6 @@ export class SaunaSuiteCard extends LitElement {
     }
 
     this.setRgbRuntimeState(this.getRgbStatusForCommand(), undefined);
-  }
-
-  private updateReadyDetector(
-    saunaOn: boolean,
-    controlTemperature: number | undefined,
-    targetTemperature: number | undefined,
-  ): void {
-    const detection = detectReadySignalTransition(this.readySignalDetectorState, {
-      saunaOn,
-      controlTemperature,
-      targetTemperature,
-      thresholds: {
-        nearTargetThreshold: this.config.near_target_threshold,
-        targetReachedTolerance: this.config.target_reached_tolerance,
-      },
-    });
-
-    this.readySignalDetectorState = detection.state;
-
-    if (
-      detection.triggered &&
-      this.config.ready_signal_enabled &&
-      this.config.rgb_enabled &&
-      this.config.rgb_mode !== 'off'
-    ) {
-      this.startReadySignal();
-    }
   }
 
   private getRgbCommand(temperatureColor: RgbColor): RgbLightCommand | undefined {
@@ -904,12 +1023,151 @@ export class SaunaSuiteCard extends LitElement {
     );
   }
 
+  private async playMediaNotification(
+    controlTemperature: number | undefined,
+    targetTemperature: number | undefined,
+  ): Promise<void> {
+    const event = this.notificationEvent;
+
+    if (!event || !this.hass) {
+      return;
+    }
+
+    const result = await this.mediaNotificationController.notify({
+      hass: this.hass,
+      config: this.config,
+      mediaPlayer: getEntity(this.hass, this.config.media_player_entity),
+      eventId: event.id,
+      context: {
+        temperature: controlTemperature,
+        target: targetTemperature,
+        eta: this.t('card.etaUnavailable'),
+        readyTime: '',
+      },
+    });
+
+    if (this.notificationEvent?.id !== event.id) {
+      return;
+    }
+
+    this.mediaWarning = result.ok ? undefined : result.error;
+    this.updateNotificationEvent(
+      markNotificationFailure(
+        markNotificationChannel(this.notificationEvent, 'media', result.active),
+        'media',
+        !result.ok,
+      ),
+    );
+  }
+
+  private scheduleMediaNotificationRepeat(): void {
+    this.clearMediaNotificationRepeatTimer();
+
+    if (!this.config.media_notification_repeat || !this.notificationEvent) {
+      return;
+    }
+
+    const eventId = this.notificationEvent.id;
+    this.mediaNotificationRepeatTimer = window.setTimeout(() => {
+      if (this.notificationEvent?.id === eventId && this.shouldRepeatMediaNotification()) {
+        const temperatureState = buildSaunaTemperatureState(this.hass, this.config);
+        void this.playMediaNotification(
+          temperatureState.summary.controlTemperature,
+          temperatureState.targetTemperature,
+        );
+        this.scheduleMediaNotificationRepeat();
+      }
+    }, this.config.media_notification_repeat_interval_seconds * 1000);
+  }
+
+  private shouldRepeatMediaNotification(): boolean {
+    const temperatureState = buildSaunaTemperatureState(this.hass, this.config);
+    const switchEntity = getEntity(this.hass, this.config.main_switch_entity);
+
+    return (
+      this.config.media_notification_repeat &&
+      this.config.media_notification_enabled &&
+      this.notificationEvent?.active === true &&
+      !this.notificationEvent.acknowledged &&
+      isReady({
+        saunaOn: switchEntity?.state === 'on',
+        controlTemperature: temperatureState.summary.controlTemperature,
+        targetTemperature: temperatureState.targetTemperature,
+        thresholds: {
+          nearTargetThreshold: this.config.near_target_threshold,
+          targetReachedTolerance: this.config.target_reached_tolerance,
+        },
+      })
+    );
+  }
+
+  private async stopMediaNotification(): Promise<void> {
+    const eventId = this.notificationEvent?.id;
+    const result = await this.mediaNotificationController.stop({
+      hass: this.hass,
+      config: this.config,
+      eventId,
+    });
+
+    if (!result.ok) {
+      this.mediaWarning = result.error;
+    }
+  }
+
   private handleReadyAcknowledgement = (): void => {
-    this.readySignalDetectorState = acknowledgeReadySignal(this.readySignalDetectorState);
-    this.setRgbRuntimeState('acknowledged', undefined);
-    this.stopReadySignal(false);
-    void this.releaseRgbControl();
+    void this.acknowledgeReadyEvent();
   };
+
+  private async acknowledgeReadyEvent(fromEntity = false): Promise<void> {
+    const result = detectCardAcknowledgement(
+      this.config.acknowledgement_mode,
+      this.config.show_acknowledge_button,
+      this.notificationEvent,
+    );
+
+    if (!this.notificationEvent || this.notificationEvent.acknowledged) {
+      return;
+    }
+
+    if (!fromEntity && !result.acknowledged) {
+      return;
+    }
+
+    const eventId = this.notificationEvent.id;
+    this.clearNotificationTimers();
+    this.readySignalDetectorState = {
+      ...this.readySignalDetectorState,
+      acknowledged: true,
+    };
+    this.notificationEvent = acknowledgeReadyNotificationEvent(this.notificationEvent, Date.now());
+    this.readySignalActive = false;
+    this.setRgbRuntimeState('acknowledged', undefined);
+    await this.stopMediaNotification();
+    await this.releaseRgbControl();
+    await this.resetAcknowledgementInputBoolean();
+
+    if (this.notificationEvent?.id === eventId) {
+      this.refreshNotificationStatus();
+    }
+  }
+
+  private async resetAcknowledgementInputBoolean(): Promise<void> {
+    if (
+      !this.config.acknowledgement_reset_input_boolean ||
+      !this.hass?.callService ||
+      !this.config.acknowledgement_entity?.startsWith('input_boolean.')
+    ) {
+      return;
+    }
+
+    try {
+      await this.hass.callService('input_boolean', 'turn_off', {
+        entity_id: this.config.acknowledgement_entity,
+      });
+    } catch {
+      // Acknowledgement has already succeeded; helper reset failure is non-fatal.
+    }
+  }
 
   private async releaseRgbControl(): Promise<{ error?: string | undefined }> {
     const result = await this.rgbLightController.release(this.hass);
@@ -1010,6 +1268,18 @@ export class SaunaSuiteCard extends LitElement {
     if (this.readySignalRepeatTimer !== undefined) {
       window.clearTimeout(this.readySignalRepeatTimer);
       this.readySignalRepeatTimer = undefined;
+    }
+  }
+
+  private clearNotificationTimers(): void {
+    this.clearReadySignalTimers();
+    this.clearMediaNotificationRepeatTimer();
+  }
+
+  private clearMediaNotificationRepeatTimer(): void {
+    if (this.mediaNotificationRepeatTimer !== undefined) {
+      window.clearTimeout(this.mediaNotificationRepeatTimer);
+      this.mediaNotificationRepeatTimer = undefined;
     }
   }
 
@@ -1200,6 +1470,34 @@ export class SaunaSuiteCard extends LitElement {
     return typeof friendlyName === 'string' && friendlyName.length > 0
       ? friendlyName
       : (this.config.rgb_light_entity ?? this.t('card.notAvailable'));
+  }
+
+  private updateNotificationEvent(event: ReadyNotificationEvent): void {
+    this.notificationEvent = event;
+    this.refreshNotificationStatus();
+  }
+
+  private refreshNotificationStatus(): void {
+    this.notificationStatus = getReadyNotificationStatus(
+      this.notificationEvent,
+      this.isAcknowledgementExpected(),
+    );
+  }
+
+  private isAcknowledgementExpected(): boolean {
+    return (
+      this.config.acknowledgement_mode !== 'card_only' ||
+      this.config.show_acknowledge_button ||
+      this.config.ready_signal_requires_acknowledgement
+    );
+  }
+
+  private hasNotificationConfiguration(): boolean {
+    return (
+      this.config.rgb_enabled ||
+      this.config.media_notification_enabled ||
+      this.config.acknowledgement_entity !== undefined
+    );
   }
 
   private t(key: string): string {

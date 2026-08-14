@@ -1,11 +1,15 @@
 import {
+  ACKNOWLEDGEMENT_MODES,
   CONTROL_TEMPERATURE_MODES,
   HEATING_POWER_MODES,
+  MEDIA_NOTIFICATION_MODES,
   READY_SIGNAL_COLORS,
   READY_SIGNAL_MODES,
   RGB_MODES,
+  type AcknowledgementMode,
   type ControlTemperatureMode,
   type HeatingPowerMode,
+  type MediaNotificationMode,
   type ReadySignalColor,
   type ReadySignalMode,
   type RgbMode,
@@ -30,6 +34,9 @@ const DEFAULT_READY_SIGNAL_BRIGHTNESS = 100;
 const DEFAULT_READY_SIGNAL_INTERVAL_SECONDS = 1;
 const DEFAULT_READY_SIGNAL_DURATION_SECONDS = 30;
 const DEFAULT_READY_SIGNAL_REPEAT_INTERVAL_SECONDS = 60;
+const DEFAULT_MEDIA_NOTIFICATION_MESSAGE = 'Sauna is ready.';
+const DEFAULT_MEDIA_NOTIFICATION_VOLUME = 0.5;
+const DEFAULT_MEDIA_NOTIFICATION_REPEAT_INTERVAL_SECONDS = 60;
 
 export function createDefaultConfig(): SaunaSuiteCardConfig {
   return {
@@ -71,6 +78,17 @@ export function createDefaultConfig(): SaunaSuiteCardConfig {
     ready_signal_requires_acknowledgement: false,
     ready_signal_repeat: false,
     ready_signal_repeat_interval_seconds: DEFAULT_READY_SIGNAL_REPEAT_INTERVAL_SECONDS,
+    acknowledgement_mode: 'card_or_entity',
+    acknowledgement_reset_input_boolean: false,
+    show_acknowledge_button: true,
+    media_notification_enabled: false,
+    media_notification_mode: 'tts',
+    media_notification_message: DEFAULT_MEDIA_NOTIFICATION_MESSAGE,
+    media_notification_volume: DEFAULT_MEDIA_NOTIFICATION_VOLUME,
+    media_notification_repeat: false,
+    media_notification_repeat_interval_seconds: DEFAULT_MEDIA_NOTIFICATION_REPEAT_INTERVAL_SECONDS,
+    media_notification_stop_on_acknowledge: true,
+    media_notification_restore_volume: true,
   };
 }
 
@@ -202,6 +220,48 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
       1,
       86400,
     ),
+    acknowledgement_mode: normalizeAcknowledgementMode(config.acknowledgement_mode),
+    acknowledgement_reset_input_boolean: normalizeBoolean(
+      config.acknowledgement_reset_input_boolean,
+      defaults.acknowledgement_reset_input_boolean,
+    ),
+    show_acknowledge_button: normalizeBoolean(
+      config.show_acknowledge_button,
+      defaults.show_acknowledge_button,
+    ),
+    media_notification_enabled: normalizeBoolean(
+      config.media_notification_enabled,
+      defaults.media_notification_enabled,
+    ),
+    media_notification_mode: normalizeMediaNotificationMode(config.media_notification_mode),
+    media_notification_message: normalizeOptionalString(
+      config.media_notification_message,
+      defaults.media_notification_message,
+    ),
+    media_notification_volume: normalizeRange(
+      config.media_notification_volume,
+      defaults.media_notification_volume,
+      0,
+      1,
+    ),
+    media_notification_repeat: normalizeBoolean(
+      config.media_notification_repeat,
+      defaults.media_notification_repeat,
+    ),
+    media_notification_repeat_interval_seconds: normalizeIntegerRange(
+      config.media_notification_repeat_interval_seconds,
+      defaults.media_notification_repeat_interval_seconds,
+      1,
+      86400,
+    ),
+    media_notification_stop_on_acknowledge: normalizeBoolean(
+      config.media_notification_stop_on_acknowledge,
+      defaults.media_notification_stop_on_acknowledge,
+    ),
+    media_notification_restore_volume: normalizeBoolean(
+      config.media_notification_restore_volume,
+      defaults.media_notification_restore_volume,
+    ),
   };
 
   applyOptionalString(normalized, 'main_switch_entity', config.main_switch_entity);
@@ -216,6 +276,14 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
     config.general_power_sensor_entity,
   );
   applyOptionalString(normalized, 'rgb_light_entity', config.rgb_light_entity);
+  applyOptionalString(normalized, 'acknowledgement_entity', config.acknowledgement_entity);
+  applyOptionalString(normalized, 'media_player_entity', config.media_player_entity);
+  applyOptionalString(
+    normalized,
+    'media_notification_media_id',
+    config.media_notification_media_id,
+  );
+  applyOptionalString(normalized, 'tts_entity', config.tts_entity);
 
   return normalized;
 }
@@ -263,6 +331,25 @@ function normalizeReadySignalColor(color: unknown): ReadySignalColor {
   return createDefaultConfig().ready_signal_color;
 }
 
+function normalizeAcknowledgementMode(mode: unknown): AcknowledgementMode {
+  if (typeof mode === 'string' && ACKNOWLEDGEMENT_MODES.includes(mode as AcknowledgementMode)) {
+    return mode as AcknowledgementMode;
+  }
+
+  return createDefaultConfig().acknowledgement_mode;
+}
+
+function normalizeMediaNotificationMode(mode: unknown): MediaNotificationMode {
+  if (
+    typeof mode === 'string' &&
+    MEDIA_NOTIFICATION_MODES.includes(mode as MediaNotificationMode)
+  ) {
+    return mode as MediaNotificationMode;
+  }
+
+  return createDefaultConfig().media_notification_mode;
+}
+
 function normalizeWeight(value: unknown, fallback: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
     return fallback;
@@ -307,7 +394,11 @@ function applyOptionalString(
     | 'outside_temperature_entity'
     | 'target_temperature_entity'
     | 'general_power_sensor_entity'
-    | 'rgb_light_entity',
+    | 'rgb_light_entity'
+    | 'acknowledgement_entity'
+    | 'media_player_entity'
+    | 'media_notification_media_id'
+    | 'tts_entity',
   value: unknown,
 ): void {
   const normalizedValue = normalizeOptionalString(value);

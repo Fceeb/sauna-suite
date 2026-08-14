@@ -43,6 +43,17 @@ describe('card configuration', () => {
       ready_signal_requires_acknowledgement: false,
       ready_signal_repeat: false,
       ready_signal_repeat_interval_seconds: 60,
+      acknowledgement_mode: 'card_or_entity',
+      acknowledgement_reset_input_boolean: false,
+      show_acknowledge_button: true,
+      media_notification_enabled: false,
+      media_notification_mode: 'tts',
+      media_notification_message: 'Sauna is ready.',
+      media_notification_volume: 0.5,
+      media_notification_repeat: false,
+      media_notification_repeat_interval_seconds: 60,
+      media_notification_stop_on_acknowledge: true,
+      media_notification_restore_volume: true,
     });
   });
 
@@ -68,11 +79,15 @@ describe('card configuration', () => {
         rgb_mode: 'invalid',
         ready_signal_mode: 'invalid',
         ready_signal_color: 'invalid',
+        acknowledgement_mode: 'invalid',
+        media_notification_mode: 'invalid',
       } as never),
     ).toMatchObject({
       rgb_mode: 'temperature_gradient',
       ready_signal_mode: 'hold',
       ready_signal_color: 'green',
+      acknowledgement_mode: 'card_or_entity',
+      media_notification_mode: 'tts',
     });
   });
 
@@ -87,6 +102,10 @@ describe('card configuration', () => {
         target_temperature_entity: 'number.sauna_target',
         general_power_sensor_entity: 'sensor.house_power',
         rgb_light_entity: 'light.sauna_rgb',
+        acknowledgement_entity: 'input_button.sauna_ack',
+        media_player_entity: 'media_player.sauna_homepod',
+        media_notification_media_id: 'media-source://media_source/local/ready.mp3',
+        tts_entity: 'tts.piper',
         show_outside_temperature: true,
         show_temperature_zones: false,
       }),
@@ -99,6 +118,10 @@ describe('card configuration', () => {
       target_temperature_entity: 'number.sauna_target',
       general_power_sensor_entity: 'sensor.house_power',
       rgb_light_entity: 'light.sauna_rgb',
+      acknowledgement_entity: 'input_button.sauna_ack',
+      media_player_entity: 'media_player.sauna_homepod',
+      media_notification_media_id: 'media-source://media_source/local/ready.mp3',
+      tts_entity: 'tts.piper',
       show_outside_temperature: true,
       show_temperature_zones: false,
     });
@@ -137,6 +160,8 @@ describe('card configuration', () => {
         ready_signal_interval_seconds: 0,
         ready_signal_duration_seconds: 5000,
         ready_signal_repeat_interval_seconds: 0,
+        media_notification_volume: 2,
+        media_notification_repeat_interval_seconds: 0,
       }),
     ).toMatchObject({
       near_target_threshold: 0,
@@ -155,6 +180,8 @@ describe('card configuration', () => {
       ready_signal_interval_seconds: 1,
       ready_signal_duration_seconds: 3600,
       ready_signal_repeat_interval_seconds: 1,
+      media_notification_volume: 1,
+      media_notification_repeat_interval_seconds: 1,
     });
   });
 
