@@ -109,6 +109,7 @@ export interface SaunaSuiteCardConfig {
   energy_intelligence_enabled: boolean;
   pv_power_entity?: string;
   home_power_entity?: string;
+  home_power_includes_sauna: boolean;
   grid_power_entity?: string;
   grid_power_positive_means: GridPowerPositiveMeans;
   battery_soc_entity?: string;

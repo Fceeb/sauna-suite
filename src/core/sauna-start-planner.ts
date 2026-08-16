@@ -38,9 +38,11 @@ export interface EnergyPlannerInput {
   desiredReadyTime?: string | undefined;
   desiredReadyAt?: Date | undefined;
   estimatedHeatupMinutes?: number | undefined;
+  expectedSessionDurationMinutes: number;
   totalEnergyKwh?: number | undefined;
   energyState: EnergyState;
   pvPersistenceFactor: number;
+  homePowerIncludesSauna: boolean;
   currentTemperature?: number | undefined;
   targetTemperature?: number | undefined;
   etaAvailable: boolean;
@@ -62,9 +64,11 @@ const START_NOW_GRACE_MINUTES = 5;
 export function planSaunaStart(input: EnergyPlannerInput): EnergyPlannerResult {
   const sourceBreakdown = calculateEnergySourceBreakdown({
     totalEnergyKwh: input.totalEnergyKwh,
-    planningDurationMinutes: (input.estimatedHeatupMinutes ?? 0) + 90,
+    planningDurationMinutes:
+      (input.estimatedHeatupMinutes ?? 0) + input.expectedSessionDurationMinutes,
     energyState: input.energyState,
     pvPersistenceFactor: input.pvPersistenceFactor,
+    homePowerIncludesSauna: input.homePowerIncludesSauna,
   });
   const confidence = classifyEnergyConfidence({
     etaAvailable: input.etaAvailable,
@@ -144,6 +148,7 @@ export function calculateEnergySourceBreakdown(input: {
   planningDurationMinutes: number;
   energyState: EnergyState;
   pvPersistenceFactor: number;
+  homePowerIncludesSauna: boolean;
 }): EnergySourceBreakdown | undefined {
   if (
     input.totalEnergyKwh === undefined ||
@@ -158,6 +163,9 @@ export function calculateEnergySourceBreakdown(input: {
     input.totalEnergyKwh,
     calculatePvContributionKwh(
       input.energyState.pvPowerKw,
+      input.energyState.homePowerKw,
+      input.energyState.saunaPowerKw,
+      input.homePowerIncludesSauna,
       input.pvPersistenceFactor,
       planningHours,
     ),
@@ -179,6 +187,9 @@ export function calculateEnergySourceBreakdown(input: {
 
 export function calculatePvContributionKwh(
   pvPowerKw: number | undefined,
+  homePowerKw: number | undefined,
+  saunaPowerKw: number | undefined,
+  homePowerIncludesSauna: boolean,
   persistenceFactor: number,
   planningHours: number,
 ): number {
@@ -192,7 +203,33 @@ export function calculatePvContributionKwh(
     return 0;
   }
 
-  return pvPowerKw * clampValue(persistenceFactor, 0, 1) * planningHours;
+  return (
+    calculateAvailablePvSurplusKw(pvPowerKw, homePowerKw, saunaPowerKw, homePowerIncludesSauna) *
+    clampValue(persistenceFactor, 0, 1) *
+    planningHours
+  );
+}
+
+export function calculateAvailablePvSurplusKw(
+  pvPowerKw: number | undefined,
+  homePowerKw: number | undefined,
+  saunaPowerKw: number | undefined,
+  homePowerIncludesSauna: boolean,
+): number {
+  if (pvPowerKw === undefined || !Number.isFinite(pvPowerKw) || pvPowerKw <= 0) {
+    return 0;
+  }
+
+  if (homePowerKw === undefined || !Number.isFinite(homePowerKw) || homePowerKw < 0) {
+    return 0;
+  }
+
+  const nonSaunaHomePowerKw =
+    homePowerIncludesSauna && saunaPowerKw !== undefined && Number.isFinite(saunaPowerKw)
+      ? Math.max(0, homePowerKw - Math.max(0, saunaPowerKw))
+      : homePowerKw;
+
+  return Math.max(0, pvPowerKw - nonSaunaHomePowerKw);
 }
 
 export function calculateExpectedBatterySocAfterSauna(

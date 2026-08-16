@@ -34,6 +34,35 @@ describe('sauna energy estimate', () => {
     expect(estimate.usedThermalFallback).toBe(true);
   });
 
+  it('uses configured 60, 90 and 120 minute sessions for total energy', () => {
+    const baseInput = {
+      currentTemperature: 40,
+      targetTemperature: 80,
+      etaMinutes: 30,
+      effectiveHeaterPowerKw: 10,
+      ratedHeaterPowerKw: 10,
+    };
+
+    expect(
+      estimateSaunaEnergyNeed({
+        ...baseInput,
+        expectedSessionDurationMinutes: 60,
+      }).estimatedSessionEnergyKwh,
+    ).toBeCloseTo(3.5);
+    expect(
+      estimateSaunaEnergyNeed({
+        ...baseInput,
+        expectedSessionDurationMinutes: 90,
+      }).estimatedSessionEnergyKwh,
+    ).toBeCloseTo(5.25);
+    expect(
+      estimateSaunaEnergyNeed({
+        ...baseInput,
+        expectedSessionDurationMinutes: 120,
+      }).estimatedSessionEnergyKwh,
+    ).toBeCloseTo(7);
+  });
+
   it('handles target already reached without heat-up demand', () => {
     const estimate = estimateSaunaEnergyNeed({
       currentTemperature: 85,

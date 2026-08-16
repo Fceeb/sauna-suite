@@ -655,6 +655,15 @@ export class SaunaSuiteEditor extends LitElement {
               'editor.homePowerEntity',
               'editor.homePowerEntityDescription',
             ),
+            ...(this.config.home_power_entity
+              ? [
+                  this.booleanField(
+                    'home_power_includes_sauna',
+                    'editor.homePowerIncludesSauna',
+                    'editor.homePowerIncludesSaunaDescription',
+                  ),
+                ]
+              : []),
           ],
         },
         {

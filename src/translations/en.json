@@ -213,6 +213,8 @@
     "gridPowerPositiveMeansDescription": "How positive values from the grid power sensor should be interpreted.",
     "homePowerEntity": "Home power entity",
     "homePowerEntityDescription": "Optional current home consumption sensor.",
+    "homePowerIncludesSauna": "Home power includes sauna",
+    "homePowerIncludesSaunaDescription": "Enable only when the home power sensor includes the sauna load. Disabled is conservative and treats home power as non-sauna load.",
     "saunaPowerEntity": "Sauna power entity",
     "saunaPowerEntityDescription": "Optional current sauna load sensor. W and kW units are supported.",
     "saunaRatedPowerKw": "Sauna rated power (kW)",

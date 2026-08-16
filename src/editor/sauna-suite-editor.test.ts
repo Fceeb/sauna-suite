@@ -155,13 +155,22 @@ describe('SaunaSuiteEditor', () => {
         'pv_power_entity',
         'battery_soc_entity',
         'grid_power_entity',
+        'home_power_entity',
         'sauna_rated_power_kw',
         'planned_sauna_enabled',
         'show_energy_recommendation',
       ]),
     );
+    expect(getSchemaNames(editor)).not.toContain('home_power_includes_sauna');
     expect(getSchemaNames(editor)).not.toContain('battery_capacity_kwh');
     expect(getSchemaNames(editor)).not.toContain('planned_sauna_time');
+
+    editor.setConfig({
+      energy_intelligence_enabled: true,
+      home_power_entity: 'sensor.home_power',
+      planned_sauna_enabled: false,
+    });
+    expect(getSchemaNames(editor)).toContain('home_power_includes_sauna');
 
     editor.setConfig({
       energy_intelligence_enabled: true,

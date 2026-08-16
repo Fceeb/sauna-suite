@@ -18,7 +18,8 @@ No unreleased changes yet.
 - Added battery capacity, reserve and usable-energy estimates.
 - Added sauna heat-up and approximate session energy estimates.
 - Added planned sauna ready time and recommended manual start time.
-- Added deterministic PV persistence factor and PV/battery/grid source split.
+- Added deterministic PV persistence factor and PV-surplus/battery/grid source split.
+- Added explicit home-power semantics for whether the home load sensor includes the sauna load.
 - Added qualitative planning confidence and localized deterministic recommendations.
 - Added visual-editor fields and German/English translations for all Energy Intelligence settings.
 

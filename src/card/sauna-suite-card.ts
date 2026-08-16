@@ -263,9 +263,11 @@ export class SaunaSuiteCard extends LitElement {
         ? this.config.planned_sauna_time
         : undefined,
       estimatedHeatupMinutes: energyEstimate.estimatedHeatupMinutes,
+      expectedSessionDurationMinutes: this.config.expected_session_duration_minutes,
       totalEnergyKwh: energyEstimate.totalEstimatedEnergyKwh,
       energyState,
       pvPersistenceFactor: this.config.pv_persistence_factor,
+      homePowerIncludesSauna: this.config.home_power_includes_sauna,
       currentTemperature: temperatureState.summary.controlTemperature,
       targetTemperature:
         this.config.planned_target_temperature ?? temperatureState.targetTemperature,

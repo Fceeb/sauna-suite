@@ -213,6 +213,8 @@
     "gridPowerPositiveMeansDescription": "Wie positive Werte des Netzleistungssensors interpretiert werden.",
     "homePowerEntity": "Hausleistung",
     "homePowerEntityDescription": "Optionaler Sensor fuer aktuellen Hausverbrauch.",
+    "homePowerIncludesSauna": "Hausleistung enthaelt Sauna",
+    "homePowerIncludesSaunaDescription": "Nur aktivieren, wenn der Hausleistungssensor die Saunalast enthaelt. Deaktiviert ist konservativ und behandelt Hausleistung als Nicht-Sauna-Last.",
     "saunaPowerEntity": "Saunaleistung",
     "saunaPowerEntityDescription": "Optionaler Sensor fuer aktuelle Saunalast. W und kW werden unterstuetzt.",
     "saunaRatedPowerKw": "Sauna-Nennleistung (kW)",

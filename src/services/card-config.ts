@@ -100,6 +100,7 @@ export function createDefaultConfig(): SaunaSuiteCardConfig {
     media_notification_stop_on_acknowledge: true,
     media_notification_restore_volume: true,
     energy_intelligence_enabled: false,
+    home_power_includes_sauna: false,
     grid_power_positive_means: 'import',
     battery_power_positive_means: 'charging',
     battery_capacity_kwh: DEFAULT_BATTERY_CAPACITY_KWH,
@@ -291,6 +292,10 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
     energy_intelligence_enabled: normalizeBoolean(
       config.energy_intelligence_enabled,
       defaults.energy_intelligence_enabled,
+    ),
+    home_power_includes_sauna: normalizeBoolean(
+      config.home_power_includes_sauna,
+      defaults.home_power_includes_sauna,
     ),
     grid_power_positive_means: normalizeGridPowerPositiveMeans(config.grid_power_positive_means),
     battery_power_positive_means: normalizeBatteryPowerPositiveMeans(

@@ -188,6 +188,7 @@ media_notification_restore_volume: true
 energy_intelligence_enabled: true
 pv_power_entity: sensor.pv_power
 home_power_entity: sensor.home_power
+home_power_includes_sauna: false
 grid_power_entity: sensor.grid_power
 grid_power_positive_means: import
 battery_soc_entity: sensor.battery_soc
@@ -300,8 +301,20 @@ usable for planning. Estimates never consume below the configured reserve.
 
 PV contribution is a conservative deterministic assumption, not a weather
 forecast. `pv_persistence_factor` is clamped from 0.0 to 1.0 and multiplies the
-current PV power for near-term planning. With 6 kW current PV and factor 0.5,
-the planner assumes 3 kW for the planning window.
+currently available PV surplus for near-term planning. Sauna Suite estimates
+PV surplus as current PV generation minus non-sauna home load. If no home power
+sensor is configured, the planner does not claim gross PV generation as
+available sauna energy.
+
+Set `home_power_includes_sauna: true` only when the configured
+`home_power_entity` includes the sauna load. In that case Sauna Suite subtracts
+the current sauna load from home power before estimating non-sauna home load.
+The default `false` is conservative and treats home power as non-sauna load,
+which avoids overstating PV contribution when sensor semantics are uncertain.
+
+With 6 kW current PV, 5 kW non-sauna home load and factor 0.5, the planner uses
+0.5 kW as the planning assumption. With 6 kW current PV, 0 kW home load and
+factor 0.5, it uses 3 kW for the planning window.
 
 Sauna energy need is estimated as heat-up energy plus approximate session
 holding energy. When Recorder-based ETA is available, heat-up energy is:
@@ -321,8 +334,10 @@ heating, the displayed recommendation updates with the next render. The card
 does not start the sauna automatically.
 
 The source split estimates how much of the expected sauna energy could be
-covered by PV, battery and grid under these assumptions. It does not claim
-precise physical energy routing and does not control energy flows.
+covered by PV surplus, battery and grid under these assumptions. It uses the
+configured expected session duration for both total sauna energy and PV/source
+planning duration. It does not claim precise physical energy routing and does
+not control energy flows.
 
 ## RGB Status And Ready Signal
 

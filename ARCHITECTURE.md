@@ -121,7 +121,12 @@ temperature and heater power.
 `src/core/sauna-start-planner.ts` consumes the normalized energy state and
 energy estimate to produce planner outputs: desired ready time, recommended
 start time, qualitative confidence, deterministic recommendation reasons and
-PV/battery/grid source split. It deliberately has no actuator/control layer:
+PV/battery/grid source split. PV contribution is based on conservative
+available PV surplus, not gross PV generation. If home power includes the sauna
+load, that explicit configuration allows the planner to subtract current sauna
+load before estimating non-sauna home load. Without a home power sensor, the
+planner does not claim gross PV as available sauna energy. It deliberately has
+no actuator/control layer:
 
 ```text
 Energy Sensors
