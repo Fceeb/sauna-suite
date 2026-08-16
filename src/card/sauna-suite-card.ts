@@ -45,6 +45,13 @@ import {
   type ReadyNotificationEvent,
   type ReadyNotificationStatus,
 } from '../core/notification-state';
+import { buildEnergyState, type EnergyState } from '../core/energy-state';
+import { estimateSaunaEnergyNeed, type SaunaEnergyEstimate } from '../core/sauna-energy-estimate';
+import {
+  planSaunaStart,
+  type EnergyPlannerResult,
+  type EnergyRecommendationReason,
+} from '../core/sauna-start-planner';
 import type { SaunaSuiteCardConfig } from '../models/card-config';
 import { CARD_TAG, EDITOR_TAG } from '../models/constants';
 import type { HassEntity, HomeAssistant } from '../models/home-assistant';
@@ -240,6 +247,31 @@ export class SaunaSuiteCard extends LitElement {
       heatingRate,
       eta,
     );
+    const energyState = this.buildCurrentEnergyState();
+    const energyEstimate = estimateSaunaEnergyNeed({
+      currentTemperature: temperatureState.summary.controlTemperature,
+      targetTemperature:
+        this.config.planned_target_temperature ?? temperatureState.targetTemperature,
+      etaMinutes: eta.etaMinutes,
+      effectiveHeaterPowerKw: energyState.saunaPowerKw ?? powerState.effectivePowerKw,
+      ratedHeaterPowerKw: this.config.sauna_rated_power_kw,
+      expectedSessionDurationMinutes: this.config.expected_session_duration_minutes,
+    });
+    const energyPlan = planSaunaStart({
+      now: new Date(),
+      desiredReadyTime: this.config.planned_sauna_enabled
+        ? this.config.planned_sauna_time
+        : undefined,
+      estimatedHeatupMinutes: energyEstimate.estimatedHeatupMinutes,
+      totalEnergyKwh: energyEstimate.totalEstimatedEnergyKwh,
+      energyState,
+      pvPersistenceFactor: this.config.pv_persistence_factor,
+      currentTemperature: temperatureState.summary.controlTemperature,
+      targetTemperature:
+        this.config.planned_target_temperature ?? temperatureState.targetTemperature,
+      etaAvailable: eta.etaMinutes !== undefined,
+      hasSufficientHistory: heatingRate.rateCPerMinute !== undefined,
+    });
 
     return html`
       <ha-card>
@@ -279,6 +311,7 @@ export class SaunaSuiteCard extends LitElement {
             temperatureState.targetTemperature,
             heatingRate,
           )}
+          ${this.renderEnergyIntelligence(energyState, energyEstimate, energyPlan)}
           ${this.renderNotificationStatus()} ${this.renderRgbStatus(semanticColor.rgb)}
           ${this.renderTargetControl(targetEntity)}
         </div>
@@ -432,6 +465,107 @@ export class SaunaSuiteCard extends LitElement {
       <div class="metric">
         <span>${this.t(labelKey)}</span>
         <strong>${value}</strong>
+      </div>
+    `;
+  }
+
+  private renderEnergyIntelligence(
+    energyState: EnergyState,
+    estimate: SaunaEnergyEstimate,
+    plan: EnergyPlannerResult,
+  ): TemplateResult | undefined {
+    if (!this.config.energy_intelligence_enabled) {
+      return undefined;
+    }
+
+    const breakdown = plan.sourceBreakdown;
+    const recommendation = this.getEnergyRecommendation(plan);
+
+    return html`
+      <section class="energy-panel" aria-label=${this.t('energy.title')}>
+        <div class="section-heading">
+          <div>
+            <div class="label">${this.t('energy.title')}</div>
+            <div class="status-line">
+              ${this.t(`energyPlannerStatus.${plan.status}`)} -
+              ${this.t(`energyConfidence.${plan.confidence}`)}
+            </div>
+          </div>
+        </div>
+        <div class="energy-grid">
+          ${
+            this.config.planned_sauna_enabled
+              ? this.renderEnergyMetric(
+                  'energy.readyAt',
+                  this.formatTime(plan.desiredReadyAt) ?? this.config.planned_sauna_time,
+                )
+              : undefined
+          }
+          ${
+            this.config.show_optimal_start_time
+              ? this.renderEnergyMetric(
+                  'energy.recommendedStart',
+                  this.formatTime(plan.recommendedStartAt),
+                )
+              : undefined
+          }
+          ${
+            this.config.show_estimated_energy_need
+              ? this.renderEnergyMetric(
+                  'energy.energyNeed',
+                  this.formatEnergy(estimate.totalEstimatedEnergyKwh),
+                )
+              : undefined
+          }
+          ${this.renderEnergyMetric('energy.batterySoc', this.formatPercent(energyState.batterySocPercent))}
+          ${
+            this.config.show_expected_battery_soc
+              ? this.renderEnergyMetric(
+                  'energy.batteryAfter',
+                  this.formatPercent(breakdown?.expectedBatterySocAfterSauna),
+                )
+              : undefined
+          }
+          ${
+            this.config.show_pv_contribution
+              ? this.renderEnergyMetric(
+                  'energy.pvContribution',
+                  this.formatEnergy(breakdown?.pvEnergyKwh),
+                )
+              : undefined
+          }
+          ${this.renderEnergyMetric(
+            'energy.batteryContribution',
+            this.formatEnergy(breakdown?.batteryEnergyKwh),
+          )}
+          ${
+            this.config.show_grid_contribution
+              ? this.renderEnergyMetric(
+                  'energy.gridContribution',
+                  this.formatEnergy(breakdown?.gridEnergyKwh),
+                )
+              : undefined
+          }
+        </div>
+        ${
+          this.config.show_energy_recommendation && recommendation
+            ? html`
+                <div class="energy-recommendation">
+                  <div class="label">${this.t('energy.recommendation')}</div>
+                  <div>${recommendation}</div>
+                </div>
+              `
+            : undefined
+        }
+      </section>
+    `;
+  }
+
+  private renderEnergyMetric(labelKey: string, value: string | undefined): TemplateResult {
+    return html`
+      <div class="energy-metric">
+        <span>${this.t(labelKey)}</span>
+        <strong>${value ?? UNAVAILABLE_COMPACT_VALUE}</strong>
       </div>
     `;
   }
@@ -1461,6 +1595,79 @@ export class SaunaSuiteCard extends LitElement {
     }
 
     return `${value.toFixed(1)} kW`;
+  }
+
+  private formatEnergy(value: number | undefined): string {
+    if (value === undefined || !Number.isFinite(value)) {
+      return UNAVAILABLE_COMPACT_VALUE;
+    }
+
+    return `${value.toFixed(1)} kWh`;
+  }
+
+  private formatPercent(value: number | undefined): string {
+    if (value === undefined || !Number.isFinite(value)) {
+      return UNAVAILABLE_COMPACT_VALUE;
+    }
+
+    return `${Math.round(value)} %`;
+  }
+
+  private formatTime(value: Date | undefined): string | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    return new Intl.DateTimeFormat(this.hass?.selectedLanguage ?? this.hass?.language, {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(value);
+  }
+
+  private buildCurrentEnergyState(): EnergyState {
+    return buildEnergyState(
+      {
+        pvPower: getEntity(this.hass, this.config.pv_power_entity),
+        homePower: getEntity(this.hass, this.config.home_power_entity),
+        gridPower: getEntity(this.hass, this.config.grid_power_entity),
+        batterySoc: getEntity(this.hass, this.config.battery_soc_entity),
+        batteryPower: getEntity(this.hass, this.config.battery_power_entity),
+        saunaPower: getEntity(this.hass, this.config.sauna_power_entity),
+      },
+      {
+        batteryCapacityKwh: this.config.battery_capacity_kwh,
+        batteryMinimumReservePercent: this.config.battery_minimum_reserve_percent,
+        saunaRatedPowerKw: this.config.sauna_rated_power_kw,
+        gridPowerPositiveMeans: this.config.grid_power_positive_means,
+        batteryPowerPositiveMeans: this.config.battery_power_positive_means,
+      },
+    );
+  }
+
+  private getEnergyRecommendation(plan: EnergyPlannerResult): string | undefined {
+    const reason = plan.reasons[0];
+
+    if (!reason) {
+      return undefined;
+    }
+
+    const values = {
+      start: this.formatTime(plan.recommendedStartAt) ?? UNAVAILABLE_COMPACT_VALUE,
+      ready: this.formatTime(plan.desiredReadyAt) ?? this.config.planned_sauna_time,
+      grid: this.formatEnergy(plan.sourceBreakdown?.gridEnergyKwh),
+    };
+
+    return this.translateEnergyRecommendation(reason, values);
+  }
+
+  private translateEnergyRecommendation(
+    reason: EnergyRecommendationReason,
+    values: Record<string, string | undefined>,
+  ): string {
+    return Object.entries(values).reduce(
+      (text, [key, value]) => text.replaceAll(`{${key}}`, value ?? UNAVAILABLE_COMPACT_VALUE),
+      this.t(`energyRecommendations.${reason}`),
+    );
   }
 
   private getLightLabel(): string {

@@ -1,13 +1,17 @@
 import {
   ACKNOWLEDGEMENT_MODES,
+  BATTERY_POWER_POSITIVE_MEANS,
   CONTROL_TEMPERATURE_MODES,
+  GRID_POWER_POSITIVE_MEANS,
   HEATING_POWER_MODES,
   MEDIA_NOTIFICATION_MODES,
   READY_SIGNAL_COLORS,
   READY_SIGNAL_MODES,
   RGB_MODES,
   type AcknowledgementMode,
+  type BatteryPowerPositiveMeans,
   type ControlTemperatureMode,
+  type GridPowerPositiveMeans,
   type HeatingPowerMode,
   type MediaNotificationMode,
   type ReadySignalColor,
@@ -37,6 +41,12 @@ const DEFAULT_READY_SIGNAL_REPEAT_INTERVAL_SECONDS = 60;
 const DEFAULT_MEDIA_NOTIFICATION_MESSAGE = 'Sauna is ready.';
 const DEFAULT_MEDIA_NOTIFICATION_VOLUME = 0.5;
 const DEFAULT_MEDIA_NOTIFICATION_REPEAT_INTERVAL_SECONDS = 60;
+const DEFAULT_BATTERY_CAPACITY_KWH = 10;
+const DEFAULT_BATTERY_MINIMUM_RESERVE_PERCENT = 20;
+const DEFAULT_SAUNA_RATED_POWER_KW = 9;
+const DEFAULT_PLANNED_SAUNA_TIME = '19:00';
+const DEFAULT_EXPECTED_SESSION_DURATION_MINUTES = 90;
+const DEFAULT_PV_PERSISTENCE_FACTOR = 0.5;
 
 export function createDefaultConfig(): SaunaSuiteCardConfig {
   return {
@@ -89,6 +99,22 @@ export function createDefaultConfig(): SaunaSuiteCardConfig {
     media_notification_repeat_interval_seconds: DEFAULT_MEDIA_NOTIFICATION_REPEAT_INTERVAL_SECONDS,
     media_notification_stop_on_acknowledge: true,
     media_notification_restore_volume: true,
+    energy_intelligence_enabled: false,
+    grid_power_positive_means: 'import',
+    battery_power_positive_means: 'charging',
+    battery_capacity_kwh: DEFAULT_BATTERY_CAPACITY_KWH,
+    battery_minimum_reserve_percent: DEFAULT_BATTERY_MINIMUM_RESERVE_PERCENT,
+    sauna_rated_power_kw: DEFAULT_SAUNA_RATED_POWER_KW,
+    planned_sauna_enabled: false,
+    planned_sauna_time: DEFAULT_PLANNED_SAUNA_TIME,
+    expected_session_duration_minutes: DEFAULT_EXPECTED_SESSION_DURATION_MINUTES,
+    pv_persistence_factor: DEFAULT_PV_PERSISTENCE_FACTOR,
+    show_energy_recommendation: true,
+    show_optimal_start_time: true,
+    show_estimated_energy_need: true,
+    show_expected_battery_soc: true,
+    show_pv_contribution: true,
+    show_grid_contribution: true,
   };
 }
 
@@ -262,6 +288,74 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
       config.media_notification_restore_volume,
       defaults.media_notification_restore_volume,
     ),
+    energy_intelligence_enabled: normalizeBoolean(
+      config.energy_intelligence_enabled,
+      defaults.energy_intelligence_enabled,
+    ),
+    grid_power_positive_means: normalizeGridPowerPositiveMeans(config.grid_power_positive_means),
+    battery_power_positive_means: normalizeBatteryPowerPositiveMeans(
+      config.battery_power_positive_means,
+    ),
+    battery_capacity_kwh: normalizeRange(
+      config.battery_capacity_kwh,
+      defaults.battery_capacity_kwh,
+      0.1,
+      200,
+    ),
+    battery_minimum_reserve_percent: normalizeRange(
+      config.battery_minimum_reserve_percent,
+      defaults.battery_minimum_reserve_percent,
+      0,
+      100,
+    ),
+    sauna_rated_power_kw: normalizeRange(
+      config.sauna_rated_power_kw,
+      defaults.sauna_rated_power_kw,
+      0,
+      50,
+    ),
+    planned_sauna_enabled: normalizeBoolean(
+      config.planned_sauna_enabled,
+      defaults.planned_sauna_enabled,
+    ),
+    planned_sauna_time: normalizeTime(config.planned_sauna_time, defaults.planned_sauna_time),
+    planned_target_temperature: normalizeOptionalRange(config.planned_target_temperature, 0, 140),
+    expected_session_duration_minutes: normalizeIntegerRange(
+      config.expected_session_duration_minutes,
+      defaults.expected_session_duration_minutes,
+      1,
+      720,
+    ),
+    pv_persistence_factor: normalizeRange(
+      config.pv_persistence_factor,
+      defaults.pv_persistence_factor,
+      0,
+      1,
+    ),
+    show_energy_recommendation: normalizeBoolean(
+      config.show_energy_recommendation,
+      defaults.show_energy_recommendation,
+    ),
+    show_optimal_start_time: normalizeBoolean(
+      config.show_optimal_start_time,
+      defaults.show_optimal_start_time,
+    ),
+    show_estimated_energy_need: normalizeBoolean(
+      config.show_estimated_energy_need,
+      defaults.show_estimated_energy_need,
+    ),
+    show_expected_battery_soc: normalizeBoolean(
+      config.show_expected_battery_soc,
+      defaults.show_expected_battery_soc,
+    ),
+    show_pv_contribution: normalizeBoolean(
+      config.show_pv_contribution,
+      defaults.show_pv_contribution,
+    ),
+    show_grid_contribution: normalizeBoolean(
+      config.show_grid_contribution,
+      defaults.show_grid_contribution,
+    ),
   };
 
   applyOptionalString(normalized, 'main_switch_entity', config.main_switch_entity);
@@ -284,6 +378,12 @@ export function normalizeConfig(config: Partial<SaunaSuiteCardConfig>): SaunaSui
     config.media_notification_media_id,
   );
   applyOptionalString(normalized, 'tts_entity', config.tts_entity);
+  applyOptionalString(normalized, 'pv_power_entity', config.pv_power_entity);
+  applyOptionalString(normalized, 'home_power_entity', config.home_power_entity);
+  applyOptionalString(normalized, 'grid_power_entity', config.grid_power_entity);
+  applyOptionalString(normalized, 'battery_soc_entity', config.battery_soc_entity);
+  applyOptionalString(normalized, 'battery_power_entity', config.battery_power_entity);
+  applyOptionalString(normalized, 'sauna_power_entity', config.sauna_power_entity);
 
   return normalized;
 }
@@ -350,6 +450,28 @@ function normalizeMediaNotificationMode(mode: unknown): MediaNotificationMode {
   return createDefaultConfig().media_notification_mode;
 }
 
+function normalizeGridPowerPositiveMeans(value: unknown): GridPowerPositiveMeans {
+  if (
+    typeof value === 'string' &&
+    GRID_POWER_POSITIVE_MEANS.includes(value as GridPowerPositiveMeans)
+  ) {
+    return value as GridPowerPositiveMeans;
+  }
+
+  return createDefaultConfig().grid_power_positive_means;
+}
+
+function normalizeBatteryPowerPositiveMeans(value: unknown): BatteryPowerPositiveMeans {
+  if (
+    typeof value === 'string' &&
+    BATTERY_POWER_POSITIVE_MEANS.includes(value as BatteryPowerPositiveMeans)
+  ) {
+    return value as BatteryPowerPositiveMeans;
+  }
+
+  return createDefaultConfig().battery_power_positive_means;
+}
+
 function normalizeWeight(value: unknown, fallback: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
     return fallback;
@@ -384,6 +506,10 @@ function normalizeOptionalString(value: unknown, fallback?: string): string | un
   return fallback;
 }
 
+function normalizeTime(value: unknown, fallback: string): string {
+  return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : fallback;
+}
+
 function applyOptionalString(
   config: SaunaSuiteCardConfig,
   key:
@@ -398,7 +524,13 @@ function applyOptionalString(
     | 'acknowledgement_entity'
     | 'media_player_entity'
     | 'media_notification_media_id'
-    | 'tts_entity',
+    | 'tts_entity'
+    | 'pv_power_entity'
+    | 'home_power_entity'
+    | 'grid_power_entity'
+    | 'battery_soc_entity'
+    | 'battery_power_entity'
+    | 'sauna_power_entity',
   value: unknown,
 ): void {
   const normalizedValue = normalizeOptionalString(value);
@@ -428,4 +560,20 @@ function normalizeIntegerRange(
   maximum: number,
 ): number {
   return Math.round(normalizeRange(value, fallback, minimum, maximum));
+}
+
+function normalizeOptionalRange(
+  value: unknown,
+  minimum: number,
+  maximum: number,
+): number | undefined {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  return clampValue(value, minimum, maximum);
 }

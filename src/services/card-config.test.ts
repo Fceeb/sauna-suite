@@ -54,6 +54,22 @@ describe('card configuration', () => {
       media_notification_repeat_interval_seconds: 60,
       media_notification_stop_on_acknowledge: true,
       media_notification_restore_volume: true,
+      energy_intelligence_enabled: false,
+      grid_power_positive_means: 'import',
+      battery_power_positive_means: 'charging',
+      battery_capacity_kwh: 10,
+      battery_minimum_reserve_percent: 20,
+      sauna_rated_power_kw: 9,
+      planned_sauna_enabled: false,
+      planned_sauna_time: '19:00',
+      expected_session_duration_minutes: 90,
+      pv_persistence_factor: 0.5,
+      show_energy_recommendation: true,
+      show_optimal_start_time: true,
+      show_estimated_energy_need: true,
+      show_expected_battery_soc: true,
+      show_pv_contribution: true,
+      show_grid_contribution: true,
     });
   });
 
@@ -106,6 +122,12 @@ describe('card configuration', () => {
         media_player_entity: 'media_player.sauna_homepod',
         media_notification_media_id: 'media-source://media_source/local/ready.mp3',
         tts_entity: 'tts.piper',
+        pv_power_entity: 'sensor.pv_power',
+        home_power_entity: 'sensor.home_power',
+        grid_power_entity: 'sensor.grid_power',
+        battery_soc_entity: 'sensor.battery_soc',
+        battery_power_entity: 'sensor.battery_power',
+        sauna_power_entity: 'sensor.sauna_power',
         show_outside_temperature: true,
         show_temperature_zones: false,
       }),
@@ -122,6 +144,12 @@ describe('card configuration', () => {
       media_player_entity: 'media_player.sauna_homepod',
       media_notification_media_id: 'media-source://media_source/local/ready.mp3',
       tts_entity: 'tts.piper',
+      pv_power_entity: 'sensor.pv_power',
+      home_power_entity: 'sensor.home_power',
+      grid_power_entity: 'sensor.grid_power',
+      battery_soc_entity: 'sensor.battery_soc',
+      battery_power_entity: 'sensor.battery_power',
+      sauna_power_entity: 'sensor.sauna_power',
       show_outside_temperature: true,
       show_temperature_zones: false,
     });
@@ -193,5 +221,35 @@ describe('card configuration', () => {
         [legacyThresholdKey]: 8,
       } as never),
     ).not.toHaveProperty(legacyThresholdKey);
+  });
+
+  it('normalizes energy intelligence settings safely', () => {
+    expect(
+      normalizeConfig({
+        energy_intelligence_enabled: true,
+        grid_power_positive_means: 'invalid',
+        battery_power_positive_means: 'invalid',
+        battery_capacity_kwh: -1,
+        battery_minimum_reserve_percent: 120,
+        sauna_rated_power_kw: 100,
+        planned_sauna_enabled: true,
+        planned_sauna_time: '99:99',
+        planned_target_temperature: 200,
+        expected_session_duration_minutes: 0,
+        pv_persistence_factor: 2,
+      } as never),
+    ).toMatchObject({
+      energy_intelligence_enabled: true,
+      grid_power_positive_means: 'import',
+      battery_power_positive_means: 'charging',
+      battery_capacity_kwh: 0.1,
+      battery_minimum_reserve_percent: 100,
+      sauna_rated_power_kw: 50,
+      planned_sauna_enabled: true,
+      planned_sauna_time: '19:00',
+      planned_target_temperature: 140,
+      expected_session_duration_minutes: 1,
+      pv_persistence_factor: 1,
+    });
   });
 });

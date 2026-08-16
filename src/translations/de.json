@@ -39,6 +39,18 @@
     "acknowledgeReadySignal": "Quittieren",
     "notificationStatus": "Bereit-Meldung"
   },
+  "energy": {
+    "title": "Energieplanung",
+    "readyAt": "Wunschzeit",
+    "recommendedStart": "Empfohlener Start",
+    "energyNeed": "Energiebedarf",
+    "batterySoc": "Batteriestand",
+    "batteryAfter": "Batteriestand danach",
+    "pvContribution": "PV-Anteil",
+    "batteryContribution": "Batterie-Anteil",
+    "gridContribution": "Netz-Anteil",
+    "recommendation": "Empfehlung"
+  },
   "editor": {
     "cardName": "Kartenname",
     "cardNameDescription": "Titel im Kartenkopf.",
@@ -62,7 +74,14 @@
       "heatingEta": "Heiz-ETA",
       "rgbReadySignal": "RGB",
       "acknowledgement": "Quittierung",
-      "mediaNotification": "Audio / Mediengeraet"
+      "mediaNotification": "Audio / Mediengeraet",
+      "energyIntelligence": "Energieplanung",
+      "energyPv": "Energieplanung - PV",
+      "energyBattery": "Energieplanung - Batterie",
+      "energyGrid": "Energieplanung - Netz",
+      "energySaunaLoad": "Energieplanung - Saunalast",
+      "energyPlannedSession": "Energieplanung - Geplanter Saunagang",
+      "energyDisplay": "Energieplanung - Anzeige"
     },
     "showOutsideTemperature": "Aussentemperatur anzeigen",
     "showOutsideTemperatureDescription": "Aussentemperatur anzeigen, wenn eine Entitaet konfiguriert ist.",
@@ -171,7 +190,53 @@
     "mediaNotificationRestoreVolume": "Vorherige Lautstaerke wiederherstellen",
     "mediaNotificationRestoreVolumeDescription": "Vor der Benachrichtigung erfasste Lautstaerke wiederherstellen.",
     "ttsEntity": "TTS-Entitaet",
-    "ttsEntityDescription": "Home-Assistant-tts-Entitaet fuer den Standarddienst tts.speak."
+    "ttsEntityDescription": "Home-Assistant-tts-Entitaet fuer den Standarddienst tts.speak.",
+    "energyIntelligenceEnabled": "Energieplanung aktivieren",
+    "energyIntelligenceEnabledDescription": "PV-, Batterie-, Netz- und Planungsempfehlungen rein lesend anzeigen. Es werden keine Entitaeten gesteuert.",
+    "pvPowerEntity": "PV-Leistung",
+    "pvPowerEntityDescription": "Sensor fuer aktuelle PV-Erzeugung. W und kW werden unterstuetzt.",
+    "pvPersistenceFactor": "PV-Persistenzfaktor",
+    "pvPersistenceFactorDescription": "Konservativer Anteil der aktuellen PV-Leistung fuer die kurzfristige Planung.",
+    "batterySocEntity": "Batteriestand",
+    "batterySocEntityDescription": "Sensor fuer den Ladezustand des Speichers.",
+    "batteryPowerEntity": "Batterieleistung",
+    "batteryPowerEntityDescription": "Vorzeichenbehafteter Leistungssensor des Speichers. Das Vorzeichen wird unten konfiguriert.",
+    "batteryPowerPositiveMeans": "Positive Batterieleistung bedeutet",
+    "batteryPowerPositiveMeansDescription": "Wie positive Werte des Batterieleistungssensors interpretiert werden.",
+    "batteryCapacityKwh": "Speicherkapazitaet (kWh)",
+    "batteryCapacityKwhDescription": "Nutzbare nominelle Speicherkapazitaet fuer Planungsschaetzungen.",
+    "batteryMinimumReservePercent": "Batteriereserve (%)",
+    "batteryMinimumReservePercentDescription": "Mindestreserve, die in Planungsschaetzungen nicht unterschritten wird.",
+    "gridPowerEntity": "Netzleistung",
+    "gridPowerEntityDescription": "Vorzeichenbehafteter Netzleistungssensor. Das Vorzeichen wird unten konfiguriert.",
+    "gridPowerPositiveMeans": "Positive Netzleistung bedeutet",
+    "gridPowerPositiveMeansDescription": "Wie positive Werte des Netzleistungssensors interpretiert werden.",
+    "homePowerEntity": "Hausleistung",
+    "homePowerEntityDescription": "Optionaler Sensor fuer aktuellen Hausverbrauch.",
+    "saunaPowerEntity": "Saunaleistung",
+    "saunaPowerEntityDescription": "Optionaler Sensor fuer aktuelle Saunalast. W und kW werden unterstuetzt.",
+    "saunaRatedPowerKw": "Sauna-Nennleistung (kW)",
+    "saunaRatedPowerKwDescription": "Feste Nennleistung des Saunaofens, wenn kein Saunalast-Sensor verfuegbar ist.",
+    "expectedSessionDurationMinutes": "Saunadauer",
+    "expectedSessionDurationMinutesDescription": "Erwartete Saunadauer fuer die ungefaehre Halteenergie.",
+    "plannedSaunaEnabled": "Saunagang planen",
+    "plannedSaunaEnabledDescription": "Empfohlene Startzeit fuer eine Wunschzeit rein lesend berechnen.",
+    "plannedSaunaTime": "Wunschzeit",
+    "plannedSaunaTimeDescription": "Gewuenschte Bereit-Uhrzeit im Format HH:mm, zum Beispiel 19:00.",
+    "plannedTargetTemperature": "Geplante Zieltemperatur",
+    "plannedTargetTemperatureDescription": "Optionale Zieltemperatur fuer die Planung. Leer nutzt die konfigurierte Zieltemperatur-Entitaet.",
+    "showEnergyRecommendation": "Empfehlung anzeigen",
+    "showEnergyRecommendationDescription": "Eine kurze deterministische Energieplanungsempfehlung anzeigen.",
+    "showOptimalStartTime": "Empfohlenen Start anzeigen",
+    "showOptimalStartTimeDescription": "Berechnete Startzeit anzeigen. Die Sauna wird dadurch nicht gestartet.",
+    "showEstimatedEnergyNeed": "Energiebedarf anzeigen",
+    "showEstimatedEnergyNeedDescription": "Geschaetzte Aufheiz- plus Saunagang-Energie anzeigen.",
+    "showExpectedBatterySoc": "Batteriestand danach anzeigen",
+    "showExpectedBatterySocDescription": "Geschaetzten Batteriestand nach dem Saunagang anzeigen.",
+    "showPvContribution": "PV-Anteil anzeigen",
+    "showPvContributionDescription": "Einfache PV-Planungsschaetzung anzeigen.",
+    "showGridContribution": "Netz-Anteil anzeigen",
+    "showGridContributionDescription": "Geschaetzten verbleibenden Netzbezug anzeigen."
   },
   "modes": {
     "average": "Durchschnitt",
@@ -243,6 +308,39 @@
   "mediaNotificationModes": {
     "tts": "Sprachausgabe",
     "media": "Medien"
+  },
+  "gridPowerPositiveMeans": {
+    "import": "Netzbezug",
+    "export": "Einspeisung"
+  },
+  "batteryPowerPositiveMeans": {
+    "charging": "Laden",
+    "discharging": "Entladen"
+  },
+  "energyPlannerStatus": {
+    "start_now": "Jetzt starten",
+    "wait": "Noch warten",
+    "planned": "Geplant",
+    "insufficient_data": "Nicht genuegend Daten",
+    "already_ready": "Bereits bereit",
+    "target_time_missed": "Wunschzeit nicht mehr erreichbar"
+  },
+  "energyConfidence": {
+    "high": "Hoch",
+    "medium": "Mittel",
+    "low": "Niedrig",
+    "unavailable": "Nicht verfuegbar"
+  },
+  "energyRecommendations": {
+    "optimal_start": "Optimaler Start gegen {start} Uhr.",
+    "start_now_for_target": "Fuer die Wunschzeit {ready} Uhr sollte die Sauna jetzt gestartet werden.",
+    "pv_contribution": "Bei aktuellem PV-Ertrag kann ein grosser Teil des Aufheizens solar geplant werden.",
+    "battery_sufficient": "Der Batteriespeicher reicht voraussichtlich aus, ohne die eingestellte Reserve zu unterschreiten.",
+    "grid_needed": "Fuer den Saunagang werden voraussichtlich etwa {grid} Netzbezug benoetigt.",
+    "missing_battery": "Fuer eine belastbare Empfehlung fehlen Batteriedaten.",
+    "insufficient_data": "Fuer eine belastbare Empfehlung fehlen Energiedaten.",
+    "already_ready": "Die Sauna hat die geplante Zieltemperatur bereits erreicht.",
+    "target_time_missed": "Die Wunschzeit ist nicht mehr erreichbar."
   },
   "heatingStatus": {
     "off": "Aus",

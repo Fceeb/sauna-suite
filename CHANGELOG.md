@@ -9,6 +9,26 @@ versioning once releases begin.
 
 No unreleased changes yet.
 
+## [0.6.0-alpha.1]
+
+### Added
+
+- Added read-only Energy Intelligence for PV, battery, grid and sauna load sensors.
+- Added normalized grid and battery sign-convention configuration.
+- Added battery capacity, reserve and usable-energy estimates.
+- Added sauna heat-up and approximate session energy estimates.
+- Added planned sauna ready time and recommended manual start time.
+- Added deterministic PV persistence factor and PV/battery/grid source split.
+- Added qualitative planning confidence and localized deterministic recommendations.
+- Added visual-editor fields and German/English translations for all Energy Intelligence settings.
+
+### Alpha Notes
+
+- Energy Intelligence is planning and display only.
+- No battery charging, battery discharging, inverter mode, PV curtailment, automatic sauna start or heater regulation is implemented.
+- PV contribution is a simple near-term assumption based on current PV power and the configured persistence factor, not a weather forecast.
+- Source split estimates are planning assumptions and do not claim precise physical energy routing.
+
 ## [0.5.0-alpha.1]
 
 ### Added

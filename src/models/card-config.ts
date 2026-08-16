@@ -36,6 +36,14 @@ export const MEDIA_NOTIFICATION_MODES = ['tts', 'media'] as const;
 
 export type MediaNotificationMode = (typeof MEDIA_NOTIFICATION_MODES)[number];
 
+export const GRID_POWER_POSITIVE_MEANS = ['import', 'export'] as const;
+
+export type GridPowerPositiveMeans = (typeof GRID_POWER_POSITIVE_MEANS)[number];
+
+export const BATTERY_POWER_POSITIVE_MEANS = ['charging', 'discharging'] as const;
+
+export type BatteryPowerPositiveMeans = (typeof BATTERY_POWER_POSITIVE_MEANS)[number];
+
 export interface SaunaSuiteCardConfig {
   type: typeof CARD_TYPE;
   name?: string;
@@ -98,4 +106,27 @@ export interface SaunaSuiteCardConfig {
   media_notification_stop_on_acknowledge: boolean;
   media_notification_restore_volume: boolean;
   tts_entity?: string;
+  energy_intelligence_enabled: boolean;
+  pv_power_entity?: string;
+  home_power_entity?: string;
+  grid_power_entity?: string;
+  grid_power_positive_means: GridPowerPositiveMeans;
+  battery_soc_entity?: string;
+  battery_power_entity?: string;
+  battery_power_positive_means: BatteryPowerPositiveMeans;
+  battery_capacity_kwh: number;
+  battery_minimum_reserve_percent: number;
+  sauna_power_entity?: string;
+  sauna_rated_power_kw: number;
+  planned_sauna_enabled: boolean;
+  planned_sauna_time: string;
+  planned_target_temperature?: number | undefined;
+  expected_session_duration_minutes: number;
+  pv_persistence_factor: number;
+  show_energy_recommendation: boolean;
+  show_optimal_start_time: boolean;
+  show_estimated_energy_need: boolean;
+  show_expected_battery_soc: boolean;
+  show_pv_contribution: boolean;
+  show_grid_contribution: boolean;
 }

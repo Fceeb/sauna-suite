@@ -42,6 +42,7 @@ The card displays:
 - effective heater power display from fixed kW or approximate general power sensor mode
 - optional visual RGB status and ready-temperature signaling through one Home Assistant light entity
 - optional media-player ready notifications and unified ready-event acknowledgement
+- read-only Energy Intelligence metrics for PV, battery, grid and planned sauna sessions
 
 For calculated control-temperature modes, the card intentionally disables the
 trend and ETA history instead of showing one physical sensor history as a
@@ -50,9 +51,10 @@ the rendering layer and feed the trend and ETA model with already calculated
 samples.
 
 The card layer must not contain automatic heater switching, temperature
-regulation, battery optimization or other safety-sensitive workflows. RGB and
-media notifications are visual/audio signaling only and do not influence heater
-state.
+regulation, battery optimization or other safety-sensitive workflows. Energy
+Intelligence is display-only and must not call inverter, battery, charger, PV
+or sauna-heater actuator services. RGB and media notifications are visual/audio
+signaling only and do not influence heater state.
 
 ## Editor Layer
 
@@ -100,6 +102,42 @@ median-based outlier filtering. `src/core/heating-eta.ts` calculates a
 deterministic ETA from remaining temperature, measured rate, outside-temperature
 context and effective heater power. ETA corrections are bounded and no machine
 learning or persistent learning model is used.
+
+`src/core/energy-normalization.ts` normalizes W/kW, Wh/kWh, percentages and
+grid/battery sign conventions. Internally, grid power is positive for import
+and negative for export; battery power is positive for discharge and negative
+for charging.
+
+`src/core/energy-state.ts` builds a normalized read-only snapshot from optional
+PV, home, grid, battery and sauna load sensors. It calculates battery reserve,
+available energy and usable energy above reserve without guessing missing
+optional entities.
+
+`src/core/sauna-energy-estimate.ts` estimates heat-up energy from the existing
+ETA when available and separates approximate session holding energy. Its
+thermal fallback is deterministic and requires current temperature, target
+temperature and heater power.
+
+`src/core/sauna-start-planner.ts` consumes the normalized energy state and
+energy estimate to produce planner outputs: desired ready time, recommended
+start time, qualitative confidence, deterministic recommendation reasons and
+PV/battery/grid source split. It deliberately has no actuator/control layer:
+
+```text
+Energy Sensors
+      |
+      v
+Normalized Energy State
+      |
+      v
+Energy Planner
+      |
+      v
+Recommendation
+      |
+      X
+No actuator/control layer in this release
+```
 
 ## Service Layer
 
