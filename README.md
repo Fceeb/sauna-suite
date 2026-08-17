@@ -5,7 +5,7 @@ modular and HACS-compatible sauna dashboard experience.
 
 This repository currently contains a Lovelace custom card named
 `custom:sauna-suite-card` with manual controls, multi-zone temperature
-monitoring, target-temperature adjustment, a redesigned compact interface, a Recorder-backed trend for direct sensor modes and a deterministic heat-up ETA estimate.
+monitoring, target-temperature adjustment, a redesigned compact interface, a Recorder-backed trend for direct sensor modes, a deterministic heat-up ETA estimate and a read-only Energy Intelligence planning section.
 It can also optionally control one Home Assistant color-capable `light` entity
 for visual RGB status signaling and a ready-temperature signal.
 
@@ -13,11 +13,11 @@ for visual RGB status signaling and a ready-temperature signal.
 
 ## Alpha Status
 
-Version `0.5.0-alpha.1` is the current HACS-installable alpha release. It adds unified ready-event acknowledgement and optional media-player ready notifications without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
+Version `0.6.0-alpha.1` prepares the next HACS-installable alpha release. It adds read-only Energy Intelligence for PV, battery, grid and planned sauna-session estimates without adding automatic equipment control. Expect breaking changes while the dashboard model and editor mature.
 
 This version provides manual user controls and monitoring only. It does not
 automatically switch the sauna heater, regulate temperature, run schedules,
-play audio alarms, start schedules or optimize energy, PV or battery usage.
+start schedules or control energy, PV, inverter or battery equipment.
 RGB support is visual signaling only and never switches, regulates or
 influences the sauna heater.
 Audio/media notifications are also signaling only.
@@ -185,6 +185,29 @@ media_notification_repeat: true
 media_notification_repeat_interval_seconds: 60
 media_notification_stop_on_acknowledge: true
 media_notification_restore_volume: true
+energy_intelligence_enabled: true
+pv_power_entity: sensor.pv_power
+home_power_entity: sensor.home_power
+home_power_includes_sauna: false
+grid_power_entity: sensor.grid_power
+grid_power_positive_means: import
+battery_soc_entity: sensor.battery_soc
+battery_power_entity: sensor.battery_power
+battery_power_positive_means: charging
+battery_capacity_kwh: 9.8
+battery_minimum_reserve_percent: 30
+sauna_power_entity: sensor.sauna_power
+sauna_rated_power_kw: 9
+planned_sauna_enabled: true
+planned_sauna_time: '19:00'
+expected_session_duration_minutes: 90
+pv_persistence_factor: 0.5
+show_energy_recommendation: true
+show_optimal_start_time: true
+show_estimated_energy_need: true
+show_expected_battery_soc: true
+show_pv_contribution: true
+show_grid_contribution: true
 ```
 
 Supported `control_temperature_mode` values:
@@ -248,6 +271,73 @@ shown as "Ready".
 
 This feature remains monitoring and manual-control only. It does not switch,
 regulate or schedule sauna equipment automatically.
+
+## Energy Intelligence
+
+Energy Intelligence is a read-only planning layer. It analyzes configured PV,
+battery, grid and sauna load sensors and shows estimates for energy need,
+recommended start time, source split and battery state after the planned sauna
+session. It never calls battery, inverter, charger, PV or sauna-heater control
+services.
+
+Power sensors support W and kW. Grid and battery sign conventions are
+configurable because integrations differ:
+
+- `grid_power_positive_means: import` means positive grid power is grid import
+  and negative grid power is export.
+- `grid_power_positive_means: export` flips that interpretation.
+- `battery_power_positive_means: charging` means positive battery power is
+  charging and is normalized internally to negative battery power.
+- `battery_power_positive_means: discharging` means positive battery power is
+  discharge and stays positive internally.
+
+Internally, normalized `gridPowerKw` is positive for grid import and negative
+for grid export. Normalized `batteryPowerKw` is positive for battery discharge
+and negative for charging.
+
+Battery planning uses the configured capacity and minimum reserve. For example,
+with a 10 kWh battery, 80% SOC and 20% reserve, Sauna Suite treats 6 kWh as
+usable for planning. Estimates never consume below the configured reserve.
+
+PV contribution is a conservative deterministic assumption, not a weather
+forecast. `pv_persistence_factor` is clamped from 0.0 to 1.0 and multiplies the
+currently available PV surplus for near-term planning. Sauna Suite estimates
+PV surplus as current PV generation minus non-sauna home load. If no home power
+sensor is configured, the planner does not claim gross PV generation as
+available sauna energy.
+
+Set `home_power_includes_sauna: true` only when the configured
+`home_power_entity` includes the sauna load. In that case Sauna Suite subtracts
+the current sauna load from home power before estimating non-sauna home load.
+The default `false` is conservative and treats home power as non-sauna load,
+which avoids overstating PV contribution when sensor semantics are uncertain.
+
+With 6 kW current PV, 5 kW non-sauna home load and factor 0.5, the planner uses
+0.5 kW as the planning assumption. With 6 kW current PV, 0 kW home load and
+factor 0.5, it uses 3 kW for the planning window.
+
+Sauna energy need is estimated as heat-up energy plus approximate session
+holding energy. When Recorder-based ETA is available, heat-up energy is:
+
+```text
+effective_heater_power_kw * estimated_heatup_hours
+```
+
+If ETA is unavailable but current temperature, target temperature and heater
+power are available, a deterministic thermal fallback is used. Holding
+temperature consumption is approximate and based on the configured expected
+session duration.
+
+Planned sauna sessions use `planned_sauna_time`, for example `19:00`, to show a
+desired ready time and recommended manual start time. If the ETA changes while
+heating, the displayed recommendation updates with the next render. The card
+does not start the sauna automatically.
+
+The source split estimates how much of the expected sauna energy could be
+covered by PV surplus, battery and grid under these assumptions. It uses the
+configured expected session duration for both total sauna energy and PV/source
+planning duration. It does not claim precise physical energy routing and does
+not control energy flows.
 
 ## RGB Status And Ready Signal
 

@@ -3,7 +3,9 @@ import { property, state } from 'lit/decorators.js';
 
 import {
   ACKNOWLEDGEMENT_MODES,
+  BATTERY_POWER_POSITIVE_MEANS,
   CONTROL_TEMPERATURE_MODES,
+  GRID_POWER_POSITIVE_MEANS,
   HEATING_POWER_MODES,
   MEDIA_NOTIFICATION_MODES,
   READY_SIGNAL_COLORS,
@@ -540,6 +542,225 @@ export class SaunaSuiteEditor extends LitElement {
       }
     }
 
+    const energySections: EditorSection[] = [
+      {
+        titleKey: 'editor.sections.energyIntelligence',
+        schema: [
+          this.booleanField(
+            'energy_intelligence_enabled',
+            'editor.energyIntelligenceEnabled',
+            'editor.energyIntelligenceEnabledDescription',
+          ),
+        ],
+      },
+    ];
+
+    if (this.config.energy_intelligence_enabled) {
+      const batteryFields: HaFormSchema[] = [
+        this.entityField(
+          'battery_soc_entity',
+          'editor.batterySocEntity',
+          'editor.batterySocEntityDescription',
+          [{ domain: 'sensor', device_class: 'battery' }],
+        ),
+        this.powerSensorField(
+          'battery_power_entity',
+          'editor.batteryPowerEntity',
+          'editor.batteryPowerEntityDescription',
+        ),
+        {
+          name: 'battery_power_positive_means',
+          label: this.t('editor.batteryPowerPositiveMeans'),
+          description: this.t('editor.batteryPowerPositiveMeansDescription'),
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: BATTERY_POWER_POSITIVE_MEANS.map((mode) => ({
+                value: mode,
+                label: this.t(`batteryPowerPositiveMeans.${mode}`),
+              })),
+            },
+          },
+        },
+      ];
+
+      if (this.config.battery_soc_entity || this.config.battery_power_entity) {
+        batteryFields.push(
+          this.numberField(
+            'battery_capacity_kwh',
+            'editor.batteryCapacityKwh',
+            'editor.batteryCapacityKwhDescription',
+            0.1,
+            200,
+            0.1,
+          ),
+          this.numberField(
+            'battery_minimum_reserve_percent',
+            'editor.batteryMinimumReservePercent',
+            'editor.batteryMinimumReservePercentDescription',
+            0,
+            100,
+            1,
+          ),
+        );
+      }
+
+      energySections.push(
+        {
+          titleKey: 'editor.sections.energyPv',
+          schema: [
+            this.powerSensorField(
+              'pv_power_entity',
+              'editor.pvPowerEntity',
+              'editor.pvPowerEntityDescription',
+            ),
+            this.numberField(
+              'pv_persistence_factor',
+              'editor.pvPersistenceFactor',
+              'editor.pvPersistenceFactorDescription',
+              0,
+              1,
+              0.05,
+            ),
+          ],
+        },
+        {
+          titleKey: 'editor.sections.energyBattery',
+          schema: batteryFields,
+        },
+        {
+          titleKey: 'editor.sections.energyGrid',
+          schema: [
+            this.powerSensorField(
+              'grid_power_entity',
+              'editor.gridPowerEntity',
+              'editor.gridPowerEntityDescription',
+            ),
+            {
+              name: 'grid_power_positive_means',
+              label: this.t('editor.gridPowerPositiveMeans'),
+              description: this.t('editor.gridPowerPositiveMeansDescription'),
+              selector: {
+                select: {
+                  mode: 'dropdown',
+                  options: GRID_POWER_POSITIVE_MEANS.map((mode) => ({
+                    value: mode,
+                    label: this.t(`gridPowerPositiveMeans.${mode}`),
+                  })),
+                },
+              },
+            },
+            this.powerSensorField(
+              'home_power_entity',
+              'editor.homePowerEntity',
+              'editor.homePowerEntityDescription',
+            ),
+            ...(this.config.home_power_entity
+              ? [
+                  this.booleanField(
+                    'home_power_includes_sauna',
+                    'editor.homePowerIncludesSauna',
+                    'editor.homePowerIncludesSaunaDescription',
+                  ),
+                ]
+              : []),
+          ],
+        },
+        {
+          titleKey: 'editor.sections.energySaunaLoad',
+          schema: [
+            this.powerSensorField(
+              'sauna_power_entity',
+              'editor.saunaPowerEntity',
+              'editor.saunaPowerEntityDescription',
+            ),
+            this.numberField(
+              'sauna_rated_power_kw',
+              'editor.saunaRatedPowerKw',
+              'editor.saunaRatedPowerKwDescription',
+              0,
+              50,
+              0.1,
+            ),
+            this.numberField(
+              'expected_session_duration_minutes',
+              'editor.expectedSessionDurationMinutes',
+              'editor.expectedSessionDurationMinutesDescription',
+              1,
+              720,
+              5,
+            ),
+          ],
+        },
+        {
+          titleKey: 'editor.sections.energyPlannedSession',
+          schema: [
+            this.booleanField(
+              'planned_sauna_enabled',
+              'editor.plannedSaunaEnabled',
+              'editor.plannedSaunaEnabledDescription',
+            ),
+          ],
+        },
+      );
+
+      const plannedSessionSection = energySections.at(-1);
+
+      if (this.config.planned_sauna_enabled && plannedSessionSection) {
+        plannedSessionSection.schema.push(
+          this.textField(
+            'planned_sauna_time',
+            'editor.plannedSaunaTime',
+            'editor.plannedSaunaTimeDescription',
+          ),
+          this.numberField(
+            'planned_target_temperature',
+            'editor.plannedTargetTemperature',
+            'editor.plannedTargetTemperatureDescription',
+            0,
+            140,
+            1,
+          ),
+        );
+      }
+
+      energySections.push({
+        titleKey: 'editor.sections.energyDisplay',
+        schema: [
+          this.booleanField(
+            'show_energy_recommendation',
+            'editor.showEnergyRecommendation',
+            'editor.showEnergyRecommendationDescription',
+          ),
+          this.booleanField(
+            'show_optimal_start_time',
+            'editor.showOptimalStartTime',
+            'editor.showOptimalStartTimeDescription',
+          ),
+          this.booleanField(
+            'show_estimated_energy_need',
+            'editor.showEstimatedEnergyNeed',
+            'editor.showEstimatedEnergyNeedDescription',
+          ),
+          this.booleanField(
+            'show_expected_battery_soc',
+            'editor.showExpectedBatterySoc',
+            'editor.showExpectedBatterySocDescription',
+          ),
+          this.booleanField(
+            'show_pv_contribution',
+            'editor.showPvContribution',
+            'editor.showPvContributionDescription',
+          ),
+          this.booleanField(
+            'show_grid_contribution',
+            'editor.showGridContribution',
+            'editor.showGridContributionDescription',
+          ),
+        ],
+      });
+    }
+
     return [
       {
         titleKey: 'editor.sections.general',
@@ -622,6 +843,7 @@ export class SaunaSuiteEditor extends LitElement {
         titleKey: 'editor.sections.mediaNotification',
         schema: mediaFields,
       },
+      ...energySections,
       {
         titleKey: 'editor.sections.safety',
         schema: [
@@ -681,6 +903,16 @@ export class SaunaSuiteEditor extends LitElement {
   ): HaFormSchema {
     return this.entityField(name, labelKey, descriptionKey, [
       { domain: 'sensor', device_class: 'temperature' },
+    ]);
+  }
+
+  private powerSensorField(
+    name: keyof SaunaSuiteCardConfig,
+    labelKey: string,
+    descriptionKey: string,
+  ): HaFormSchema {
+    return this.entityField(name, labelKey, descriptionKey, [
+      { domain: 'sensor', device_class: 'power' },
     ]);
   }
 

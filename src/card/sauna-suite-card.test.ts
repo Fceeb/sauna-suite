@@ -640,6 +640,64 @@ describe('SaunaSuiteCard', () => {
       entity_id: 'input_boolean.sauna_ack',
     });
   });
+
+  it('renders energy intelligence without sending service calls', async () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const card = createCard();
+
+    card.setConfig({
+      energy_intelligence_enabled: true,
+      planned_sauna_enabled: true,
+      planned_sauna_time: '19:00',
+      pv_power_entity: 'sensor.pv_power',
+      battery_soc_entity: 'sensor.battery_soc',
+      battery_capacity_kwh: 10,
+      battery_minimum_reserve_percent: 20,
+      sauna_rated_power_kw: 9,
+      temperature_top_entity: 'sensor.sauna_top',
+      target_temperature_entity: 'number.sauna_target',
+      control_temperature_mode: 'top',
+      show_temperature_trend: false,
+      rgb_enabled: false,
+      media_notification_enabled: false,
+    });
+    card.hass = createHass(
+      {
+        'sensor.sauna_top': createTemperatureEntity('sensor.sauna_top', '50'),
+        'number.sauna_target': createTemperatureEntity('number.sauna_target', '80'),
+        'sensor.pv_power': createPowerEntity('sensor.pv_power', '6000', 'W'),
+        'sensor.battery_soc': createEntity('sensor.battery_soc', '80', {
+          device_class: 'battery',
+          unit_of_measurement: '%',
+        }),
+      },
+      callService,
+    );
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+
+    expect(getText(card)).toContain('Energy Intelligence');
+    expect(getText(card)).toContain('PV');
+    expect(getText(card)).toContain('Battery after');
+    expect(callService).not.toHaveBeenCalled();
+  });
+
+  it('renders energy intelligence safely without hass in previews', async () => {
+    const card = createCard();
+
+    card.setConfig({
+      energy_intelligence_enabled: true,
+      planned_sauna_enabled: true,
+      show_temperature_trend: false,
+    });
+    document.body.append(card);
+
+    await expectUpdateComplete(card);
+
+    expect(getText(card)).toContain('Energy Intelligence');
+    expect(fetchTemperatureHistory).not.toHaveBeenCalled();
+  });
 });
 
 interface HistoryTestApi {
@@ -705,6 +763,13 @@ function createMediaPlayerEntity(entityId: string, state: string): HassEntity {
   return createEntity(entityId, state, {
     friendly_name: 'Sauna HomePod',
     volume_level: 0.25,
+  });
+}
+
+function createPowerEntity(entityId: string, state: string, unit: string): HassEntity {
+  return createEntity(entityId, state, {
+    device_class: 'power',
+    unit_of_measurement: unit,
   });
 }
 

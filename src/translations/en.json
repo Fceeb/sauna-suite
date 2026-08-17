@@ -39,6 +39,18 @@
     "acknowledgeReadySignal": "Acknowledge",
     "notificationStatus": "Ready notification"
   },
+  "energy": {
+    "title": "Energy Intelligence",
+    "readyAt": "Ready at",
+    "recommendedStart": "Start",
+    "energyNeed": "Energy",
+    "batterySoc": "Battery",
+    "batteryAfter": "Battery after",
+    "pvContribution": "PV",
+    "batteryContribution": "Battery",
+    "gridContribution": "Grid",
+    "recommendation": "Recommendation"
+  },
   "editor": {
     "cardName": "Card name",
     "cardNameDescription": "Title shown in the card header.",
@@ -62,7 +74,14 @@
       "heatingEta": "Heating ETA",
       "rgbReadySignal": "RGB",
       "acknowledgement": "Acknowledgement",
-      "mediaNotification": "Audio / Media Player"
+      "mediaNotification": "Audio / Media Player",
+      "energyIntelligence": "Energy Intelligence",
+      "energyPv": "Energy Intelligence - PV",
+      "energyBattery": "Energy Intelligence - Battery",
+      "energyGrid": "Energy Intelligence - Grid",
+      "energySaunaLoad": "Energy Intelligence - Sauna load",
+      "energyPlannedSession": "Energy Intelligence - Planned sauna session",
+      "energyDisplay": "Energy Intelligence - Display"
     },
     "showOutsideTemperature": "Show outside temperature",
     "showOutsideTemperatureDescription": "Display the outside temperature when an entity is configured.",
@@ -171,7 +190,55 @@
     "mediaNotificationRestoreVolume": "Restore previous volume",
     "mediaNotificationRestoreVolumeDescription": "Restore the media-player volume captured before the notification.",
     "ttsEntity": "TTS entity",
-    "ttsEntityDescription": "Home Assistant tts entity used with the standard tts.speak service."
+    "ttsEntityDescription": "Home Assistant tts entity used with the standard tts.speak service.",
+    "energyIntelligenceEnabled": "Enable Energy Intelligence",
+    "energyIntelligenceEnabledDescription": "Show read-only PV, battery, grid and planning recommendations. No entities are controlled.",
+    "pvPowerEntity": "PV power entity",
+    "pvPowerEntityDescription": "Current PV production sensor. W and kW units are supported.",
+    "pvPersistenceFactor": "PV persistence factor",
+    "pvPersistenceFactorDescription": "Conservative fraction of current PV power used for near-term planning.",
+    "batterySocEntity": "Battery SOC entity",
+    "batterySocEntityDescription": "Battery state-of-charge sensor.",
+    "batteryPowerEntity": "Battery power entity",
+    "batteryPowerEntityDescription": "Signed battery power sensor. Configure the sign convention below.",
+    "batteryPowerPositiveMeans": "Positive battery power means",
+    "batteryPowerPositiveMeansDescription": "How positive values from the battery power sensor should be interpreted.",
+    "batteryCapacityKwh": "Storage capacity (kWh)",
+    "batteryCapacityKwhDescription": "Usable nominal storage capacity used for planning estimates.",
+    "batteryMinimumReservePercent": "Battery reserve (%)",
+    "batteryMinimumReservePercentDescription": "Minimum SOC reserve that planning estimates must not consume.",
+    "gridPowerEntity": "Grid power entity",
+    "gridPowerEntityDescription": "Signed grid power sensor. Configure the sign convention below.",
+    "gridPowerPositiveMeans": "Positive grid power means",
+    "gridPowerPositiveMeansDescription": "How positive values from the grid power sensor should be interpreted.",
+    "homePowerEntity": "Home power entity",
+    "homePowerEntityDescription": "Optional current home consumption sensor.",
+    "homePowerIncludesSauna": "Home power includes sauna",
+    "homePowerIncludesSaunaDescription": "Enable only when the home power sensor includes the sauna load. Disabled is conservative and treats home power as non-sauna load.",
+    "saunaPowerEntity": "Sauna power entity",
+    "saunaPowerEntityDescription": "Optional current sauna load sensor. W and kW units are supported.",
+    "saunaRatedPowerKw": "Sauna rated power (kW)",
+    "saunaRatedPowerKwDescription": "Fixed rated sauna-heater power used when no sauna load sensor is available.",
+    "expectedSessionDurationMinutes": "Sauna duration",
+    "expectedSessionDurationMinutesDescription": "Expected session duration used for approximate holding-temperature energy.",
+    "plannedSaunaEnabled": "Plan a sauna session",
+    "plannedSaunaEnabledDescription": "Calculate a read-only recommended start time for a desired ready time.",
+    "plannedSaunaTime": "Desired ready time",
+    "plannedSaunaTimeDescription": "Target ready time in HH:mm format, for example 19:00.",
+    "plannedTargetTemperature": "Planned target temperature",
+    "plannedTargetTemperatureDescription": "Optional planning target temperature. The configured target entity is used when empty.",
+    "showEnergyRecommendation": "Show recommendation",
+    "showEnergyRecommendationDescription": "Display one concise deterministic energy-planning recommendation.",
+    "showOptimalStartTime": "Show recommended start",
+    "showOptimalStartTimeDescription": "Display the calculated heater start time. This does not start the sauna.",
+    "showEstimatedEnergyNeed": "Show energy need",
+    "showEstimatedEnergyNeedDescription": "Display estimated heat-up plus session energy.",
+    "showExpectedBatterySoc": "Show battery after sauna",
+    "showExpectedBatterySocDescription": "Display estimated battery SOC after the sauna session.",
+    "showPvContribution": "Show PV contribution",
+    "showPvContributionDescription": "Display the simple PV planning contribution estimate.",
+    "showGridContribution": "Show grid contribution",
+    "showGridContributionDescription": "Display estimated remaining grid energy."
   },
   "modes": {
     "average": "Average",
@@ -243,6 +310,39 @@
   "mediaNotificationModes": {
     "tts": "Text to speech",
     "media": "Media"
+  },
+  "gridPowerPositiveMeans": {
+    "import": "Import",
+    "export": "Export"
+  },
+  "batteryPowerPositiveMeans": {
+    "charging": "Charging",
+    "discharging": "Discharging"
+  },
+  "energyPlannerStatus": {
+    "start_now": "Start now",
+    "wait": "Wait",
+    "planned": "Planned",
+    "insufficient_data": "Insufficient data",
+    "already_ready": "Already ready",
+    "target_time_missed": "Target time missed"
+  },
+  "energyConfidence": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "unavailable": "Unavailable"
+  },
+  "energyRecommendations": {
+    "optimal_start": "Optimal start around {start}.",
+    "start_now_for_target": "For the desired ready time {ready}, the sauna should be started now.",
+    "pv_contribution": "At the current PV yield, a large part of heating can be planned as solar.",
+    "battery_sufficient": "The battery is expected to be sufficient without going below the configured reserve.",
+    "grid_needed": "The sauna session is expected to need about {grid} from the grid.",
+    "missing_battery": "Battery data is missing for a robust recommendation.",
+    "insufficient_data": "More energy data is needed for a robust recommendation.",
+    "already_ready": "The sauna is already at the planned target temperature.",
+    "target_time_missed": "The desired ready time is no longer reachable."
   },
   "heatingStatus": {
     "off": "Off",

@@ -116,6 +116,7 @@ export const cardStyles = css`
   .hero,
   .target-control,
   .trend-panel,
+  .energy-panel,
   .notification-status,
   .rgb-status {
     background:
@@ -302,6 +303,52 @@ export const cardStyles = css`
     min-height: 42px;
   }
 
+  .energy-panel {
+    background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
+    gap: 12px;
+  }
+
+  .energy-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .energy-metric {
+    background: color-mix(
+      in srgb,
+      var(--ha-card-background, var(--card-background-color)) 70%,
+      transparent
+    );
+    border-radius: 14px;
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    padding: 10px;
+  }
+
+  .energy-metric span,
+  .energy-recommendation .label {
+    color: var(--secondary-text-color);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .energy-metric strong {
+    color: var(--primary-text-color);
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+
+  .energy-recommendation {
+    color: var(--primary-text-color);
+    display: grid;
+    font-size: 13px;
+    gap: 4px;
+    line-height: 1.4;
+  }
+
   .target-control {
     background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
   }
@@ -434,6 +481,10 @@ export const cardStyles = css`
 
     .zone-grid {
       grid-template-columns: 1fr;
+    }
+
+    .energy-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 

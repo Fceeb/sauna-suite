@@ -138,6 +138,55 @@ describe('SaunaSuiteEditor', () => {
     );
     expect(getSchemaNames(editor)).not.toContain('tts_entity');
   });
+
+  it('shows energy intelligence fields conditionally', () => {
+    const editor = createEditor();
+
+    editor.setConfig({ energy_intelligence_enabled: false });
+    expect(getSchemaNames(editor)).toContain('energy_intelligence_enabled');
+    expect(getSchemaNames(editor)).not.toContain('pv_power_entity');
+
+    editor.setConfig({
+      energy_intelligence_enabled: true,
+      planned_sauna_enabled: false,
+    });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining([
+        'pv_power_entity',
+        'battery_soc_entity',
+        'grid_power_entity',
+        'home_power_entity',
+        'sauna_rated_power_kw',
+        'planned_sauna_enabled',
+        'show_energy_recommendation',
+      ]),
+    );
+    expect(getSchemaNames(editor)).not.toContain('home_power_includes_sauna');
+    expect(getSchemaNames(editor)).not.toContain('battery_capacity_kwh');
+    expect(getSchemaNames(editor)).not.toContain('planned_sauna_time');
+
+    editor.setConfig({
+      energy_intelligence_enabled: true,
+      home_power_entity: 'sensor.home_power',
+      planned_sauna_enabled: false,
+    });
+    expect(getSchemaNames(editor)).toContain('home_power_includes_sauna');
+
+    editor.setConfig({
+      energy_intelligence_enabled: true,
+      battery_soc_entity: 'sensor.battery_soc',
+      planned_sauna_enabled: false,
+    });
+    expect(getSchemaNames(editor)).toEqual(
+      expect.arrayContaining(['battery_capacity_kwh', 'battery_minimum_reserve_percent']),
+    );
+
+    editor.setConfig({
+      energy_intelligence_enabled: true,
+      planned_sauna_enabled: true,
+    });
+    expect(getSchemaNames(editor)).toContain('planned_sauna_time');
+  });
 });
 
 interface EditorSectionTestApi {

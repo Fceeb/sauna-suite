@@ -52,13 +52,17 @@
 
 ## Phase 7: Optimization
 
+- Read-only Energy Intelligence for PV, battery, grid and sauna load sensors
+- Planned sauna ready time with recommended manual start time
+- Estimated PV, battery and grid contribution for a sauna session
+- Battery reserve-aware planning estimates
 - Deeper power analytics beyond the first ETA estimate
 - Aggregated calculated-mode history for ETA and trend
-- PV and battery-storage optimization
-- Planned sauna sessions
+- Future PV and battery-storage optimization after safety review
 
 ## Phase 8: Optional Control
 
 - Optional Home Assistant temperature control
+- Optional energy optimizer control layer after explicit design review
 - Safety review before implementation
 - Explicit user confirmation and clear documentation
